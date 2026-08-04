@@ -1,22 +1,22 @@
 # ConsoleRender
 
-Ein TUI-Framework für .NET: volle Kontrolle über die Konsolenausgabe, doppelt gepuffert,
-mit GUI-ähnlichen Steuerelementen, Anker-Layout, Slash-Befehlen und Copy/Paste für Text und Bilder.
+A TUI framework for .NET: full control over the console output, double-buffered, with GUI-like
+controls, anchor-based layout, slash commands and clipboard support for text and images.
 
-Keine externen Abhängigkeiten außer [Ardalis.GuardClauses](https://github.com/ardalis/GuardClauses).
+No dependencies beyond [Ardalis.GuardClauses](https://github.com/ardalis/GuardClauses).
 
 ```
-╔═ ConsoleRender ═ TUI-Framework für .NET ═╗
-  ⠋ bereit                                        F1 Hilfe · Tab Fokus · Strg+Q Ende
-┌─ Steuerelemente ───────────────┐┌─ Ausgabe ───────────────────┐┌─ ASCII-Grafik ─────┐
-│Menü                            ││Willkommen bei ConsoleRender!││   ____             │
-│› Übersicht                     ││                             ││  / ___|___  _ __   │
-│  Farben & Effekte              ││Tab wechselt den Fokus.      ││ | |   / _ \| '_ \  │
+╔═ ConsoleRender ═ a TUI framework for .NET ═╗
+  ⠋ ready                                         F1 help · Tab focus · Ctrl+Q quit
+┌─ Controls ─────────────────────┐┌─ Output ────────────────────┐┌─ ASCII art ────────┐
+│Menu                            ││Welcome to ConsoleRender!    ││   ____             │
+│› Overview                      ││                             ││  / ___|___  _ __   │
+│  Colors & effects              ││Tab moves the focus.         ││ | |   / _ \| '_ \  │
 │                                ││                             ││ | |__| (_) | | | | │
-│Optionen                        ││                             ││  \____\___/|_| |_| │
-│[x] Farbige Ausgabe             ││                             ││                    │
+│Options                         ││                             ││  \____\___/|_| |_| │
+│[x] Colored output              ││                             ││                    │
 └────────────────────────────────┘└─────────────────────────────┘└────────────────────┘
-┌─ Eingabe ──────────────────────────────────────────────────────────────────────────┐
+┌─ Input ────────────────────────────────────────────────────────────────────────────┐
 │› /help                                                                             │
 └────────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -27,16 +27,16 @@ Keine externen Abhängigkeiten außer [Ardalis.GuardClauses](https://github.com/
 dotnet add package ConsoleRender
 ```
 
-Die Bibliothek zielt auf `net8.0` und läuft damit auch unter .NET 9 und 10.
+The library targets `net8.0` and therefore also runs on .NET 9 and 10.
 
-## Schnellstart
+## Quick start
 
 ```csharp
 using ConsoleRender;
 
 using var app = new ConsoleApp();
 
-var frame = new Frame("Beispiel")
+var frame = new Frame("Example")
 {
     Left = 0, Top = 0, Right = 0, Bottom = 3,
     BorderColor = Color.Cyan,
@@ -47,111 +47,110 @@ frame.Add(output);
 
 var input = new CommandInput { Left = 0, Right = 0, Bottom = 0, Height = 1 };
 input.Submitted += text => output.AppendLine(text, Color.Green);
-input.Commands.Register("exit", "Beendet die Anwendung", _ => app.Exit());
+input.Commands.Register("exit", "Exits the application", _ => app.Exit());
 
 app.Root.AddRange(frame, input);
-app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.Q), "Beenden", app.Exit);
+app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.Q), "Quit", app.Exit);
 app.SetFocus(input);
 app.Run();
 ```
 
 ## Rendering
 
-Gezeichnet wird immer in einen Rückpuffer. `Present` vergleicht ihn Zelle für Zelle mit dem
-Vorderpuffer und schickt nur die tatsächlich geänderten Zellen als ANSI-Sequenzen an das Terminal —
-kein Flackern, kein Neuzeichnen des ganzen Bildschirms.
+Drawing always goes into a back buffer. `Present` compares it cell by cell against the front
+buffer and sends only the cells that actually changed to the terminal as ANSI sequences — no
+flicker, no repainting of the whole screen.
 
-* 24-Bit-Farben (`Color.Rgb`, `Color.FromHsv`, `Color.Lerp`)
-* Stilflags: fett, dünn, kursiv, unterstrichen, blinkend, invers, durchgestrichen
-* Alternativer Bildschirmpuffer — nach dem Beenden ist das Terminal wieder unverändert
-* Automatische VT-Aktivierung unter Windows
-* Automatische Skalierung: das Layout wird bei jeder Größenänderung des Fensters neu berechnet
-* Kind-Elemente werden am Inhaltsbereich ihres Elternteils abgeschnitten
+* 24-bit color (`Color.Rgb`, `Color.FromHsv`, `Color.Lerp`)
+* Style flags: bold, dim, italic, underline, blink, reverse, strikethrough
+* Alternate screen buffer — the terminal is left untouched after the app exits
+* VT processing is enabled automatically on Windows
+* Automatic rescaling: the layout is recomputed whenever the window is resized
+* Children are clipped to their parent's content area
 
-## Layout mit Ankern
+## Anchor-based layout
 
-Jedes Element kennt `Left`, `Top`, `Right`, `Bottom`, `Width` und `Height` — alle optional.
+Every control has `Left`, `Top`, `Right`, `Bottom`, `Width` and `Height` — all optional.
 
-| Gesetzt | Verhalten |
+| Set | Behaviour |
 | --- | --- |
-| nur `Left` | fester Abstand zum linken Rand |
-| nur `Right` | fester Abstand zum rechten Rand |
-| `Left` **und** `Right` | Element wird beim Resize mitgedehnt |
-| keiner von beiden | `HorizontalAlignment` entscheidet (links, zentriert, rechts) |
+| `Left` only | fixed distance from the left edge |
+| `Right` only | fixed distance from the right edge |
+| `Left` **and** `Right` | the control stretches when the terminal is resized |
+| neither | `HorizontalAlignment` decides (left, center, right) |
 
-Vertikal gilt dasselbe mit `Top`/`Bottom` und `VerticalAlignment`. `Width`/`Height` überschreiben
-immer die natürliche Größe des Elements.
+The same applies vertically with `Top`/`Bottom` and `VerticalAlignment`. `Width`/`Height` always
+override the control's natural size.
 
-## Elemente
+## Controls
 
-| Element | Zweck |
+| Control | Purpose |
 | --- | --- |
-| `Label` | Textausgabe mit Farben, Stilen und Effekten (`Blink`, `Rainbow`, `Pulse`) |
-| `OutputField` | scrollbares, farbiges Mehrzeilen-Log mit Schreibmaschineneffekt; umgebrochene Zeilen behalten ihren Einzug |
-| `TextBox` | einzeiliges Eingabefeld mit Cursor, Scrolling und Zwischenablage |
-| `CommandInput` | `TextBox` mit `/befehl`-Auswertung und Tab-Vervollständigung |
-| `Frame` | Rahmen mit Titel; fünf Rahmenstile |
-| `Panel` | unsichtbarer Container zum Gruppieren und Ausrichten |
-| `InfoBox` | modale Meldung mit einer einzigen Art, sie wegzuklicken |
-| `ConfirmDialog` | modale Rückfrage mit mehreren Antworten als Schaltflächenreihe |
-| `Button` | beschriftete Aktion, mit Enter oder Leertaste ausgelöst |
-| `Checkbox` | einzelne Ja/Nein-Option |
-| `RadioGroup` | Optionsgruppe mit genau einer Auswahl |
-| `SelectMenu` | scrollbares Auswahlmenü |
-| `Spinner` | animierte Aktivitätsanzeige |
-| `AsciiArt` | ASCII-Grafiken, einfarbig oder als farbiges Zeichenraster |
+| `Label` | text output with colors, styles and effects (`Blink`, `Rainbow`, `Pulse`) |
+| `OutputField` | scrollable, colored multi-line log with a typewriter effect; wrapped lines keep their indent |
+| `TextBox` | single-line input with caret, scrolling, clipboard and an optional border |
+| `CommandInput` | a `TextBox` that runs `/command` input and completes names with Tab |
+| `Frame` | a titled border; five border styles |
+| `Panel` | invisible container for grouping and positioning |
+| `InfoBox` | modal message with a single way out |
+| `ConfirmDialog` | modal question offering several answers as a row of buttons |
+| `Button` | a labelled action, triggered with Enter or Space |
+| `Checkbox` | a single yes/no option |
+| `RadioGroup` | option group with exactly one selection |
+| `SelectMenu` | scrollable selection list |
+| `Spinner` | animated activity indicator |
+| `AsciiArt` | ASCII art, single-colored or as a colored glyph grid |
 
-## Befehlseingabe
+## Slash commands
 
 ```csharp
-input.Commands.Register("color", "Färbt eine Zeile: /color <name> <text>", args => { /* … */ });
+input.Commands.Register("color", "Colors a line: /color <name> <text>", args => { /* … */ });
 ```
 
-`CommandRegistry` zerlegt die Eingabe in Tokens (doppelte Anführungszeichen gruppieren Wörter),
-sucht den Befehl und meldet Fehler als `CommandResult` zurück, statt eine Exception nach oben
-durchzureichen. Tab vervollständigt Befehlsnamen, solange die Eingabe mit `/` beginnt.
+`CommandRegistry` splits the input into tokens (double quotes group words together), looks the
+command up and reports failures as a `CommandResult` instead of letting an exception escape. Tab
+completes command names while the input starts with `/`.
 
-## Tastenkürzel
+## Key bindings
 
 ```csharp
-app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.S), "Speichern", Save);
-app.KeyBindings.Register(ConsoleKey.F1, "Hilfe", ShowHelp);
+app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.S), "Save", Save);
+app.KeyBindings.Register(ConsoleKey.F1, "Help", ShowHelp);
 ```
 
-Globale Kürzel werden vor dem fokussierten Element geprüft. `app.KeyBindings.All` liefert alle
-registrierten Kürzel samt Beschreibung — praktisch für einen `/help`-Befehl.
+Global shortcuts are checked before the focused control sees the key. `app.KeyBindings.All`
+returns every registered shortcut with its description — handy for a `/help` command.
 
-Eingebaut in den Elementen: Tab/Shift+Tab wechselt den Fokus, Pfeiltasten bewegen Auswahlen,
-Leertaste schaltet um, Bild auf/ab scrollt die Ausgabe, Strg+C/Strg+V kopiert und fügt ein.
+Built into the controls: Tab/Shift+Tab moves the focus, arrow keys move selections, Space
+toggles, Page Up/Down scrolls the output, Ctrl+C/Ctrl+V copy and paste.
 
-Für häufige Aktionen ist ein Tastenkürzel einem `Button` vorzuziehen: es kostet weder Bildfläche
-noch einen Tab-Stopp. Schaltflächen lohnen sich dort, wo die Auswahlmöglichkeiten selbst sichtbar
-sein müssen — dafür gibt es den `ConfirmDialog`.
+For anything done often, prefer a key binding over a `Button`: it costs neither screen space nor
+a Tab stop. Buttons earn their place where the available choices themselves need to be visible —
+which is what `ConfirmDialog` is for.
 
-## Rückfragen
+## Asking a question
 
 ```csharp
-app.ShowConfirm("Beenden", "Änderungen speichern?",
-    ["Speichern", "Verwerfen", "Abbrechen"],
+app.ShowConfirm("Quit", "Save your changes?",
+    ["Save", "Discard", "Cancel"],
     (index, label) => { /* … */ });
 ```
 
-Der Dialog steuert die Auswahl selbst, statt jede Schaltfläche einzeln in den Fokuszyklus zu
-hängen: Pfeiltasten links/rechts wandern durch die Antworten, Enter bestätigt, Escape bricht ab.
-Die ganze Rückfrage bleibt damit ein einziger Tab-Stopp, und die Hervorhebung zeigt, welche
-Antwort vorbelegt ist.
+The dialog steers the selection itself instead of putting every button into the focus cycle:
+left/right arrows move along the answers, Enter confirms, Escape cancels. That keeps the whole
+question a single Tab stop, and the highlight shows which answer is preselected.
 
-Eigene Dialoge leiten von `ModalControl` ab und rufen `Close()` auf, wenn sie verschwinden
-wollen — wie sie angezeigt wurden, müssen sie nicht wissen.
+Custom dialogs derive from `ModalControl` and call `Close()` when they want to go away — they
+never need to know how they were presented.
 
-## Eigene Container
+## Custom containers
 
-Wer die Kinder eines Containers programmgesteuert anordnen will, statt sie einzeln mit Ankern zu
-versehen, überschreibt `ArrangeChildren()`. Der Haken läuft, sobald die eigenen `Bounds` feststehen,
-und noch bevor sich die Kinder selbst ausmessen — dort gesetzte Anker greifen also im selben
-Layoutdurchlauf. `ConfirmDialog` zentriert damit seine Schaltflächenreihe.
+To arrange a container's children programmatically instead of anchoring each one, override
+`ArrangeChildren()`. The hook runs once the container's own `Bounds` are known and before the
+children measure themselves, so anchors set there take effect in the same layout pass.
+`ConfirmDialog` uses it to center its button row.
 
-## Zwischenablage und Bilder
+## Clipboard and images
 
 ```csharp
 if (Clipboard.TryGetImage(out var image))
@@ -160,71 +159,71 @@ else if (Clipboard.TryGetText(out string text))
     output.AppendLine(text);
 ```
 
-Unter Windows werden Text (`CF_UNICODETEXT`) und Bilder (`CF_DIB`, 24/32 Bit) direkt über Win32
-gelesen; Bilder werden mit Helligkeitsrampe und Zellenseitenverhältnis in farbige ASCII-Art
-umgerechnet. Unter Linux/macOS gibt es einen Textfallback über `xclip` bzw. `pbcopy`/`pbpaste`.
+On Windows, text (`CF_UNICODETEXT`) and images (`CF_DIB`, 24/32 bit) are read directly through
+Win32; images are converted to colored ASCII art using a brightness ramp and the cell aspect
+ratio. On Linux and macOS there is a text-only fallback via `xclip` and `pbcopy`/`pbpaste`.
 
-## Demo
+## Sample application
 
 ```bash
 dotnet run --project samples/ConsoleRender.Demo
 ```
 
-Die Demo zeigt alle Elemente gleichzeitig und kennt die Befehle `/help`, `/echo`, `/clear`,
-`/color`, `/info`, `/typewriter`, `/paste`, `/copy`, `/logo`, `/busy` und `/exit`.
+The sample shows every control at once and knows the commands `/help`, `/echo`, `/clear`,
+`/color`, `/info`, `/confirm`, `/border`, `/typewriter`, `/paste`, `/copy`, `/logo`, `/busy`
+and `/exit`. Its user interface is in German.
 
-Ein einzelnes Bild lässt sich ohne interaktives Terminal rendern — nützlich für Snapshots:
+A single frame can be rendered without an interactive terminal, which is useful for snapshots:
 
 ```bash
 ConsoleRender.Demo --snapshot 120 32
 ```
 
-Dasselbe steht als API zur Verfügung: `app.RenderOffscreen(width, height).ToText()`.
+The same is available as an API: `app.RenderOffscreen(width, height).ToText()`.
 
-## Argumentprüfung
+## Argument checking
 
-Alle öffentlichen Methoden prüfen ihre Argumente mit Guard Clauses und melden ungültige Werte
-sofort als `ArgumentException`, statt später mit einem verzerrten Layout zu überraschen.
-Ausgenommen ist der Zeichen-Hot-Path (`ConsoleBuffer`-Indexer und `Set`), wo Clipping die
-definierte Semantik ist.
+Every public method validates its arguments with guard clauses and reports invalid values right
+away as an `ArgumentException`, rather than surprising you later with a skewed layout. The
+drawing hot path is excluded (`ConsoleBuffer`'s indexer and `Set`), where clipping is the defined
+behaviour.
 
-## Veröffentlichen
+## Releasing
 
-Der Workflow unter `.github/workflows/ci.yml` baut und testet jeden Pull Request auf Linux und
-Windows. Bei jedem Push auf `main` — also auch bei jedem Merge — läuft zusätzlich der
-Veröffentlichungsschritt und schickt das Paket an nuget.org.
+The workflow in `.github/workflows/ci.yml` builds and tests every pull request on Linux and
+Windows. On every push to `main` — that is, on every merge — the publish job additionally sends
+the package to nuget.org.
 
-**Eine neue Version erscheint nur, wenn `<Version>` in `src/ConsoleRender/ConsoleRender.csproj`
-erhöht wurde.** Der Push benutzt `--skip-duplicate`: ist die Version auf nuget.org schon
-vorhanden, wird sie stillschweigend übersprungen und der Merge bleibt grün. Ein Release besteht
-damit aus genau einem Schritt — Versionsnummer im csproj anheben und mergen.
+**A new version only appears when `<Version>` in `src/ConsoleRender/ConsoleRender.csproj` has
+been raised.** The push uses `--skip-duplicate`: if the version already exists on nuget.org it is
+silently skipped and the merge stays green. A release therefore takes exactly one step — raise
+the version in the csproj and merge.
 
-Es wird kein dauerhafter API-Schlüssel gespeichert. Der Workflow nutzt **Trusted Publishing**:
-GitHub stellt für den Job ein signiertes OIDC-Token aus, nuget.org prüft es gegen eine hinterlegte
-Richtlinie und gibt dafür einen Schlüssel zurück, der eine Stunde gilt. Es gibt also kein Secret,
-das auslaufen, verloren gehen oder abfließen kann.
+No long-lived API key is stored. The workflow uses **trusted publishing**: GitHub issues a signed
+OIDC token for the job, nuget.org validates it against a registered policy and hands back a key
+that is valid for one hour. There is no secret that can expire, get lost or leak.
 
-Einmalig einzurichten ist nur die Richtlinie auf nuget.org unter *Trusted Publishing*:
+The only one-time setup is the policy on nuget.org under *Trusted Publishing*:
 
-| Feld | Wert |
+| Field | Value |
 | --- | --- |
 | Package Owner | `hopp1395` |
 | Repository Owner | `hopp1395` |
 | Repository | `console-render` |
 | Workflow File | `ci.yml` |
-| Environment | leer |
+| Environment | empty |
 
-Der Job braucht dafür die Berechtigung `id-token: write`, die in `ci.yml` gesetzt ist.
+The job needs the `id-token: write` permission for this, which is set in `ci.yml`.
 
-Lokal lässt sich dasselbe Paket erzeugen mit:
+The same package can be built locally with:
 
 ```bash
 dotnet pack src/ConsoleRender -c Release -o artifacts
 ```
 
-Neben dem `.nupkg` entsteht ein `.snupkg` mit den Symbolen; zusammen mit SourceLink kann man aus
-einem konsumierenden Projekt heraus in die Quellen des Pakets hineindebuggen.
+Alongside the `.nupkg` a `.snupkg` with the symbols is produced; together with SourceLink you can
+step into the package's sources from a consuming project.
 
-## Lizenz
+## License
 
 MIT
