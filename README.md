@@ -87,7 +87,7 @@ immer die natürliche Größe des Elements.
 | Element | Zweck |
 | --- | --- |
 | `Label` | Textausgabe mit Farben, Stilen und Effekten (`Blink`, `Rainbow`, `Pulse`) |
-| `OutputField` | scrollbares, farbiges Mehrzeilen-Log mit Schreibmaschineneffekt |
+| `OutputField` | scrollbares, farbiges Mehrzeilen-Log mit Schreibmaschineneffekt; umgebrochene Zeilen behalten ihren Einzug |
 | `TextBox` | einzeiliges Eingabefeld mit Cursor, Scrolling und Zwischenablage |
 | `CommandInput` | `TextBox` mit `/befehl`-Auswertung und Tab-Vervollständigung |
 | `Frame` | Rahmen mit Titel; fünf Rahmenstile |

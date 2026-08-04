@@ -41,6 +41,12 @@ internal static class Program
             int width = args.Length > 1 ? int.Parse(args[1]) : 120;
             int height = args.Length > 2 ? int.Parse(args[2]) : 32;
             ui.ApplyResponsiveLayout(width);
+
+            // "--run /help" führt einen Befehl aus, bevor das Bild gerendert wird.
+            int runIndex = Array.IndexOf(args, "--run");
+            if (runIndex >= 0 && runIndex + 1 < args.Length)
+                ui.Input.Commands.Execute(args[runIndex + 1]);
+
             if (args.Contains("--modal"))
                 app.ShowInfo("Information", "Eine modale Infobox. Der Hintergrund wird abgedunkelt.");
             if (args.Contains("--confirm"))

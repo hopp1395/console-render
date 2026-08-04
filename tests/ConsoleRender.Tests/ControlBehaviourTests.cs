@@ -190,6 +190,42 @@ public class ControlBehaviourTests
     }
 
     [Fact]
+    public void OutputField_ContinuationRowsKeepTheIndentOfTheirLine()
+    {
+        var field = new OutputField { Left = 0, Top = 0, Width = 8, Height = 3 };
+        field.AppendLine("  abcdefghijkl");
+
+        Assert.Equal(
+            "  abcdef\n" +
+            "  ghijkl\n" +
+            "        ",
+            Render(field, 8, 3).ToText());
+    }
+
+    [Fact]
+    public void OutputField_UnindentedLinesStillWrapToTheLeftEdge()
+    {
+        var field = new OutputField { Left = 0, Top = 0, Width = 4, Height = 2 };
+        field.AppendLine("abcdefgh");
+
+        Assert.Equal("abcd\nefgh", Render(field, 4, 2).ToText());
+    }
+
+    [Fact]
+    public void OutputField_IndentWiderThanTheFieldStillMakesProgress()
+    {
+        var field = new OutputField { Left = 0, Top = 0, Width = 3, Height = 3 };
+        field.AppendLine("      xyz");
+
+        // The six-space indent is capped to half the field, so text keeps flowing.
+        Assert.Equal(
+            "   \n" +
+            "  x\n" +
+            " yz",
+            Render(field, 3, 3).ToText());
+    }
+
+    [Fact]
     public void OutputField_MaxLines_RejectsNonPositiveValues()
     {
         var field = new OutputField();

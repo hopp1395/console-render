@@ -150,7 +150,20 @@ public class OutputField : Control
             rows.Add(("", line.Color));
             return;
         }
-        for (int pos = 0; pos < text.Length; pos += width)
-            rows.Add((text.Substring(pos, Math.Min(width, text.Length - pos)), line.Color));
+
+        // Continuation rows start where the text started, so an indented line keeps its
+        // shape instead of falling back to the left edge on every wrap.
+        int indent = 0;
+        while (indent < text.Length && text[indent] == ' ')
+            indent++;
+        // Cap the indent at half the field, so a continuation row always carries at least as
+        // many characters as padding — and a deeply indented line still terminates.
+        indent = Math.Min(indent, width / 2);
+        string padding = new(' ', indent);
+        int chunk = width - indent;
+
+        rows.Add((text[..Math.Min(width, text.Length)], line.Color));
+        for (int pos = width; pos < text.Length; pos += chunk)
+            rows.Add((padding + text.Substring(pos, Math.Min(chunk, text.Length - pos)), line.Color));
     }
 }
