@@ -98,7 +98,10 @@ override the control's natural size.
 | `Checkbox` | a single yes/no option |
 | `RadioGroup` | option group with exactly one selection |
 | `SelectMenu` | scrollable selection list |
+| `SearchBox` | selection list with a search input on top: typing filters the items, up/down move the highlight, Enter activates |
 | `Spinner` | animated activity indicator |
+| `ProgressBar` | horizontal progress bar with sub-cell precision, percentage overlay and an indeterminate sweep |
+| `TaskLine` | live log line from `OutputField.BeginTask`: a spinner animates while the task runs, `Complete`/`Fail` freeze it with ✓/✗ |
 | `AsciiArt` | ASCII art, single-colored or as a colored glyph grid |
 
 ## Slash commands
@@ -170,8 +173,8 @@ dotnet run --project samples/ConsoleRender.Demo
 ```
 
 The sample shows every control at once and knows the commands `/help`, `/echo`, `/clear`,
-`/color`, `/info`, `/confirm`, `/border`, `/typewriter`, `/paste`, `/copy`, `/logo`, `/busy`
-and `/exit`. Its user interface is in German.
+`/color`, `/info`, `/confirm`, `/border`, `/typewriter`, `/paste`, `/copy`, `/logo`, `/busy`,
+`/progress`, `/task` and `/exit`. Its user interface is in German.
 
 A single frame can be rendered without an interactive terminal, which is useful for snapshots:
 

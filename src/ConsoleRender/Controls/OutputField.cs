@@ -8,7 +8,7 @@ namespace ConsoleRender;
 /// </summary>
 public class OutputField : Control
 {
-    private readonly record struct Line(string Text, Color Color);
+    private readonly record struct Line(string Text, Color Color, TaskLine? Task = null);
 
     private readonly List<Line> lines = new();
     private readonly Queue<Line> pending = new();
@@ -18,6 +18,7 @@ public class OutputField : Control
     private int scrollOffset; // rows scrolled up from the bottom
     private int maxLines = 1000;
     private double typewriterSpeed = 160;
+    private double taskClock; // drives the spinners of running task lines
 
     /// <summary>Maximum number of retained lines; older lines are dropped.</summary>
     public int MaxLines
@@ -52,6 +53,21 @@ public class OutputField : Control
             Commit(line);
     }
 
+    /// <summary>
+    /// Appends a live task line: a spinner animates in front of the text while the task
+    /// runs, like a status indicator inside the log. The returned handle updates the text
+    /// and freezes the line via <see cref="TaskLine.Complete"/> or <see cref="TaskLine.Fail"/>.
+    /// Task lines skip the typewriter queue — the spinner itself is the feedback.
+    /// </summary>
+    public TaskLine BeginTask(string text)
+    {
+        Guard.Against.Null(text);
+
+        var task = new TaskLine(text);
+        Commit(new Line("", default, task));
+        return task;
+    }
+
     public void Clear()
     {
         lines.Clear();
@@ -70,6 +86,8 @@ public class OutputField : Control
     public override void Update(TimeSpan delta)
     {
         Guard.Against.Negative(delta);
+
+        taskClock += delta.TotalSeconds;
 
         if (revealing is null && pending.Count > 0)
         {
@@ -118,9 +136,20 @@ public class OutputField : Control
             buffer.FillRect(Bounds, ' ', Foreground, Background);
 
         // Wrap all lines (including the one currently being revealed) into display rows.
+        // Task lines take their current appearance from their handle each frame.
         var rows = new List<(string Text, Color Color)>();
         foreach (var line in lines)
-            WrapInto(rows, line);
+        {
+            if (line.Task is { } task)
+            {
+                var (text, color) = task.Render(taskClock);
+                WrapInto(rows, new Line(text, color));
+            }
+            else
+            {
+                WrapInto(rows, line);
+            }
+        }
         if (revealing is { } current)
             WrapInto(rows, new Line(current.Text[..Math.Min(revealCount, current.Text.Length)], current.Color));
 

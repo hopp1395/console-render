@@ -70,6 +70,7 @@ internal static class Program
         SelectMenu Menu,
         RadioGroup BorderChoice,
         Checkbox TypewriterOption,
+        ProgressBar Progress,
         IReadOnlyList<Frame> Frames,
         Action<int> ApplyResponsiveLayout);
 
@@ -142,6 +143,15 @@ internal static class Program
             Left = 0, Top = 13, Height = 4,
         };
 
+        var search = new SearchBox(
+            "Berlin", "Hamburg", "München", "Köln", "Frankfurt",
+            "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig")
+        {
+            Left = 0, Right = 0, Top = 19, Bottom = 0,
+            EmptyText = "keine Treffer",
+        };
+        search.Input.Placeholder = "Stadt suchen…";
+
         leftFrame.AddRange(
             new Label("Menü") { Left = 0, Top = 0, Foreground = Color.Yellow, Style = CellStyle.Bold },
             menu,
@@ -150,7 +160,9 @@ internal static class Program
             colorOption,
             pulseOption,
             new Label("Rahmenstil") { Left = 0, Top = 12, Foreground = Color.Yellow, Style = CellStyle.Bold },
-            borderChoice);
+            borderChoice,
+            new Label("Suche") { Left = 0, Top = 18, Foreground = Color.Yellow, Style = CellStyle.Bold },
+            search);
 
         // --- center column ---
         var output = new OutputField { Left = 0, Top = 0, Right = 0, Bottom = 0 };
@@ -167,7 +179,9 @@ internal static class Program
 
         var status = new Label("Bereit.") { Left = 1, Bottom = 0, Foreground = Color.DarkGray };
 
-        app.Root.AddRange(title, spinner, hint, leftFrame, centerFrame, rightFrame, input, status);
+        var progress = new ProgressBar { Right = 2, Bottom = 0, Width = 32, Height = 1 };
+
+        app.Root.AddRange(title, spinner, hint, leftFrame, centerFrame, rightFrame, input, status, progress);
 
         var frames = new[] { leftFrame, centerFrame, rightFrame };
 
@@ -232,8 +246,13 @@ internal static class Program
 
         menu.SelectionChanged += index => status.Text = $"Menü: {menu.Items[index]}";
 
+        search.ItemActivated += (_, item) =>
+            output.AppendLine($"Stadt gewählt: {item}", Color.Cyan);
+
+        search.SelectionChanged += (_, item) => status.Text = $"Suche: {item}";
+
         return new Ui(output, input, art, status, spinner, menu, borderChoice, typewriterOption,
-            frames, ApplyResponsiveLayout);
+            progress, frames, ApplyResponsiveLayout);
     }
 
     private static IEnumerable<string> DescribeTopic(string topic) => topic switch
@@ -372,6 +391,46 @@ internal static class Program
         {
             ui.Spinner.Active = !ui.Spinner.Active;
             ui.Spinner.Text = ui.Spinner.Active ? "arbeitet…" : "fertig";
+        });
+
+        commands.Register("progress", "Setzt den Fortschrittsbalken: /progress <0-100|endlos>", args =>
+        {
+            if (args.Length == 0 || args[0] is "endlos" or "marquee")
+            {
+                ui.Progress.Indeterminate = !ui.Progress.Indeterminate;
+                ui.Status.Text = ui.Progress.Indeterminate
+                    ? "Fortschritt: Endlosanimation."
+                    : "Fortschritt: bestimmt.";
+                return;
+            }
+            ui.Progress.Indeterminate = false;
+            ui.Progress.Value = double.Parse(args[0]);
+            ui.Status.Text = $"Fortschritt: {ui.Progress.Value:0} %";
+        });
+
+        commands.Register("task", "Simuliert eine Aufgabe mit Task-Zeile: /task [sekunden]", args =>
+        {
+            double total = args.Length > 0 ? double.Parse(args[0]) : 3;
+            Guard.Against.NegativeOrZero(total, nameof(args));
+
+            var task = ui.Output.BeginTask("Verarbeite Daten…");
+            ui.Progress.Indeterminate = false;
+            double done = 0;
+
+            void OnTick(TimeSpan delta)
+            {
+                done += delta.TotalSeconds;
+                double percent = Math.Min(100, done / total * 100);
+                ui.Progress.Value = percent;
+                task.Text = $"Verarbeite Daten… {percent:0} %";
+                if (done >= total)
+                {
+                    task.Complete($"Daten verarbeitet ({total:0.#} s).");
+                    app.Tick -= OnTick;
+                }
+            }
+
+            app.Tick += OnTick;
         });
 
         commands.Register("border", "Rahmen des Eingabefelds: /border <voll|linien|keiner>", args =>
