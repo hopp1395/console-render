@@ -14,9 +14,9 @@
 
   <PropertyGroup>
     <PackageId>ConsoleRender</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>ConsoleRender Contributors</Authors>
-    <Description>Doppelt gepuffertes TUI-Framework für .NET: GUI-ähnliche Steuerelemente, Anker-Layout, Slash-Befehle, Keybindings, Animationen, Copy/Paste von Text und Bildern.</Description>
+    <Description>A double-buffered TUI framework for .NET console applications: GUI-like controls (input fields, output logs, menus, checkboxes, radio groups, dialogs and frames), anchor-based layout that rescales with the terminal, slash commands with tab completion, global key bindings, text animations, and clipboard support for both text and images.</Description>
     <PackageTags>console;terminal;tui;ui;ansi;framework</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
