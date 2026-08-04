@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Bauen und testen (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Die Bibliothek soll plattformunabhängig bleiben, also wird sie auf beiden gebaut.
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Abhängigkeiten wiederherstellen
+        run: dotnet restore ConsoleRender.slnx
+
+      - name: Bauen
+        run: dotnet build ConsoleRender.slnx -c Release --no-restore
+
+      - name: Testen
+        run: dotnet test ConsoleRender.slnx -c Release --no-build
+
+  publish:
+    name: Nach nuget.org veröffentlichen
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: API-Schlüssel prüfen
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [ -z "$NUGET_API_KEY" ]; then
+            echo "::error::Das Repository-Secret NUGET_API_KEY fehlt."
+            echo "Anlegen unter: Settings -> Secrets and variables -> Actions -> New repository secret"
+            exit 1
+          fi
+
+      - name: Paket bauen
+        run: dotnet pack src/ConsoleRender/ConsoleRender.csproj -c Release -o artifacts
+
+      - name: Version ermitteln
+        id: version
+        run: |
+          package=$(ls artifacts/*.nupkg | head -n 1)
+          version=$(basename "$package" .nupkg | sed 's/^ConsoleRender\.//')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Paketversion: $version"
+
+      # --skip-duplicate lässt einen Merge ohne Versionssprung durchlaufen, statt ihn
+      # rot werden zu lassen. Veröffentlicht wird also erst, wenn <Version> im csproj steigt.
+      - name: Veröffentlichen
+        run: >
+          dotnet nuget push "artifacts/*.nupkg"
+          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - name: Zusammenfassung
+        run: |
+          echo "### ConsoleRender ${{ steps.version.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "An nuget.org gesendet. War die Version schon vorhanden, wurde sie übersprungen." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "<https://www.nuget.org/packages/ConsoleRender/${{ steps.version.outputs.version }}>" >> "$GITHUB_STEP_SUMMARY"

@@ -188,6 +188,31 @@ sofort als `ArgumentException`, statt später mit einem verzerrten Layout zu üb
 Ausgenommen ist der Zeichen-Hot-Path (`ConsoleBuffer`-Indexer und `Set`), wo Clipping die
 definierte Semantik ist.
 
+## Veröffentlichen
+
+Der Workflow unter `.github/workflows/ci.yml` baut und testet jeden Pull Request auf Linux und
+Windows. Bei jedem Push auf `main` — also auch bei jedem Merge — läuft zusätzlich der
+Veröffentlichungsschritt und schickt das Paket an nuget.org.
+
+**Eine neue Version erscheint nur, wenn `<Version>` in `src/ConsoleRender/ConsoleRender.csproj`
+erhöht wurde.** Der Push benutzt `--skip-duplicate`: ist die Version auf nuget.org schon
+vorhanden, wird sie stillschweigend übersprungen und der Merge bleibt grün. Ein Release besteht
+damit aus genau einem Schritt — Versionsnummer im csproj anheben und mergen.
+
+Einmalig einzurichten: auf nuget.org einen API-Schlüssel erzeugen und ihn im Repository unter
+*Settings → Secrets and variables → Actions* als `NUGET_API_KEY` hinterlegen. Fehlt er, bricht
+der Workflow mit einer entsprechenden Meldung ab, statt an einer unverständlichen Stelle zu
+scheitern.
+
+Lokal lässt sich dasselbe Paket erzeugen mit:
+
+```bash
+dotnet pack src/ConsoleRender -c Release -o artifacts
+```
+
+Neben dem `.nupkg` entsteht ein `.snupkg` mit den Symbolen; zusammen mit SourceLink kann man aus
+einem konsumierenden Projekt heraus in die Quellen des Pakets hineindebuggen.
+
 ## Lizenz
 
 MIT

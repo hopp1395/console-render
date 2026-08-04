@@ -20,9 +20,20 @@
     <PackageTags>console;terminal;tui;ui;ansi;framework</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Copyright>Copyright (c) 2026 ConsoleRender Contributors</Copyright>
     <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/hopp1395/console-render</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/hopp1395/console-render</PackageProjectUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- SourceLink ships with the SDK; these let a consumer step into the package's sources. -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+  </PropertyGroup>
+
+  <!-- A CI build records source paths as repository-relative, which makes it reproducible. -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
