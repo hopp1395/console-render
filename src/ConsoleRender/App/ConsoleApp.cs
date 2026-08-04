@@ -100,8 +100,12 @@ public sealed class ConsoleApp : IDisposable
 
         _focusBeforeModal.Push(FocusedControl);
         _modals.Add(modal);
-        if (modal is InfoBox box)
-            box.Closed += CloseTopModal;
+        if (modal is ModalControl dialog)
+        {
+            // Re-subscribing would close two modals per request if the same instance is reused.
+            dialog.CloseRequested -= CloseTopModal;
+            dialog.CloseRequested += CloseTopModal;
+        }
         RefreshFocusables();
         SetFocus(_focusables.FirstOrDefault() ?? modal);
         _renderer.Invalidate();
@@ -118,11 +122,32 @@ public sealed class ConsoleApp : IDisposable
         return box;
     }
 
+    /// <summary>
+    /// Shows a modal question. <paramref name="onChosen"/> receives the index and label of the
+    /// selected answer; Escape dismisses the dialog without calling it.
+    /// </summary>
+    public ConfirmDialog ShowConfirm(string title, string text, string[] options, Action<int, string> onChosen)
+    {
+        Guard.Against.Null(title);
+        Guard.Against.Null(text);
+        Guard.Against.NullOrEmpty(options);
+        Guard.Against.Null(onChosen);
+
+        var dialog = new ConfirmDialog(title, text, options);
+        dialog.Chosen += (index, label) => onChosen(index, label);
+        ShowDialog(dialog);
+        return dialog;
+    }
+
     /// <summary>Closes the topmost modal dialog, if any.</summary>
     public void CloseTopModal()
     {
         if (_modals.Count == 0) return;
+
+        var closing = _modals[^1];
         _modals.RemoveAt(_modals.Count - 1);
+        if (closing is ModalControl dialog)
+            dialog.CloseRequested -= CloseTopModal;
         RefreshFocusables();
 
         // Restore whatever had focus before the dialog opened, if it is still reachable.

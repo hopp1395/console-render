@@ -92,7 +92,9 @@ immer die natürliche Größe des Elements.
 | `CommandInput` | `TextBox` mit `/befehl`-Auswertung und Tab-Vervollständigung |
 | `Frame` | Rahmen mit Titel; fünf Rahmenstile |
 | `Panel` | unsichtbarer Container zum Gruppieren und Ausrichten |
-| `InfoBox` | modaler Dialog; der Hintergrund wird abgedunkelt |
+| `InfoBox` | modale Meldung mit einer einzigen Art, sie wegzuklicken |
+| `ConfirmDialog` | modale Rückfrage mit mehreren Antworten als Schaltflächenreihe |
+| `Button` | beschriftete Aktion, mit Enter oder Leertaste ausgelöst |
 | `Checkbox` | einzelne Ja/Nein-Option |
 | `RadioGroup` | Optionsgruppe mit genau einer Auswahl |
 | `SelectMenu` | scrollbares Auswahlmenü |
@@ -121,6 +123,33 @@ registrierten Kürzel samt Beschreibung — praktisch für einen `/help`-Befehl.
 
 Eingebaut in den Elementen: Tab/Shift+Tab wechselt den Fokus, Pfeiltasten bewegen Auswahlen,
 Leertaste schaltet um, Bild auf/ab scrollt die Ausgabe, Strg+C/Strg+V kopiert und fügt ein.
+
+Für häufige Aktionen ist ein Tastenkürzel einem `Button` vorzuziehen: es kostet weder Bildfläche
+noch einen Tab-Stopp. Schaltflächen lohnen sich dort, wo die Auswahlmöglichkeiten selbst sichtbar
+sein müssen — dafür gibt es den `ConfirmDialog`.
+
+## Rückfragen
+
+```csharp
+app.ShowConfirm("Beenden", "Änderungen speichern?",
+    ["Speichern", "Verwerfen", "Abbrechen"],
+    (index, label) => { /* … */ });
+```
+
+Der Dialog steuert die Auswahl selbst, statt jede Schaltfläche einzeln in den Fokuszyklus zu
+hängen: Pfeiltasten links/rechts wandern durch die Antworten, Enter bestätigt, Escape bricht ab.
+Die ganze Rückfrage bleibt damit ein einziger Tab-Stopp, und die Hervorhebung zeigt, welche
+Antwort vorbelegt ist.
+
+Eigene Dialoge leiten von `ModalControl` ab und rufen `Close()` auf, wenn sie verschwinden
+wollen — wie sie angezeigt wurden, müssen sie nicht wissen.
+
+## Eigene Container
+
+Wer die Kinder eines Containers programmgesteuert anordnen will, statt sie einzeln mit Ankern zu
+versehen, überschreibt `ArrangeChildren()`. Der Haken läuft, sobald die eigenen `Bounds` feststehen,
+und noch bevor sich die Kinder selbst ausmessen — dort gesetzte Anker greifen also im selben
+Layoutdurchlauf. `ConfirmDialog` zentriert damit seine Schaltflächenreihe.
 
 ## Zwischenablage und Bilder
 

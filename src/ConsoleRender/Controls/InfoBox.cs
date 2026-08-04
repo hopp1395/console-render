@@ -1,11 +1,12 @@
 namespace ConsoleRender;
 
 /// <summary>
-/// A bordered message box, typically shown as a modal dialog via
-/// <see cref="ConsoleApp.ShowDialog"/> or <see cref="ConsoleApp.ShowInfo"/>.
-/// Any of Enter/Escape/Space closes it.
+/// A bordered message box shown as a modal dialog via <see cref="ConsoleApp.ShowDialog"/>
+/// or <see cref="ConsoleApp.ShowInfo"/>. It states something and offers a single way out;
+/// use <see cref="ConfirmDialog"/> when the user has to choose.
+/// Enter, Escape or Space dismisses it.
 /// </summary>
-public class InfoBox : Control
+public class InfoBox : ModalControl
 {
     private string _title = "";
     private string _text = "";
@@ -41,18 +42,6 @@ public class InfoBox : Control
         set => _maxTextWidth = Guard.Against.NegativeOrZero(value);
     }
 
-    /// <summary>Raised when the box is closed.</summary>
-    public event Action? Closed;
-
-    public InfoBox()
-    {
-        Focusable = true;
-        HorizontalAlignment = HorizontalAlignment.Center;
-        VerticalAlignment = VerticalAlignment.Middle;
-    }
-
-    public void Close() => Closed?.Invoke();
-
     public override bool OnKey(ConsoleKeyInfo key)
     {
         if (key.Key is ConsoleKey.Enter or ConsoleKey.Escape or ConsoleKey.Spacebar)
@@ -63,36 +52,7 @@ public class InfoBox : Control
         return false;
     }
 
-    private IReadOnlyList<string> WrapText(int width)
-    {
-        Guard.Against.NegativeOrZero(width);
-
-        var lines = new List<string>();
-        foreach (string paragraph in Text.Replace("\r", "").Split('\n'))
-        {
-            if (paragraph.Length == 0)
-            {
-                lines.Add("");
-                continue;
-            }
-            var current = "";
-            foreach (string word in paragraph.Split(' '))
-            {
-                if (current.Length == 0)
-                    current = word;
-                else if (current.Length + 1 + word.Length <= width)
-                    current += " " + word;
-                else
-                {
-                    lines.Add(current);
-                    current = word;
-                }
-            }
-            if (current.Length > 0)
-                lines.Add(current);
-        }
-        return lines;
-    }
+    private IReadOnlyList<string> WrapText(int width) => TextWrap.Wrap(Text, width);
 
     protected override Size GetPreferredSize(Size available)
     {
@@ -111,7 +71,9 @@ public class InfoBox : Control
         buffer.DrawBorder(Bounds, Border, BorderColor, Background, Title, Color.Yellow);
 
         var inner = Bounds.Deflate(2, 1);
-        var lines = WrapText(Math.Max(1, inner.Width));
+        if (inner.Width <= 0) return;
+
+        var lines = WrapText(inner.Width);
         for (int i = 0; i < lines.Count && i < inner.Height; i++)
             buffer.Write(inner.X, inner.Y + i, lines[i], Foreground, Background);
 

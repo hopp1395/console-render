@@ -29,8 +29,12 @@ public abstract class Control
 
     public bool Visible { get; set; } = true;
 
-    /// <summary>Whether the control participates in Tab focus cycling and receives key input.</summary>
-    public bool Focusable { get; protected set; }
+    /// <summary>
+    /// Whether the control participates in Tab focus cycling and receives key input.
+    /// Controls that accept input set this themselves; clear it to take a control out of the
+    /// cycle — either to disable it, or because its container steers the selection instead.
+    /// </summary>
+    public bool Focusable { get; set; }
 
     /// <summary>True while this control has keyboard focus. Managed by <see cref="ConsoleApp"/>.</summary>
     public bool Focused { get; internal set; }
@@ -109,12 +113,22 @@ public abstract class Control
 
         Bounds = new Rect(x, y, w, h);
 
+        ArrangeChildren();
+
         foreach (var child in _children)
             child.PerformLayout(ContentRect);
     }
 
     /// <summary>Natural size of the control when no explicit size or stretching anchors are set.</summary>
     protected virtual Size GetPreferredSize(Size available) => new(10, 1);
+
+    /// <summary>
+    /// Hook for containers that position their children themselves instead of letting each
+    /// child's own anchors decide. Runs once this control's <see cref="Bounds"/> are known
+    /// and before the children lay themselves out, so setting child anchors here takes effect
+    /// in the same layout pass.
+    /// </summary>
+    protected virtual void ArrangeChildren() { }
 
     internal void Render(ConsoleBuffer buffer)
     {

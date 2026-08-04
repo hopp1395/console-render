@@ -43,6 +43,8 @@ internal static class Program
             ui.ApplyResponsiveLayout(width);
             if (args.Contains("--modal"))
                 app.ShowInfo("Information", "Eine modale Infobox. Der Hintergrund wird abgedunkelt.");
+            if (args.Contains("--confirm"))
+                app.ShowConfirm("Beenden", "Demo wirklich beenden?", ["Beenden", "Zurück"], (_, _) => { });
             Console.WriteLine(app.RenderOffscreen(width, height).ToText());
             return;
         }
@@ -366,7 +368,24 @@ internal static class Program
             ui.Spinner.Text = ui.Spinner.Active ? "arbeitet…" : "fertig";
         });
 
-        commands.Register("exit", "Beendet die Demo", _ => app.Exit());
+        commands.Register("confirm", "Zeigt einen Rückfragedialog", _ =>
+            app.ShowConfirm("Rückfrage", "Änderungen vor dem Beenden speichern?",
+                ["Speichern", "Verwerfen", "Abbrechen"],
+                (_, label) => ui.Output.AppendLine($"Gewählt: {label}", Color.Cyan)));
+
+        commands.Register("exit", "Beendet die Demo", _ => ConfirmExit(app, ui));
+    }
+
+    /// <summary>Asks before quitting — the case a button row handles better than a shortcut.</summary>
+    private static void ConfirmExit(ConsoleApp app, Ui ui)
+    {
+        app.ShowConfirm("Beenden", "Demo wirklich beenden?", ["Beenden", "Zurück"], (index, _) =>
+        {
+            if (index == 0)
+                app.Exit();
+            else
+                ui.Status.Text = "Beenden abgebrochen.";
+        });
     }
 
     private static void WireKeyBindings(ConsoleApp app, Ui ui)
@@ -385,7 +404,7 @@ internal static class Program
                 "Befehle beginnen mit /  — Tab vervollständigt sie.",
             })));
 
-        app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.Q), "Beenden", app.Exit);
+        app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.Q), "Beenden", () => ConfirmExit(app, ui));
 
         app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.L), "Ausgabe leeren", () =>
         {
