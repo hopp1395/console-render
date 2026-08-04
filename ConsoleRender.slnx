@@ -5,4 +5,7 @@
   <Folder Name="/src/">
     <Project Path="src/ConsoleRender/ConsoleRender.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ConsoleRender.Tests/ConsoleRender.Tests.csproj" />
+  </Folder>
 </Solution>
