@@ -199,10 +199,22 @@ erhöht wurde.** Der Push benutzt `--skip-duplicate`: ist die Version auf nuget.
 vorhanden, wird sie stillschweigend übersprungen und der Merge bleibt grün. Ein Release besteht
 damit aus genau einem Schritt — Versionsnummer im csproj anheben und mergen.
 
-Einmalig einzurichten: auf nuget.org einen API-Schlüssel erzeugen und ihn im Repository unter
-*Settings → Secrets and variables → Actions* als `NUGET_API_KEY` hinterlegen. Fehlt er, bricht
-der Workflow mit einer entsprechenden Meldung ab, statt an einer unverständlichen Stelle zu
-scheitern.
+Es wird kein dauerhafter API-Schlüssel gespeichert. Der Workflow nutzt **Trusted Publishing**:
+GitHub stellt für den Job ein signiertes OIDC-Token aus, nuget.org prüft es gegen eine hinterlegte
+Richtlinie und gibt dafür einen Schlüssel zurück, der eine Stunde gilt. Es gibt also kein Secret,
+das auslaufen, verloren gehen oder abfließen kann.
+
+Einmalig einzurichten ist nur die Richtlinie auf nuget.org unter *Trusted Publishing*:
+
+| Feld | Wert |
+| --- | --- |
+| Package Owner | `hopp1395` |
+| Repository Owner | `hopp1395` |
+| Repository | `console-render` |
+| Workflow File | `ci.yml` |
+| Environment | leer |
+
+Der Job braucht dafür die Berechtigung `id-token: write`, die in `ci.yml` gesetzt ist.
 
 Lokal lässt sich dasselbe Paket erzeugen mit:
 

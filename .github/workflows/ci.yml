@@ -41,22 +41,18 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
+    permissions:
+      # Trusted Publishing: GitHub stellt ein signiertes OIDC-Token aus, das nuget.org
+      # gegen einen kurzlebigen Schlüssel tauscht. Kein dauerhaftes Secret nötig.
+      id-token: write
+      contents: read
+
     steps:
       - uses: actions/checkout@v7
 
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
-
-      - name: API-Schlüssel prüfen
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: |
-          if [ -z "$NUGET_API_KEY" ]; then
-            echo "::error::Das Repository-Secret NUGET_API_KEY fehlt."
-            echo "Anlegen unter: Settings -> Secrets and variables -> Actions -> New repository secret"
-            exit 1
-          fi
 
       - name: Paket bauen
         run: dotnet pack src/ConsoleRender/ConsoleRender.csproj -c Release -o artifacts
@@ -69,12 +65,19 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "Paketversion: $version"
 
+      # Der geholte Schlüssel gilt nur eine Stunde, deshalb erst kurz vor dem Push.
+      - name: Kurzlebigen Schlüssel holen
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: hopp1395
+
       # --skip-duplicate lässt einen Merge ohne Versionssprung durchlaufen, statt ihn
       # rot werden zu lassen. Veröffentlicht wird also erst, wenn <Version> im csproj steigt.
       - name: Veröffentlichen
         run: >
           dotnet nuget push "artifacts/*.nupkg"
-          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --api-key "${{ steps.login.outputs.NUGET_API_KEY }}"
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
 
