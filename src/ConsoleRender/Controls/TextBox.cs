@@ -6,11 +6,11 @@ namespace ConsoleRender;
 /// </summary>
 public class TextBox : Control
 {
-    private int _cursor;
-    private int _scroll;
+    private int cursor;
+    private int scroll;
 
-    private string _placeholder = "";
-    private BorderStyle _border = BorderStyle.Single;
+    private string placeholder = "";
+    private BorderStyle border = BorderStyle.Single;
 
     public string Text { get; private set; } = "";
 
@@ -24,8 +24,8 @@ public class TextBox : Control
     /// <summary>Characters used for the border. Only takes effect with a <see cref="BorderMode"/>.</summary>
     public BorderStyle Border
     {
-        get => _border;
-        set => _border = Guard.Against.Null(value);
+        get => border;
+        set => border = Guard.Against.Null(value);
     }
 
     public Color BorderColor { get; set; } = Color.Default;
@@ -33,8 +33,8 @@ public class TextBox : Control
     /// <summary>Hint text shown while the box is empty and unfocused.</summary>
     public string Placeholder
     {
-        get => _placeholder;
-        set => _placeholder = Guard.Against.Null(value);
+        get => placeholder;
+        set => placeholder = Guard.Against.Null(value);
     }
 
     public Color Foreground { get; set; } = Color.Default;
@@ -76,7 +76,7 @@ public class TextBox : Control
         Guard.Against.Null(text);
 
         Text = text;
-        _cursor = text.Length;
+        cursor = text.Length;
         TextChanged?.Invoke(Text);
     }
 
@@ -90,35 +90,35 @@ public class TextBox : Control
                 OnSubmit(Text);
                 return true;
             case ConsoleKey.LeftArrow:
-                _cursor = Math.Max(0, _cursor - 1);
+                cursor = Math.Max(0, cursor - 1);
                 return true;
             case ConsoleKey.RightArrow:
-                _cursor = Math.Min(Text.Length, _cursor + 1);
+                cursor = Math.Min(Text.Length, cursor + 1);
                 return true;
             case ConsoleKey.Home:
-                _cursor = 0;
+                cursor = 0;
                 return true;
             case ConsoleKey.End:
-                _cursor = Text.Length;
+                cursor = Text.Length;
                 return true;
             case ConsoleKey.Backspace:
-                if (_cursor > 0)
+                if (cursor > 0)
                 {
-                    Text = Text.Remove(_cursor - 1, 1);
-                    _cursor--;
+                    Text = Text.Remove(cursor - 1, 1);
+                    cursor--;
                     TextChanged?.Invoke(Text);
                 }
                 return true;
             case ConsoleKey.Delete:
-                if (_cursor < Text.Length)
+                if (cursor < Text.Length)
                 {
-                    Text = Text.Remove(_cursor, 1);
+                    Text = Text.Remove(cursor, 1);
                     TextChanged?.Invoke(Text);
                 }
                 return true;
             case ConsoleKey.U when ctrl:
                 Text = "";
-                _cursor = 0;
+                cursor = 0;
                 TextChanged?.Invoke(Text);
                 return true;
             case ConsoleKey.C when ctrl:
@@ -159,8 +159,8 @@ public class TextBox : Control
     {
         Guard.Against.Null(s);
 
-        Text = Text.Insert(_cursor, s);
-        _cursor += s.Length;
+        Text = Text.Insert(cursor, s);
+        cursor += s.Length;
         TextChanged?.Invoke(Text);
     }
 
@@ -179,9 +179,9 @@ public class TextBox : Control
 
         // Keep the cursor visible by scrolling horizontally.
         int visible = Math.Max(1, area.Width - 1);
-        if (_cursor < _scroll) _scroll = _cursor;
-        if (_cursor > _scroll + visible) _scroll = _cursor - visible;
-        _scroll = Math.Clamp(_scroll, 0, Math.Max(0, Text.Length - 1));
+        if (cursor < scroll) scroll = cursor;
+        if (cursor > scroll + visible) scroll = cursor - visible;
+        scroll = Math.Clamp(scroll, 0, Math.Max(0, Text.Length - 1));
 
         if (Text.Length == 0 && !Focused && Placeholder.Length > 0)
         {
@@ -190,15 +190,15 @@ public class TextBox : Control
             return;
         }
 
-        string view = Text.Length > _scroll ? Text[_scroll..] : "";
+        string view = Text.Length > scroll ? Text[scroll..] : "";
         buffer.Write(area.X, area.Y, Truncate(view, area.Width), Foreground, Background);
 
         if (Focused)
         {
-            int cx = area.X + (_cursor - _scroll);
+            int cx = area.X + (cursor - scroll);
             if (cx >= area.X && cx < area.Right)
             {
-                char under = _cursor < Text.Length ? Text[_cursor] : ' ';
+                char under = cursor < Text.Length ? Text[cursor] : ' ';
                 buffer.Set(cx, area.Y, under, Foreground, Background, CellStyle.Reverse);
             }
         }

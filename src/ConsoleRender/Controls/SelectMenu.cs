@@ -5,7 +5,7 @@ namespace ConsoleRender;
 /// </summary>
 public class SelectMenu : Control
 {
-    private int _scroll;
+    private int scroll;
 
     public List<string> Items { get; } = new();
     public int SelectedIndex { get; set; }
@@ -71,12 +71,12 @@ public class SelectMenu : Control
         if (Bounds.Height < 1) return;
 
         // Keep selection in view.
-        if (SelectedIndex < _scroll) _scroll = SelectedIndex;
-        if (SelectedIndex >= _scroll + Bounds.Height) _scroll = SelectedIndex - Bounds.Height + 1;
+        if (SelectedIndex < scroll) scroll = SelectedIndex;
+        if (SelectedIndex >= scroll + Bounds.Height) scroll = SelectedIndex - Bounds.Height + 1;
 
         for (int row = 0; row < Bounds.Height; row++)
         {
-            int i = _scroll + row;
+            int i = scroll + row;
             if (i >= Items.Count) break;
             bool selected = i == SelectedIndex;
             var fg = selected ? AccentColor : Foreground;

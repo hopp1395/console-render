@@ -8,25 +8,25 @@ namespace ConsoleRender;
 /// </summary>
 public sealed class Renderer
 {
-    private ConsoleBuffer _back;
-    private ConsoleBuffer _front;
-    private readonly StringBuilder _sb = new(16 * 1024);
-    private bool _fullRedraw = true;
+    private ConsoleBuffer back;
+    private ConsoleBuffer front;
+    private readonly StringBuilder sb = new(16 * 1024);
+    private bool fullRedraw = true;
 
     public Renderer(int width, int height)
     {
         Guard.Against.NegativeOrZero(width);
         Guard.Against.NegativeOrZero(height);
 
-        _back = new ConsoleBuffer(width, height);
-        _front = new ConsoleBuffer(width, height);
+        back = new ConsoleBuffer(width, height);
+        front = new ConsoleBuffer(width, height);
     }
 
     /// <summary>The back buffer to draw the next frame into.</summary>
-    public ConsoleBuffer Buffer => _back;
+    public ConsoleBuffer Buffer => back;
 
-    public int Width => _back.Width;
-    public int Height => _back.Height;
+    public int Width => back.Width;
+    public int Height => back.Height;
 
     public void Resize(int width, int height)
     {
@@ -34,20 +34,20 @@ public sealed class Renderer
         Guard.Against.NegativeOrZero(height);
 
         if (width == Width && height == Height) return;
-        _back.Resize(width, height);
-        _front.Resize(width, height);
-        _fullRedraw = true;
+        back.Resize(width, height);
+        front.Resize(width, height);
+        fullRedraw = true;
     }
 
     /// <summary>Forces the next <see cref="Present"/> to repaint every cell.</summary>
-    public void Invalidate() => _fullRedraw = true;
+    public void Invalidate() => fullRedraw = true;
 
     /// <summary>Flushes the differences between back and front buffer to the terminal.</summary>
     public void Present(TextWriter output)
     {
         Guard.Against.Null(output);
 
-        _sb.Clear();
+        sb.Clear();
 
         int curX = int.MinValue, curY = int.MinValue;
         Color penFg = default, penBg = default;
@@ -58,39 +58,39 @@ public sealed class Renderer
         {
             for (int x = 0; x < Width; x++)
             {
-                var cell = _back[x, y];
-                if (!_fullRedraw && cell == _front[x, y]) continue;
+                var cell = back[x, y];
+                if (!fullRedraw && cell == front[x, y]) continue;
 
                 if (curY != y || curX != x)
                 {
-                    _sb.Append("\x1b[").Append(y + 1).Append(';').Append(x + 1).Append('H');
+                    sb.Append("\x1b[").Append(y + 1).Append(';').Append(x + 1).Append('H');
                     curX = x;
                     curY = y;
                 }
 
                 if (!penValid || cell.Foreground != penFg || cell.Background != penBg || cell.Style != penStyle)
                 {
-                    AppendSgr(_sb, cell);
+                    AppendSgr(sb, cell);
                     penFg = cell.Foreground;
                     penBg = cell.Background;
                     penStyle = cell.Style;
                     penValid = true;
                 }
 
-                _sb.Append(cell.Char == '\0' ? ' ' : cell.Char);
+                sb.Append(cell.Char == '\0' ? ' ' : cell.Char);
                 curX++;
             }
         }
 
-        if (_sb.Length > 0)
+        if (sb.Length > 0)
         {
-            _sb.Append("\x1b[0m");
-            output.Write(_sb);
+            sb.Append("\x1b[0m");
+            output.Write(sb);
             output.Flush();
         }
 
-        _back.CopyTo(_front);
-        _fullRedraw = false;
+        back.CopyTo(front);
+        fullRedraw = false;
     }
 
     private static void AppendSgr(StringBuilder sb, in Cell cell)

@@ -5,21 +5,23 @@ namespace ConsoleRender;
 /// </summary>
 public readonly struct Color : IEquatable<Color>
 {
-    private readonly byte _r, _g, _b;
-    private readonly bool _hasValue;
+    private readonly byte r, g, b;
+    private readonly bool hasValue;
 
     private Color(byte r, byte g, byte b)
     {
-        _r = r; _g = g; _b = b;
-        _hasValue = true;
+        this.r = r;
+        this.g = g;
+        this.b = b;
+        hasValue = true;
     }
 
-    public byte R => _r;
-    public byte G => _g;
-    public byte B => _b;
+    public byte R => r;
+    public byte G => g;
+    public byte B => b;
 
     /// <summary>True if this is the terminal's default color rather than an explicit RGB value.</summary>
-    public bool IsDefault => !_hasValue;
+    public bool IsDefault => !hasValue;
 
     /// <summary>The terminal's default foreground/background color.</summary>
     public static readonly Color Default = default;
@@ -80,10 +82,10 @@ public readonly struct Color : IEquatable<Color>
     }
 
     public bool Equals(Color other) =>
-        _hasValue == other._hasValue && _r == other._r && _g == other._g && _b == other._b;
+        hasValue == other.hasValue && r == other.r && g == other.g && b == other.b;
 
     public override bool Equals(object? obj) => obj is Color c && Equals(c);
-    public override int GetHashCode() => HashCode.Combine(_hasValue, _r, _g, _b);
+    public override int GetHashCode() => HashCode.Combine(hasValue, r, g, b);
     public static bool operator ==(Color a, Color b) => a.Equals(b);
     public static bool operator !=(Color a, Color b) => !a.Equals(b);
 

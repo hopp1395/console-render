@@ -5,11 +5,11 @@ public class LayoutTests
     /// <summary>A control with a fixed preferred size, so anchor behaviour is observable.</summary>
     private sealed class Box : Control
     {
-        private readonly Size _preferred;
+        private readonly Size preferred;
 
-        public Box(int width, int height) => _preferred = new Size(width, height);
+        public Box(int width, int height) => preferred = new Size(width, height);
 
-        protected override Size GetPreferredSize(Size available) => _preferred;
+        protected override Size GetPreferredSize(Size available) => preferred;
 
         protected override void Draw(ConsoleBuffer buffer) => buffer.FillRect(Bounds, '#');
     }

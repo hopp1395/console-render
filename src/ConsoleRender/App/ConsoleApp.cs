@@ -11,17 +11,17 @@ namespace ConsoleRender;
 /// </summary>
 public sealed class ConsoleApp : IDisposable
 {
-    private readonly Renderer _renderer;
-    private readonly List<Control> _modals = new();
-    private readonly Stack<Control?> _focusBeforeModal = new();
-    private readonly Stopwatch _clock = new();
-    private readonly List<Control> _focusables = new();
+    private readonly Renderer renderer;
+    private readonly List<Control> modals = new();
+    private readonly Stack<Control?> focusBeforeModal = new();
+    private readonly Stopwatch clock = new();
+    private readonly List<Control> focusables = new();
 
-    private bool _running;
-    private bool _disposed;
-    private int _lastWidth;
-    private int _lastHeight;
-    private int _targetFps = 30;
+    private bool running;
+    private bool disposed;
+    private int lastWidth;
+    private int lastHeight;
+    private int targetFps = 30;
 
     /// <summary>The root container; add your controls here.</summary>
     public Panel Root { get; } = new();
@@ -33,28 +33,28 @@ public sealed class ConsoleApp : IDisposable
     public Control? FocusedControl { get; private set; }
 
     /// <summary>Current width of the render surface in character cells.</summary>
-    public int Width => _renderer.Width;
+    public int Width => renderer.Width;
 
     /// <summary>Current height of the render surface in character cells.</summary>
-    public int Height => _renderer.Height;
+    public int Height => renderer.Height;
 
     /// <summary>Target frame rate of the render loop.</summary>
     public int TargetFps
     {
-        get => _targetFps;
-        set => _targetFps = Guard.Against.NegativeOrZero(value);
+        get => targetFps;
+        set => targetFps = Guard.Against.NegativeOrZero(value);
     }
 
     /// <summary>Raised once per frame before layout and rendering.</summary>
     public event Action<TimeSpan>? Tick;
 
     /// <summary>True while a modal dialog is on screen.</summary>
-    public bool HasModal => _modals.Count > 0;
+    public bool HasModal => modals.Count > 0;
 
     public ConsoleApp()
     {
-        (_lastWidth, _lastHeight) = GetTerminalSize();
-        _renderer = new Renderer(_lastWidth, _lastHeight);
+        (lastWidth, lastHeight) = GetTerminalSize();
+        renderer = new Renderer(lastWidth, lastHeight);
     }
 
     /// <summary>Gives keyboard focus to <paramref name="control"/>.</summary>
@@ -70,24 +70,24 @@ public sealed class ConsoleApp : IDisposable
     public void CycleFocus(bool backwards = false)
     {
         RefreshFocusables();
-        if (_focusables.Count == 0)
+        if (focusables.Count == 0)
         {
             SetFocus(null);
             return;
         }
 
-        int index = FocusedControl is null ? -1 : _focusables.IndexOf(FocusedControl);
+        int index = FocusedControl is null ? -1 : focusables.IndexOf(FocusedControl);
         int next = index < 0
-            ? (backwards ? _focusables.Count - 1 : 0)
-            : (index + (backwards ? -1 : 1) + _focusables.Count) % _focusables.Count;
-        SetFocus(_focusables[next]);
+            ? (backwards ? focusables.Count - 1 : 0)
+            : (index + (backwards ? -1 : 1) + focusables.Count) % focusables.Count;
+        SetFocus(focusables[next]);
     }
 
     private void RefreshFocusables()
     {
-        _focusables.Clear();
-        var scope = _modals.Count > 0 ? _modals[^1] : (Control)Root;
-        scope.CollectFocusable(_focusables);
+        focusables.Clear();
+        var scope = modals.Count > 0 ? modals[^1] : (Control)Root;
+        scope.CollectFocusable(focusables);
     }
 
     /// <summary>
@@ -98,8 +98,8 @@ public sealed class ConsoleApp : IDisposable
     {
         Guard.Against.Null(modal);
 
-        _focusBeforeModal.Push(FocusedControl);
-        _modals.Add(modal);
+        focusBeforeModal.Push(FocusedControl);
+        modals.Add(modal);
         if (modal is ModalControl dialog)
         {
             // Re-subscribing would close two modals per request if the same instance is reused.
@@ -107,8 +107,8 @@ public sealed class ConsoleApp : IDisposable
             dialog.CloseRequested += CloseTopModal;
         }
         RefreshFocusables();
-        SetFocus(_focusables.FirstOrDefault() ?? modal);
-        _renderer.Invalidate();
+        SetFocus(focusables.FirstOrDefault() ?? modal);
+        renderer.Invalidate();
     }
 
     /// <summary>Convenience helper that shows a simple <see cref="InfoBox"/> dialog.</summary>
@@ -142,24 +142,24 @@ public sealed class ConsoleApp : IDisposable
     /// <summary>Closes the topmost modal dialog, if any.</summary>
     public void CloseTopModal()
     {
-        if (_modals.Count == 0) return;
+        if (modals.Count == 0) return;
 
-        var closing = _modals[^1];
-        _modals.RemoveAt(_modals.Count - 1);
+        var closing = modals[^1];
+        modals.RemoveAt(modals.Count - 1);
         if (closing is ModalControl dialog)
             dialog.CloseRequested -= CloseTopModal;
         RefreshFocusables();
 
         // Restore whatever had focus before the dialog opened, if it is still reachable.
-        var previous = _focusBeforeModal.Count > 0 ? _focusBeforeModal.Pop() : null;
-        SetFocus(previous is not null && _focusables.Contains(previous)
+        var previous = focusBeforeModal.Count > 0 ? focusBeforeModal.Pop() : null;
+        SetFocus(previous is not null && focusables.Contains(previous)
             ? previous
-            : _focusables.FirstOrDefault());
-        _renderer.Invalidate();
+            : focusables.FirstOrDefault());
+        renderer.Invalidate();
     }
 
     /// <summary>Stops the render loop started by <see cref="Run"/>.</summary>
-    public void Exit() => _running = false;
+    public void Exit() => running = false;
 
     /// <summary>
     /// Runs the render loop until <see cref="Exit"/> is called. Initializes the terminal
@@ -167,38 +167,38 @@ public sealed class ConsoleApp : IDisposable
     /// </summary>
     public void Run()
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
+        ObjectDisposedException.ThrowIf(disposed, this);
 
         Terminal.Init();
-        _running = true;
-        _clock.Restart();
+        running = true;
+        clock.Restart();
 
         if (FocusedControl is null)
             CycleFocus();
 
         try
         {
-            var last = _clock.Elapsed;
-            while (_running)
+            var last = clock.Elapsed;
+            while (running)
             {
-                var now = _clock.Elapsed;
+                var now = clock.Elapsed;
                 var delta = now - last;
                 last = now;
 
                 DrainInput();
-                if (!_running) break;
+                if (!running) break;
 
                 SyncTerminalSize();
 
                 Tick?.Invoke(delta);
                 Root.UpdateAll(delta);
-                foreach (var modal in _modals)
+                foreach (var modal in modals)
                     modal.UpdateAll(delta);
 
                 RenderFrame();
 
                 int frameMs = Math.Max(1, 1000 / TargetFps);
-                int elapsedMs = (int)(_clock.Elapsed - now).TotalMilliseconds;
+                int elapsedMs = (int)(clock.Elapsed - now).TotalMilliseconds;
                 if (elapsedMs < frameMs)
                     Thread.Sleep(frameMs - elapsedMs);
             }
@@ -206,7 +206,7 @@ public sealed class ConsoleApp : IDisposable
         finally
         {
             Terminal.Shutdown();
-            _clock.Stop();
+            clock.Stop();
         }
     }
 
@@ -233,25 +233,25 @@ public sealed class ConsoleApp : IDisposable
         Root.Width = full.Width;
         Root.Height = full.Height;
         Root.PerformLayout(full);
-        foreach (var modal in _modals)
+        foreach (var modal in modals)
             modal.PerformLayout(full);
 
         buffer.Clear();
         Root.Render(buffer);
 
-        if (_modals.Count > 0)
+        if (modals.Count > 0)
         {
             // Dim the background so the dialog stands out.
             DimBuffer(buffer);
-            foreach (var modal in _modals)
+            foreach (var modal in modals)
                 modal.Render(buffer);
         }
     }
 
     private void RenderFrame()
     {
-        LayoutAndDraw(_renderer.Buffer, new Rect(0, 0, _renderer.Width, _renderer.Height));
-        _renderer.Present(Console.Out);
+        LayoutAndDraw(renderer.Buffer, new Rect(0, 0, renderer.Width, renderer.Height));
+        renderer.Present(Console.Out);
     }
 
     private static void DimBuffer(ConsoleBuffer buffer)
@@ -279,15 +279,15 @@ public sealed class ConsoleApp : IDisposable
         {
             var key = Console.ReadKey(intercept: true);
             DispatchKey(key);
-            if (!_running) return;
+            if (!running) return;
         }
     }
 
     private void DispatchKey(ConsoleKeyInfo key)
     {
-        if (_modals.Count > 0)
+        if (modals.Count > 0)
         {
-            var modal = _modals[^1];
+            var modal = modals[^1];
             if (FocusedControl is not null && FocusedControl.OnKey(key)) return;
             modal.OnKey(key);
             return;
@@ -304,10 +304,10 @@ public sealed class ConsoleApp : IDisposable
     private void SyncTerminalSize()
     {
         var (width, height) = GetTerminalSize();
-        if (width == _lastWidth && height == _lastHeight) return;
-        _lastWidth = width;
-        _lastHeight = height;
-        _renderer.Resize(width, height);
+        if (width == lastWidth && height == lastHeight) return;
+        lastWidth = width;
+        lastHeight = height;
+        renderer.Resize(width, height);
     }
 
     private static (int Width, int Height) GetTerminalSize()
@@ -325,8 +325,8 @@ public sealed class ConsoleApp : IDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
-        _disposed = true;
-        _running = false;
+        if (disposed) return;
+        disposed = true;
+        running = false;
     }
 }

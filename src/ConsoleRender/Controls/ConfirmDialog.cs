@@ -9,29 +9,29 @@ namespace ConsoleRender;
 /// </summary>
 public class ConfirmDialog : ModalControl
 {
-    private readonly List<Button> _buttons = new();
-    private string _title = "";
-    private string _text = "";
-    private BorderStyle _border = BorderStyle.Double;
-    private int _maxTextWidth = 48;
-    private int _selectedIndex;
+    private readonly List<Button> buttons = new();
+    private string title = "";
+    private string text = "";
+    private BorderStyle border = BorderStyle.Double;
+    private int maxTextWidth = 48;
+    private int selectedIndex;
 
     public string Title
     {
-        get => _title;
-        set => _title = Guard.Against.Null(value);
+        get => title;
+        set => title = Guard.Against.Null(value);
     }
 
     public string Text
     {
-        get => _text;
-        set => _text = Guard.Against.Null(value);
+        get => text;
+        set => text = Guard.Against.Null(value);
     }
 
     public BorderStyle Border
     {
-        get => _border;
-        set => _border = Guard.Against.Null(value);
+        get => border;
+        set => border = Guard.Against.Null(value);
     }
 
     public Color BorderColor { get; set; } = Color.Yellow;
@@ -41,20 +41,20 @@ public class ConfirmDialog : ModalControl
     /// <summary>Maximum text width before wrapping.</summary>
     public int MaxTextWidth
     {
-        get => _maxTextWidth;
-        set => _maxTextWidth = Guard.Against.NegativeOrZero(value);
+        get => maxTextWidth;
+        set => maxTextWidth = Guard.Against.NegativeOrZero(value);
     }
 
     /// <summary>The answers, in the order they appear from left to right.</summary>
-    public IReadOnlyList<string> Options => _buttons.Select(b => b.Text).ToList();
+    public IReadOnlyList<string> Options => buttons.Select(b => b.Text).ToList();
 
     /// <summary>Which answer is preselected, and after Enter, which one was chosen.</summary>
     public int SelectedIndex
     {
-        get => _selectedIndex;
-        set => _selectedIndex = _buttons.Count == 0
+        get => selectedIndex;
+        set => selectedIndex = buttons.Count == 0
             ? 0
-            : Guard.Against.OutOfRange(value, nameof(value), 0, _buttons.Count - 1);
+            : Guard.Against.OutOfRange(value, nameof(value), 0, buttons.Count - 1);
     }
 
     /// <summary>Raised with the index and label of the chosen answer, after the dialog closed.</summary>
@@ -77,25 +77,25 @@ public class ConfirmDialog : ModalControl
     {
         Guard.Against.NullOrEmpty(options);
 
-        foreach (var button in _buttons)
+        foreach (var button in buttons)
             Remove(button);
-        _buttons.Clear();
+        buttons.Clear();
 
         foreach (string option in options)
         {
             Guard.Against.Null(option, nameof(options));
             // The dialog drives the selection, so the buttons stay out of the focus cycle.
             var button = new Button(option) { Focusable = false, Background = Background };
-            _buttons.Add(button);
+            buttons.Add(button);
             Add(button);
         }
 
-        _selectedIndex = 0;
+        selectedIndex = 0;
     }
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        if (_buttons.Count == 0) return false;
+        if (buttons.Count == 0) return false;
 
         switch (key.Key)
         {
@@ -108,8 +108,8 @@ public class ConfirmDialog : ModalControl
                 return true;
             case ConsoleKey.Enter:
             case ConsoleKey.Spacebar:
-                int index = _selectedIndex;
-                string label = _buttons[index].Text;
+                int index = selectedIndex;
+                string label = buttons[index].Text;
                 Close();
                 Chosen?.Invoke(index, label);
                 return true;
@@ -122,12 +122,12 @@ public class ConfirmDialog : ModalControl
     }
 
     private void Move(int delta) =>
-        _selectedIndex = (_selectedIndex + delta + _buttons.Count) % _buttons.Count;
+        selectedIndex = (selectedIndex + delta + buttons.Count) % buttons.Count;
 
     private IReadOnlyList<string> WrapText(int width) => TextWrap.Wrap(Text, width);
 
     private int ButtonRowWidth() =>
-        _buttons.Count == 0 ? 0 : _buttons.Sum(b => b.Text.Length + 4) + (_buttons.Count - 1);
+        buttons.Count == 0 ? 0 : buttons.Sum(b => b.Text.Length + 4) + (buttons.Count - 1);
 
     protected override Size GetPreferredSize(Size available)
     {
@@ -145,21 +145,21 @@ public class ConfirmDialog : ModalControl
     protected override void ArrangeChildren()
     {
         var inner = ContentRect;
-        if (inner.IsEmpty || _buttons.Count == 0) return;
+        if (inner.IsEmpty || buttons.Count == 0) return;
 
         int rowWidth = ButtonRowWidth();
         int offset = Math.Max(0, (inner.Width - rowWidth) / 2);
         int row = Math.Max(0, inner.Height - 1);
 
-        for (int i = 0; i < _buttons.Count; i++)
+        for (int i = 0; i < buttons.Count; i++)
         {
-            var button = _buttons[i];
+            var button = buttons[i];
             int width = button.Text.Length + 4;
             button.Left = offset;
             button.Top = row;
             button.Width = width;
             button.Height = 1;
-            button.Highlighted = i == _selectedIndex;
+            button.Highlighted = i == selectedIndex;
             offset += width + 1;
         }
     }

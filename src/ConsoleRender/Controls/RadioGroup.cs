@@ -6,7 +6,7 @@ namespace ConsoleRender;
 /// </summary>
 public class RadioGroup : Control
 {
-    private int _cursor;
+    private int cursor;
 
     public List<string> Items { get; } = new();
     public int SelectedIndex { get; set; }
@@ -35,16 +35,16 @@ public class RadioGroup : Control
         switch (key.Key)
         {
             case ConsoleKey.UpArrow:
-                _cursor = (_cursor - 1 + Items.Count) % Items.Count;
+                cursor = (cursor - 1 + Items.Count) % Items.Count;
                 return true;
             case ConsoleKey.DownArrow:
-                _cursor = (_cursor + 1) % Items.Count;
+                cursor = (cursor + 1) % Items.Count;
                 return true;
             case ConsoleKey.Spacebar:
             case ConsoleKey.Enter:
-                if (SelectedIndex != _cursor)
+                if (SelectedIndex != cursor)
                 {
-                    SelectedIndex = _cursor;
+                    SelectedIndex = cursor;
                     SelectionChanged?.Invoke(SelectedIndex);
                 }
                 return true;
@@ -59,7 +59,7 @@ public class RadioGroup : Control
         for (int i = 0; i < Items.Count && i < Bounds.Height; i++)
         {
             bool selected = i == SelectedIndex;
-            bool highlighted = Focused && i == _cursor;
+            bool highlighted = Focused && i == cursor;
             var style = highlighted ? CellStyle.Reverse : CellStyle.None;
             string bullet = selected ? "(•) " : "( ) ";
             buffer.Write(Bounds.X, Bounds.Y + i, bullet, selected ? AccentColor : Foreground, default, style);

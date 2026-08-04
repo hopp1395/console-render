@@ -3,14 +3,14 @@ namespace ConsoleRender;
 /// <summary>A container with a border and optional title. Children are laid out inside the border.</summary>
 public class Frame : Control
 {
-    private BorderStyle _border = BorderStyle.Single;
+    private BorderStyle border = BorderStyle.Single;
 
     public string? Title { get; set; }
 
     public BorderStyle Border
     {
-        get => _border;
-        set => _border = Guard.Against.Null(value);
+        get => border;
+        set => border = Guard.Against.Null(value);
     }
 
     public Color BorderColor { get; set; } = Color.Default;

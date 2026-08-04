@@ -15,13 +15,13 @@ public enum TextEffect
 /// <summary>A single-line text output field with color, style and optional animation.</summary>
 public class Label : Control
 {
-    private double _elapsed;
-    private string _text = "";
+    private double elapsed;
+    private string text = "";
 
     public string Text
     {
-        get => _text;
-        set => _text = Guard.Against.Null(value);
+        get => text;
+        set => text = Guard.Against.Null(value);
     }
 
     public Color Foreground { get; set; } = Color.Default;
@@ -42,7 +42,7 @@ public class Label : Control
     {
         Guard.Against.Negative(delta);
 
-        _elapsed += delta.TotalSeconds;
+        elapsed += delta.TotalSeconds;
     }
 
     protected override void Draw(ConsoleBuffer buffer)
@@ -51,11 +51,11 @@ public class Label : Control
 
         if (Bounds.Height < 1) return;
 
-        string text = Text.Length > Bounds.Width ? Text[..Bounds.Width] : Text;
+        string visible = Text.Length > Bounds.Width ? Text[..Bounds.Width] : Text;
         int x = TextAlign switch
         {
-            TextAlignment.Center => Bounds.X + (Bounds.Width - text.Length) / 2,
-            TextAlignment.Right => Bounds.Right - text.Length,
+            TextAlignment.Center => Bounds.X + (Bounds.Width - visible.Length) / 2,
+            TextAlignment.Right => Bounds.Right - visible.Length,
             _ => Bounds.X,
         };
         int y = Bounds.Y;
@@ -66,26 +66,26 @@ public class Label : Control
         switch (Effect)
         {
             case TextEffect.Blink:
-                if (_elapsed % 1.0 < 0.5)
-                    buffer.Write(x, y, text, Foreground, Background, Style);
+                if (elapsed % 1.0 < 0.5)
+                    buffer.Write(x, y, visible, Foreground, Background, Style);
                 break;
 
             case TextEffect.Rainbow:
-                for (int i = 0; i < text.Length; i++)
+                for (int i = 0; i < visible.Length; i++)
                 {
-                    var c = Color.FromHsv(i * 18 + _elapsed * 140, 0.85, 1);
-                    buffer.Set(x + i, y, text[i], c, Background, Style);
+                    var c = Color.FromHsv(i * 18 + elapsed * 140, 0.85, 1);
+                    buffer.Set(x + i, y, visible[i], c, Background, Style);
                 }
                 break;
 
             case TextEffect.Pulse:
-                double v = 0.55 + 0.45 * Math.Sin(_elapsed * 4);
+                double v = 0.55 + 0.45 * Math.Sin(elapsed * 4);
                 var fg = Foreground.IsDefault ? Color.White : Foreground;
-                buffer.Write(x, y, text, fg.Scale(v), Background, Style);
+                buffer.Write(x, y, visible, fg.Scale(v), Background, Style);
                 break;
 
             default:
-                buffer.Write(x, y, text, Foreground, Background, Style);
+                buffer.Write(x, y, visible, Foreground, Background, Style);
                 break;
         }
     }

@@ -6,8 +6,8 @@ namespace ConsoleRender;
 /// </summary>
 public class AsciiArt : Control
 {
-    private string[] _lines = Array.Empty<string>();
-    private AsciiImage? _image;
+    private string[] lines = Array.Empty<string>();
+    private AsciiImage? image;
 
     public Color Foreground { get; set; } = Color.Default;
 
@@ -20,8 +20,8 @@ public class AsciiArt : Control
     {
         Guard.Against.Null(multilineText);
 
-        _lines = multilineText.Replace("\r", "").Split('\n');
-        _image = null;
+        lines = multilineText.Replace("\r", "").Split('\n');
+        image = null;
     }
 
     /// <summary>Sets a colored glyph grid (per-cell colors).</summary>
@@ -29,21 +29,21 @@ public class AsciiArt : Control
     {
         Guard.Against.Null(image);
 
-        _image = image;
-        _lines = Array.Empty<string>();
+        this.image = image;
+        lines = Array.Empty<string>();
     }
 
     protected override Size GetPreferredSize(Size available)
     {
-        if (_image is { } img) return new Size(img.Width, img.Height);
-        return new Size(_lines.Length == 0 ? 0 : _lines.Max(l => l.Length), _lines.Length);
+        if (image is { } img) return new Size(img.Width, img.Height);
+        return new Size(lines.Length == 0 ? 0 : lines.Max(l => l.Length), lines.Length);
     }
 
     protected override void Draw(ConsoleBuffer buffer)
     {
         Guard.Against.Null(buffer);
 
-        if (_image is { } img)
+        if (image is { } img)
         {
             int h = Math.Min(img.Height, Bounds.Height);
             int w = Math.Min(img.Width, Bounds.Width);
@@ -56,7 +56,7 @@ public class AsciiArt : Control
             return;
         }
 
-        for (int y = 0; y < _lines.Length && y < Bounds.Height; y++)
-            buffer.Write(Bounds.X, Bounds.Y + y, _lines[y], Foreground);
+        for (int y = 0; y < lines.Length && y < Bounds.Height; y++)
+            buffer.Write(Bounds.X, Bounds.Y + y, lines[y], Foreground);
     }
 }

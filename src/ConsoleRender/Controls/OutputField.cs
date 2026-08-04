@@ -10,20 +10,20 @@ public class OutputField : Control
 {
     private readonly record struct Line(string Text, Color Color);
 
-    private readonly List<Line> _lines = new();
-    private readonly Queue<Line> _pending = new();
-    private Line? _revealing;
-    private int _revealCount;
-    private double _revealAccumulator;
-    private int _scrollOffset; // rows scrolled up from the bottom
-    private int _maxLines = 1000;
-    private double _typewriterSpeed = 160;
+    private readonly List<Line> lines = new();
+    private readonly Queue<Line> pending = new();
+    private Line? revealing;
+    private int revealCount;
+    private double revealAccumulator;
+    private int scrollOffset; // rows scrolled up from the bottom
+    private int maxLines = 1000;
+    private double typewriterSpeed = 160;
 
     /// <summary>Maximum number of retained lines; older lines are dropped.</summary>
     public int MaxLines
     {
-        get => _maxLines;
-        set => _maxLines = Guard.Against.NegativeOrZero(value);
+        get => maxLines;
+        set => maxLines = Guard.Against.NegativeOrZero(value);
     }
 
     /// <summary>When true, appended lines are revealed character by character.</summary>
@@ -32,8 +32,8 @@ public class OutputField : Control
     /// <summary>Reveal speed of the typewriter animation in characters per second.</summary>
     public double TypewriterSpeed
     {
-        get => _typewriterSpeed;
-        set => _typewriterSpeed = Guard.Against.NegativeOrZero(value);
+        get => typewriterSpeed;
+        set => typewriterSpeed = Guard.Against.NegativeOrZero(value);
     }
 
     public Color Foreground { get; set; } = Color.Default;
@@ -47,45 +47,45 @@ public class OutputField : Control
 
         var line = new Line(text, color ?? Color.Default);
         if (Typewriter)
-            _pending.Enqueue(line);
+            pending.Enqueue(line);
         else
             Commit(line);
     }
 
     public void Clear()
     {
-        _lines.Clear();
-        _pending.Clear();
-        _revealing = null;
-        _scrollOffset = 0;
+        lines.Clear();
+        pending.Clear();
+        revealing = null;
+        scrollOffset = 0;
     }
 
     private void Commit(Line line)
     {
-        _lines.Add(line);
-        while (_lines.Count > MaxLines)
-            _lines.RemoveAt(0);
+        lines.Add(line);
+        while (lines.Count > MaxLines)
+            lines.RemoveAt(0);
     }
 
     public override void Update(TimeSpan delta)
     {
         Guard.Against.Negative(delta);
 
-        if (_revealing is null && _pending.Count > 0)
+        if (revealing is null && pending.Count > 0)
         {
-            _revealing = _pending.Dequeue();
-            _revealCount = 0;
-            _revealAccumulator = 0;
+            revealing = pending.Dequeue();
+            revealCount = 0;
+            revealAccumulator = 0;
         }
 
-        if (_revealing is { } current)
+        if (revealing is { } current)
         {
-            _revealAccumulator += delta.TotalSeconds * TypewriterSpeed;
-            _revealCount = (int)_revealAccumulator;
-            if (_revealCount >= current.Text.Length)
+            revealAccumulator += delta.TotalSeconds * TypewriterSpeed;
+            revealCount = (int)revealAccumulator;
+            if (revealCount >= current.Text.Length)
             {
                 Commit(current);
-                _revealing = null;
+                revealing = null;
             }
         }
     }
@@ -96,13 +96,13 @@ public class OutputField : Control
         switch (key.Key)
         {
             case ConsoleKey.PageUp:
-                _scrollOffset += page;
+                scrollOffset += page;
                 return true;
             case ConsoleKey.PageDown:
-                _scrollOffset = Math.Max(0, _scrollOffset - page);
+                scrollOffset = Math.Max(0, scrollOffset - page);
                 return true;
             case ConsoleKey.End when key.Modifiers.HasFlag(ConsoleModifiers.Control):
-                _scrollOffset = 0;
+                scrollOffset = 0;
                 return true;
         }
         return false;
@@ -119,14 +119,14 @@ public class OutputField : Control
 
         // Wrap all lines (including the one currently being revealed) into display rows.
         var rows = new List<(string Text, Color Color)>();
-        foreach (var line in _lines)
+        foreach (var line in lines)
             WrapInto(rows, line);
-        if (_revealing is { } current)
-            WrapInto(rows, new Line(current.Text[..Math.Min(_revealCount, current.Text.Length)], current.Color));
+        if (revealing is { } current)
+            WrapInto(rows, new Line(current.Text[..Math.Min(revealCount, current.Text.Length)], current.Color));
 
         int maxOffset = Math.Max(0, rows.Count - Bounds.Height);
-        _scrollOffset = Math.Min(_scrollOffset, maxOffset);
-        int start = Math.Max(0, rows.Count - Bounds.Height - _scrollOffset);
+        scrollOffset = Math.Min(scrollOffset, maxOffset);
+        int start = Math.Max(0, rows.Count - Bounds.Height - scrollOffset);
 
         for (int i = 0; i < Bounds.Height && start + i < rows.Count; i++)
         {
@@ -135,7 +135,7 @@ public class OutputField : Control
                 color.IsDefault ? Foreground : color, Background);
         }
 
-        if (_scrollOffset > 0)
+        if (scrollOffset > 0)
             buffer.Write(Bounds.Right - 3, Bounds.Y, "↑↑↑", Color.Yellow, Background, CellStyle.Bold);
     }
 

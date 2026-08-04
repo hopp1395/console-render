@@ -8,11 +8,11 @@ namespace ConsoleRender;
 /// </summary>
 public sealed class DibPixelSource : IPixelSource
 {
-    private readonly byte[] _data;
-    private readonly int _pixelOffset;
-    private readonly int _stride;
-    private readonly int _bitsPerPixel;
-    private readonly bool _bottomUp;
+    private readonly byte[] data;
+    private readonly int pixelOffset;
+    private readonly int stride;
+    private readonly int bitsPerPixel;
+    private readonly bool bottomUp;
 
     public int Width { get; }
     public int Height { get; }
@@ -20,11 +20,11 @@ public sealed class DibPixelSource : IPixelSource
     private DibPixelSource(byte[] data, int pixelOffset, int width, int height,
         int bitsPerPixel, int stride, bool bottomUp)
     {
-        _data = data;
-        _pixelOffset = pixelOffset;
-        _bitsPerPixel = bitsPerPixel;
-        _stride = stride;
-        _bottomUp = bottomUp;
+        this.data = data;
+        this.pixelOffset = pixelOffset;
+        this.bitsPerPixel = bitsPerPixel;
+        this.stride = stride;
+        this.bottomUp = bottomUp;
         Width = width;
         Height = height;
     }
@@ -79,9 +79,9 @@ public sealed class DibPixelSource : IPixelSource
         Guard.Against.OutOfRange(x, nameof(x), 0, Width - 1);
         Guard.Against.OutOfRange(y, nameof(y), 0, Height - 1);
 
-        int row = _bottomUp ? Height - 1 - y : y;
-        int index = _pixelOffset + row * _stride + x * (_bitsPerPixel / 8);
+        int row = bottomUp ? Height - 1 - y : y;
+        int index = pixelOffset + row * stride + x * (bitsPerPixel / 8);
         // DIB pixel order is BGR(A).
-        return (_data[index + 2], _data[index + 1], _data[index]);
+        return (data[index + 2], data[index + 1], data[index]);
     }
 }

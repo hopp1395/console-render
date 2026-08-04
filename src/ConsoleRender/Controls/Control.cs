@@ -15,7 +15,7 @@ namespace ConsoleRender;
 /// </summary>
 public abstract class Control
 {
-    private readonly List<Control> _children = new();
+    private readonly List<Control> children = new();
 
     public int? Left { get; set; }
     public int? Top { get; set; }
@@ -44,7 +44,7 @@ public abstract class Control
 
     public Control? Parent { get; private set; }
 
-    public IReadOnlyList<Control> Children => _children;
+    public IReadOnlyList<Control> Children => children;
 
     /// <summary>Area available to child controls (e.g. inside a frame's border).</summary>
     public virtual Rect ContentRect => Bounds;
@@ -58,7 +58,7 @@ public abstract class Control
             throw new InvalidOperationException("A control cannot be its own child.");
 
         child.Parent = this;
-        _children.Add(child);
+        children.Add(child);
     }
 
     /// <summary>Adds several children in one call.</summary>
@@ -73,7 +73,7 @@ public abstract class Control
     {
         Guard.Against.Null(child);
 
-        if (_children.Remove(child))
+        if (children.Remove(child))
             child.Parent = null;
     }
 
@@ -115,7 +115,7 @@ public abstract class Control
 
         ArrangeChildren();
 
-        foreach (var child in _children)
+        foreach (var child in children)
             child.PerformLayout(ContentRect);
     }
 
@@ -148,12 +148,12 @@ public abstract class Control
             buffer.PopClip();
         }
 
-        if (_children.Count == 0) return;
+        if (children.Count == 0) return;
 
         buffer.PushClip(ContentRect);
         try
         {
-            foreach (var child in _children)
+            foreach (var child in children)
                 child.Render(buffer);
         }
         finally
@@ -168,7 +168,7 @@ public abstract class Control
 
         if (!Visible) return;
         Update(delta);
-        foreach (var child in _children)
+        foreach (var child in children)
             child.UpdateAll(delta);
     }
 
@@ -187,7 +187,7 @@ public abstract class Control
 
         if (!Visible) return;
         if (Focusable) result.Add(this);
-        foreach (var child in _children)
+        foreach (var child in children)
             child.CollectFocusable(result);
     }
 }

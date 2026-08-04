@@ -6,15 +6,15 @@ namespace ConsoleRender;
 /// </summary>
 public class Panel : Control
 {
-    private int _padding;
+    private int padding;
 
     public Color Background { get; set; } = Color.Default;
 
     /// <summary>Inner margin applied to the area given to children.</summary>
     public int Padding
     {
-        get => _padding;
-        set => _padding = Guard.Against.Negative(value);
+        get => padding;
+        set => padding = Guard.Against.Negative(value);
     }
 
     public override Rect ContentRect => Padding > 0 ? Bounds.Deflate(Padding) : Bounds;

@@ -11,9 +11,9 @@ public sealed record CommandDefinition(string Name, string Description, Action<s
 /// </summary>
 public sealed class CommandRegistry
 {
-    private readonly Dictionary<string, CommandDefinition> _commands = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, CommandDefinition> commands = new(StringComparer.OrdinalIgnoreCase);
 
-    public IEnumerable<CommandDefinition> All => _commands.Values.OrderBy(c => c.Name);
+    public IEnumerable<CommandDefinition> All => commands.Values.OrderBy(c => c.Name);
 
     public void Register(string name, string description, Action<string[]> handler)
     {
@@ -24,14 +24,14 @@ public sealed class CommandRegistry
         string key = name.TrimStart('/');
         Guard.Against.NullOrWhiteSpace(key, nameof(name));
 
-        _commands[key] = new CommandDefinition(key, description, handler);
+        commands[key] = new CommandDefinition(key, description, handler);
     }
 
     public bool TryGet(string name, out CommandDefinition command)
     {
         Guard.Against.Null(name);
 
-        return _commands.TryGetValue(name.TrimStart('/'), out command!);
+        return commands.TryGetValue(name.TrimStart('/'), out command!);
     }
 
     /// <summary>Finds command names starting with <paramref name="prefix"/> (for completion).</summary>
@@ -40,7 +40,7 @@ public sealed class CommandRegistry
         Guard.Against.Null(prefix);
 
         prefix = prefix.TrimStart('/');
-        return _commands.Keys
+        return commands.Keys
             .Where(k => k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
             .OrderBy(k => k)
             .ToList();
@@ -55,7 +55,7 @@ public sealed class CommandRegistry
         if (tokens.Length == 0)
             return new CommandResult(false, "Empty command.");
 
-        if (!_commands.TryGetValue(tokens[0], out var command))
+        if (!commands.TryGetValue(tokens[0], out var command))
             return new CommandResult(false, $"Unknown command: /{tokens[0]} (try /help)");
 
         try

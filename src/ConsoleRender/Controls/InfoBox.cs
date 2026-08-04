@@ -8,27 +8,27 @@ namespace ConsoleRender;
 /// </summary>
 public class InfoBox : ModalControl
 {
-    private string _title = "";
-    private string _text = "";
-    private BorderStyle _border = BorderStyle.Double;
-    private int _maxTextWidth = 48;
+    private string title = "";
+    private string text = "";
+    private BorderStyle border = BorderStyle.Double;
+    private int maxTextWidth = 48;
 
     public string Title
     {
-        get => _title;
-        set => _title = Guard.Against.Null(value);
+        get => title;
+        set => title = Guard.Against.Null(value);
     }
 
     public string Text
     {
-        get => _text;
-        set => _text = Guard.Against.Null(value);
+        get => text;
+        set => text = Guard.Against.Null(value);
     }
 
     public BorderStyle Border
     {
-        get => _border;
-        set => _border = Guard.Against.Null(value);
+        get => border;
+        set => border = Guard.Against.Null(value);
     }
 
     public Color BorderColor { get; set; } = Color.Cyan;
@@ -38,8 +38,8 @@ public class InfoBox : ModalControl
     /// <summary>Maximum text width before wrapping.</summary>
     public int MaxTextWidth
     {
-        get => _maxTextWidth;
-        set => _maxTextWidth = Guard.Against.NegativeOrZero(value);
+        get => maxTextWidth;
+        set => maxTextWidth = Guard.Against.NegativeOrZero(value);
     }
 
     public override bool OnKey(ConsoleKeyInfo key)

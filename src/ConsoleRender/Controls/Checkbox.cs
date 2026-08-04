@@ -3,12 +3,12 @@ namespace ConsoleRender;
 /// <summary>A checkbox toggled with Space or Enter.</summary>
 public class Checkbox : Control
 {
-    private string _text = "";
+    private string text = "";
 
     public string Text
     {
-        get => _text;
-        set => _text = Guard.Against.Null(value);
+        get => text;
+        set => text = Guard.Against.Null(value);
     }
 
     public bool Checked { get; set; }

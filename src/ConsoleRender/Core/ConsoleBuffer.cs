@@ -6,15 +6,15 @@ namespace ConsoleRender;
 /// </summary>
 public sealed class ConsoleBuffer
 {
-    private Cell[] _cells;
-    private readonly Stack<Rect> _clips = new();
-    private Rect _clip;
+    private Cell[] cells;
+    private readonly Stack<Rect> clips = new();
+    private Rect clip;
 
     public int Width { get; private set; }
     public int Height { get; private set; }
 
     /// <summary>The region writes are currently restricted to.</summary>
-    public Rect ClipRect => _clip;
+    public Rect ClipRect => clip;
 
     public ConsoleBuffer(int width, int height)
     {
@@ -23,18 +23,18 @@ public sealed class ConsoleBuffer
 
         Width = width;
         Height = height;
-        _cells = new Cell[Width * Height];
+        cells = new Cell[Width * Height];
         ResetClip();
         Clear();
     }
 
     public Cell this[int x, int y]
     {
-        get => _cells[y * Width + x];
+        get => cells[y * Width + x];
         set
         {
-            if (_clip.Contains(x, y))
-                _cells[y * Width + x] = value;
+            if (clip.Contains(x, y))
+                cells[y * Width + x] = value;
         }
     }
 
@@ -44,23 +44,23 @@ public sealed class ConsoleBuffer
     /// </summary>
     public void PushClip(Rect rect)
     {
-        _clips.Push(_clip);
-        _clip = _clip.Intersect(rect);
+        clips.Push(clip);
+        clip = clip.Intersect(rect);
     }
 
     /// <summary>Restores the clip region that was active before the matching <see cref="PushClip"/>.</summary>
     public void PopClip()
     {
-        if (_clips.Count == 0)
+        if (clips.Count == 0)
             throw new InvalidOperationException("PopClip called without a matching PushClip.");
-        _clip = _clips.Pop();
+        clip = clips.Pop();
     }
 
     /// <summary>Drops all clip regions and allows writing to the whole buffer again.</summary>
     public void ResetClip()
     {
-        _clips.Clear();
-        _clip = new Rect(0, 0, Width, Height);
+        clips.Clear();
+        clip = new Rect(0, 0, Width, Height);
     }
 
     public void Resize(int width, int height)
@@ -70,14 +70,14 @@ public sealed class ConsoleBuffer
 
         Width = width;
         Height = height;
-        _cells = new Cell[Width * Height];
+        cells = new Cell[Width * Height];
         ResetClip();
         Clear();
     }
 
     public void Clear() => Clear(Cell.Empty);
 
-    public void Clear(Cell fill) => Array.Fill(_cells, fill);
+    public void Clear(Cell fill) => Array.Fill(cells, fill);
 
     public void Set(int x, int y, char ch, Color fg = default, Color bg = default, CellStyle style = CellStyle.None)
         => this[x, y] = new Cell(ch, fg, bg, style);
@@ -87,36 +87,36 @@ public sealed class ConsoleBuffer
     {
         Guard.Against.Null(text);
 
-        if (y < _clip.Y || y >= _clip.Bottom) return;
+        if (y < clip.Y || y >= clip.Bottom) return;
         for (int i = 0; i < text.Length; i++)
         {
             int cx = x + i;
-            if (cx >= _clip.Right) break;
-            if (cx < _clip.X) continue;
+            if (cx >= clip.Right) break;
+            if (cx < clip.X) continue;
             char ch = text[i];
             if (ch == '\n' || ch == '\r') break;
-            _cells[y * Width + cx] = new Cell(ch, fg, bg, style);
+            cells[y * Width + cx] = new Cell(ch, fg, bg, style);
         }
     }
 
     public void FillRect(Rect rect, char ch, Color fg = default, Color bg = default, CellStyle style = CellStyle.None)
     {
-        var r = rect.Intersect(_clip);
+        var r = rect.Intersect(clip);
         var cell = new Cell(ch, fg, bg, style);
         for (int y = r.Y; y < r.Bottom; y++)
             for (int x = r.X; x < r.Right; x++)
-                _cells[y * Width + x] = cell;
+                cells[y * Width + x] = cell;
     }
 
     /// <summary>Sets the background color of a rectangle without touching characters.</summary>
     public void TintBackground(Rect rect, Color bg)
     {
-        var r = rect.Intersect(_clip);
+        var r = rect.Intersect(clip);
         for (int y = r.Y; y < r.Bottom; y++)
             for (int x = r.X; x < r.Right; x++)
             {
-                var c = _cells[y * Width + x];
-                _cells[y * Width + x] = c with { Background = bg };
+                var c = cells[y * Width + x];
+                cells[y * Width + x] = c with { Background = bg };
             }
     }
 
@@ -179,6 +179,6 @@ public sealed class ConsoleBuffer
     {
         Guard.Against.Null(target);
 
-        Array.Copy(_cells, target._cells, _cells.Length);
+        Array.Copy(cells, target.cells, cells.Length);
     }
 }

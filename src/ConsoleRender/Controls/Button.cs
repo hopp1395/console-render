@@ -10,12 +10,12 @@ namespace ConsoleRender;
 /// </summary>
 public class Button : Control
 {
-    private string _text = "";
+    private string text = "";
 
     public string Text
     {
-        get => _text;
-        set => _text = Guard.Against.Null(value);
+        get => text;
+        set => text = Guard.Against.Null(value);
     }
 
     public Color Foreground { get; set; } = Color.Default;
