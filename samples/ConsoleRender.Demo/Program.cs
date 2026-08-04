@@ -118,11 +118,13 @@ internal static class Program
             TitleColor = Color.Cyan,
         };
 
-        var inputFrame = new Frame("Eingabe")
+        // The input draws its own border, so it needs no surrounding frame.
+        var input = new CommandInput
         {
             Left = 0, Right = 0, Bottom = 1, Height = 3,
+            BorderMode = BorderMode.TopAndBottom,
             BorderColor = Color.Magenta,
-            TitleColor = Color.Magenta,
+            Placeholder = "› Text eingeben oder /befehl – Tab vervollständigt",
         };
 
         // --- left column ---
@@ -163,20 +165,11 @@ internal static class Program
         };
         rightFrame.Add(art);
 
-        // --- input row ---
-        var prompt = new Label("›") { Left = 0, Top = 0, Foreground = Color.Magenta, Style = CellStyle.Bold };
-        var input = new CommandInput
-        {
-            Left = 2, Right = 0, Top = 0, Height = 1,
-            Placeholder = "Text eingeben oder /befehl – Tab vervollständigt",
-        };
-        inputFrame.AddRange(prompt, input);
-
         var status = new Label("Bereit.") { Left = 1, Bottom = 0, Foreground = Color.DarkGray };
 
-        app.Root.AddRange(title, spinner, hint, leftFrame, centerFrame, rightFrame, inputFrame, status);
+        app.Root.AddRange(title, spinner, hint, leftFrame, centerFrame, rightFrame, input, status);
 
-        var frames = new[] { leftFrame, centerFrame, rightFrame, inputFrame };
+        var frames = new[] { leftFrame, centerFrame, rightFrame };
 
         // Drop the side columns on narrow terminals so the output area stays usable.
         void ApplyResponsiveLayout(int width)
@@ -192,6 +185,12 @@ internal static class Program
             centerFrame.Left = showLeft ? LeftWidth : 0;
             centerFrame.Right = showRight ? RightWidth : 0;
             hint.Visible = width >= 70;
+
+            // A bordered input needs three rows; the columns above give way accordingly.
+            int inputRows = input.BorderMode == BorderMode.None ? 1 : 3;
+            input.Height = inputRows;
+            foreach (var frame in new[] { leftFrame, centerFrame, rightFrame })
+                frame.Bottom = inputRows + 1;
         }
 
         app.Tick += _ => ApplyResponsiveLayout(app.Width);
@@ -219,6 +218,7 @@ internal static class Program
             };
             foreach (var frame in frames)
                 frame.Border = style;
+            input.Border = style;
             status.Text = $"Rahmenstil: {borderChoice.SelectedItem}";
         };
 
@@ -372,6 +372,20 @@ internal static class Program
         {
             ui.Spinner.Active = !ui.Spinner.Active;
             ui.Spinner.Text = ui.Spinner.Active ? "arbeitet…" : "fertig";
+        });
+
+        commands.Register("border", "Rahmen des Eingabefelds: /border <voll|linien|keiner>", args =>
+        {
+            ui.Input.BorderMode = args.Length == 0
+                ? (BorderMode)(((int)ui.Input.BorderMode + 1) % 3)
+                : args[0].ToLowerInvariant() switch
+                {
+                    "voll" or "full" => BorderMode.Full,
+                    "linien" or "lines" => BorderMode.TopAndBottom,
+                    "keiner" or "kein" or "none" => BorderMode.None,
+                    _ => throw new ArgumentException($"Unbekannter Rahmen: {args[0]}"),
+                };
+            ui.Status.Text = $"Eingabefeld-Rahmen: {ui.Input.BorderMode}";
         });
 
         commands.Register("confirm", "Zeigt einen Rückfragedialog", _ =>

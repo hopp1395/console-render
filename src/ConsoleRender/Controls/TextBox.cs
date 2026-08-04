@@ -10,8 +10,25 @@ public class TextBox : Control
     private int _scroll;
 
     private string _placeholder = "";
+    private BorderStyle _border = BorderStyle.Single;
 
     public string Text { get; private set; } = "";
+
+    /// <summary>
+    /// Whether and how the field frames itself. A border needs three rows — and, when closed,
+    /// two extra columns — which <see cref="Control.GetPreferredSize"/> accounts for. If the
+    /// control is too small for the chosen border, the text wins and the border is left out.
+    /// </summary>
+    public BorderMode BorderMode { get; set; } = BorderMode.None;
+
+    /// <summary>Characters used for the border. Only takes effect with a <see cref="BorderMode"/>.</summary>
+    public BorderStyle Border
+    {
+        get => _border;
+        set => _border = Guard.Against.Null(value);
+    }
+
+    public Color BorderColor { get; set; } = Color.Default;
 
     /// <summary>Hint text shown while the box is empty and unfocused.</summary>
     public string Placeholder
@@ -32,7 +49,27 @@ public class TextBox : Control
 
     public TextBox() => Focusable = true;
 
-    protected override Size GetPreferredSize(Size available) => new(20, 1);
+    protected override Size GetPreferredSize(Size available) => BorderMode switch
+    {
+        BorderMode.Full => new Size(22, 3),
+        BorderMode.TopAndBottom => new Size(20, 3),
+        _ => new Size(20, 1),
+    };
+
+    /// <summary>True when the current bounds leave room for the chosen border.</summary>
+    private bool BorderFits => BorderMode switch
+    {
+        BorderMode.Full => Bounds.Height >= 3 && Bounds.Width >= 3,
+        BorderMode.TopAndBottom => Bounds.Height >= 3,
+        _ => false,
+    };
+
+    /// <summary>The single row the text is drawn on, inside the border if there is one.</summary>
+    private Rect TextRect => !BorderFits
+        ? new Rect(Bounds.X, Bounds.Y, Bounds.Width, 1)
+        : BorderMode == BorderMode.Full
+            ? new Rect(Bounds.X + 1, Bounds.Y + 1, Bounds.Width - 2, 1)
+            : new Rect(Bounds.X, Bounds.Y + 1, Bounds.Width, 1);
 
     public void SetText(string text)
     {
@@ -133,32 +170,54 @@ public class TextBox : Control
 
         if (Bounds.Width < 1 || Bounds.Height < 1) return;
 
-        buffer.FillRect(new Rect(Bounds.X, Bounds.Y, Bounds.Width, 1), ' ', Foreground, Background);
+        DrawBorder(buffer);
+
+        var area = TextRect;
+        if (area.Width < 1) return;
+
+        buffer.FillRect(area, ' ', Foreground, Background);
 
         // Keep the cursor visible by scrolling horizontally.
-        int visible = Math.Max(1, Bounds.Width - 1);
+        int visible = Math.Max(1, area.Width - 1);
         if (_cursor < _scroll) _scroll = _cursor;
         if (_cursor > _scroll + visible) _scroll = _cursor - visible;
         _scroll = Math.Clamp(_scroll, 0, Math.Max(0, Text.Length - 1));
 
         if (Text.Length == 0 && !Focused && Placeholder.Length > 0)
         {
-            buffer.Write(Bounds.X, Bounds.Y, Truncate(Placeholder, Bounds.Width),
+            buffer.Write(area.X, area.Y, Truncate(Placeholder, area.Width),
                 PlaceholderColor, Background, CellStyle.Italic);
             return;
         }
 
         string view = Text.Length > _scroll ? Text[_scroll..] : "";
-        buffer.Write(Bounds.X, Bounds.Y, Truncate(view, Bounds.Width), Foreground, Background);
+        buffer.Write(area.X, area.Y, Truncate(view, area.Width), Foreground, Background);
 
         if (Focused)
         {
-            int cx = Bounds.X + (_cursor - _scroll);
-            if (cx >= Bounds.X && cx < Bounds.Right)
+            int cx = area.X + (_cursor - _scroll);
+            if (cx >= area.X && cx < area.Right)
             {
                 char under = _cursor < Text.Length ? Text[_cursor] : ' ';
-                buffer.Set(cx, Bounds.Y, under, Foreground, Background, CellStyle.Reverse);
+                buffer.Set(cx, area.Y, under, Foreground, Background, CellStyle.Reverse);
             }
+        }
+    }
+
+    private void DrawBorder(ConsoleBuffer buffer)
+    {
+        if (!BorderFits) return;
+
+        if (BorderMode == BorderMode.Full)
+        {
+            buffer.DrawBorder(Bounds, Border, BorderColor);
+            return;
+        }
+
+        for (int x = Bounds.X; x < Bounds.Right; x++)
+        {
+            buffer.Set(x, Bounds.Y, Border.Horizontal, BorderColor);
+            buffer.Set(x, Bounds.Bottom - 1, Border.Horizontal, BorderColor);
         }
     }
 
