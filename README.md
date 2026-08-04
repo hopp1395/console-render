@@ -89,6 +89,7 @@ override the control's natural size.
 | `Label` | text output with colors, styles and effects (`Blink`, `Rainbow`, `Pulse`) |
 | `OutputField` | scrollable, colored multi-line log with a typewriter effect; wrapped lines keep their indent |
 | `TextBox` | single-line input with caret, scrolling, clipboard and an optional border |
+| `TextArea` | multi-line editor with cursor, scrolling, clipboard and optional syntax highlighting |
 | `CommandInput` | a `TextBox` that runs `/command` input and completes names with Tab |
 | `Frame` | a titled border; five border styles |
 | `Panel` | invisible container for grouping and positioning |
@@ -103,6 +104,20 @@ override the control's natural size.
 | `ProgressBar` | horizontal progress bar with sub-cell precision, percentage overlay and an indeterminate sweep |
 | `TaskLine` | live log line from `OutputField.BeginTask`: a spinner animates while the task runs, `Complete`/`Fail` freeze it with ✓/✗ |
 | `AsciiArt` | ASCII art, single-colored or as a colored glyph grid |
+
+## Syntax highlighting
+
+```csharp
+var editor = new TextArea { Highlighter = new MarkdownHighlighter() };
+```
+
+`TextArea` colors its content while you type. `MarkdownHighlighter` ships with the package and
+recognizes headings, bold, italic, inline code, strikethrough, links, lists, quotes, fenced
+code blocks and rules — the source stays visible, marker characters are dimmed. The
+highlighter behind the `ISyntaxHighlighter` interface is replaceable; it receives the whole
+document (fenced blocks make lines depend on each other) and runs once per edit, not once
+per frame. Enter inserts a line break — a host that wants a "send" action registers a key
+binding such as Ctrl+Enter instead.
 
 ## Slash commands
 
@@ -174,7 +189,7 @@ dotnet run --project samples/ConsoleRender.Demo
 
 The sample shows every control at once and knows the commands `/help`, `/echo`, `/clear`,
 `/color`, `/info`, `/confirm`, `/border`, `/typewriter`, `/paste`, `/copy`, `/logo`, `/busy`,
-`/progress`, `/task` and `/exit`. Its user interface is in German.
+`/progress`, `/task`, `/editor` and `/exit`. Its user interface is in German.
 
 A single frame can be rendered without an interactive terminal, which is useful for snapshots:
 
