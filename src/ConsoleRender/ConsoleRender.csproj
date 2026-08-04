@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Self-explanatory members (color constants, enum values, simple accessors) carry no doc comment. -->
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>ConsoleRender</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>ConsoleRender Contributors</Authors>
+    <Description>Doppelt gepuffertes TUI-Framework für .NET: GUI-ähnliche Steuerelemente, Anker-Layout, Slash-Befehle, Keybindings, Animationen, Copy/Paste von Text und Bildern.</Description>
+    <PackageTags>console;terminal;tui;ui;ansi;framework</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.GuardClauses" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+
+</Project>

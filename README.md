@@ -1,0 +1,164 @@
+# ConsoleRender
+
+Ein TUI-Framework für .NET: volle Kontrolle über die Konsolenausgabe, doppelt gepuffert,
+mit GUI-ähnlichen Steuerelementen, Anker-Layout, Slash-Befehlen und Copy/Paste für Text und Bilder.
+
+Keine externen Abhängigkeiten außer [Ardalis.GuardClauses](https://github.com/ardalis/GuardClauses).
+
+```
+╔═ ConsoleRender ═ TUI-Framework für .NET ═╗
+  ⠋ bereit                                        F1 Hilfe · Tab Fokus · Strg+Q Ende
+┌─ Steuerelemente ───────────────┐┌─ Ausgabe ───────────────────┐┌─ ASCII-Grafik ─────┐
+│Menü                            ││Willkommen bei ConsoleRender!││   ____             │
+│› Übersicht                     ││                             ││  / ___|___  _ __   │
+│  Farben & Effekte              ││Tab wechselt den Fokus.      ││ | |   / _ \| '_ \  │
+│                                ││                             ││ | |__| (_) | | | | │
+│Optionen                        ││                             ││  \____\___/|_| |_| │
+│[x] Farbige Ausgabe             ││                             ││                    │
+└────────────────────────────────┘└─────────────────────────────┘└────────────────────┘
+┌─ Eingabe ──────────────────────────────────────────────────────────────────────────┐
+│› /help                                                                             │
+└────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Installation
+
+```bash
+dotnet add package ConsoleRender
+```
+
+Die Bibliothek zielt auf `net8.0` und läuft damit auch unter .NET 9 und 10.
+
+## Schnellstart
+
+```csharp
+using ConsoleRender;
+
+using var app = new ConsoleApp();
+
+var frame = new Frame("Beispiel")
+{
+    Left = 0, Top = 0, Right = 0, Bottom = 3,
+    BorderColor = Color.Cyan,
+};
+
+var output = new OutputField { Left = 0, Top = 0, Right = 0, Bottom = 0 };
+frame.Add(output);
+
+var input = new CommandInput { Left = 0, Right = 0, Bottom = 0, Height = 1 };
+input.Submitted += text => output.AppendLine(text, Color.Green);
+input.Commands.Register("exit", "Beendet die Anwendung", _ => app.Exit());
+
+app.Root.AddRange(frame, input);
+app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.Q), "Beenden", app.Exit);
+app.SetFocus(input);
+app.Run();
+```
+
+## Rendering
+
+Gezeichnet wird immer in einen Rückpuffer. `Present` vergleicht ihn Zelle für Zelle mit dem
+Vorderpuffer und schickt nur die tatsächlich geänderten Zellen als ANSI-Sequenzen an das Terminal —
+kein Flackern, kein Neuzeichnen des ganzen Bildschirms.
+
+* 24-Bit-Farben (`Color.Rgb`, `Color.FromHsv`, `Color.Lerp`)
+* Stilflags: fett, dünn, kursiv, unterstrichen, blinkend, invers, durchgestrichen
+* Alternativer Bildschirmpuffer — nach dem Beenden ist das Terminal wieder unverändert
+* Automatische VT-Aktivierung unter Windows
+* Automatische Skalierung: das Layout wird bei jeder Größenänderung des Fensters neu berechnet
+* Kind-Elemente werden am Inhaltsbereich ihres Elternteils abgeschnitten
+
+## Layout mit Ankern
+
+Jedes Element kennt `Left`, `Top`, `Right`, `Bottom`, `Width` und `Height` — alle optional.
+
+| Gesetzt | Verhalten |
+| --- | --- |
+| nur `Left` | fester Abstand zum linken Rand |
+| nur `Right` | fester Abstand zum rechten Rand |
+| `Left` **und** `Right` | Element wird beim Resize mitgedehnt |
+| keiner von beiden | `HorizontalAlignment` entscheidet (links, zentriert, rechts) |
+
+Vertikal gilt dasselbe mit `Top`/`Bottom` und `VerticalAlignment`. `Width`/`Height` überschreiben
+immer die natürliche Größe des Elements.
+
+## Elemente
+
+| Element | Zweck |
+| --- | --- |
+| `Label` | Textausgabe mit Farben, Stilen und Effekten (`Blink`, `Rainbow`, `Pulse`) |
+| `OutputField` | scrollbares, farbiges Mehrzeilen-Log mit Schreibmaschineneffekt |
+| `TextBox` | einzeiliges Eingabefeld mit Cursor, Scrolling und Zwischenablage |
+| `CommandInput` | `TextBox` mit `/befehl`-Auswertung und Tab-Vervollständigung |
+| `Frame` | Rahmen mit Titel; fünf Rahmenstile |
+| `Panel` | unsichtbarer Container zum Gruppieren und Ausrichten |
+| `InfoBox` | modaler Dialog; der Hintergrund wird abgedunkelt |
+| `Checkbox` | einzelne Ja/Nein-Option |
+| `RadioGroup` | Optionsgruppe mit genau einer Auswahl |
+| `SelectMenu` | scrollbares Auswahlmenü |
+| `Spinner` | animierte Aktivitätsanzeige |
+| `AsciiArt` | ASCII-Grafiken, einfarbig oder als farbiges Zeichenraster |
+
+## Befehlseingabe
+
+```csharp
+input.Commands.Register("color", "Färbt eine Zeile: /color <name> <text>", args => { /* … */ });
+```
+
+`CommandRegistry` zerlegt die Eingabe in Tokens (doppelte Anführungszeichen gruppieren Wörter),
+sucht den Befehl und meldet Fehler als `CommandResult` zurück, statt eine Exception nach oben
+durchzureichen. Tab vervollständigt Befehlsnamen, solange die Eingabe mit `/` beginnt.
+
+## Tastenkürzel
+
+```csharp
+app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.S), "Speichern", Save);
+app.KeyBindings.Register(ConsoleKey.F1, "Hilfe", ShowHelp);
+```
+
+Globale Kürzel werden vor dem fokussierten Element geprüft. `app.KeyBindings.All` liefert alle
+registrierten Kürzel samt Beschreibung — praktisch für einen `/help`-Befehl.
+
+Eingebaut in den Elementen: Tab/Shift+Tab wechselt den Fokus, Pfeiltasten bewegen Auswahlen,
+Leertaste schaltet um, Bild auf/ab scrollt die Ausgabe, Strg+C/Strg+V kopiert und fügt ein.
+
+## Zwischenablage und Bilder
+
+```csharp
+if (Clipboard.TryGetImage(out var image))
+    art.SetImage(AsciiImageConverter.Convert(image, targetWidth: 60));
+else if (Clipboard.TryGetText(out string text))
+    output.AppendLine(text);
+```
+
+Unter Windows werden Text (`CF_UNICODETEXT`) und Bilder (`CF_DIB`, 24/32 Bit) direkt über Win32
+gelesen; Bilder werden mit Helligkeitsrampe und Zellenseitenverhältnis in farbige ASCII-Art
+umgerechnet. Unter Linux/macOS gibt es einen Textfallback über `xclip` bzw. `pbcopy`/`pbpaste`.
+
+## Demo
+
+```bash
+dotnet run --project samples/ConsoleRender.Demo
+```
+
+Die Demo zeigt alle Elemente gleichzeitig und kennt die Befehle `/help`, `/echo`, `/clear`,
+`/color`, `/info`, `/typewriter`, `/paste`, `/copy`, `/logo`, `/busy` und `/exit`.
+
+Ein einzelnes Bild lässt sich ohne interaktives Terminal rendern — nützlich für Snapshots:
+
+```bash
+ConsoleRender.Demo --snapshot 120 32
+```
+
+Dasselbe steht als API zur Verfügung: `app.RenderOffscreen(width, height).ToText()`.
+
+## Argumentprüfung
+
+Alle öffentlichen Methoden prüfen ihre Argumente mit Guard Clauses und melden ungültige Werte
+sofort als `ArgumentException`, statt später mit einem verzerrten Layout zu überraschen.
+Ausgenommen ist der Zeichen-Hot-Path (`ConsoleBuffer`-Indexer und `Set`), wo Clipping die
+definierte Semantik ist.
+
+## Lizenz
+
+MIT
