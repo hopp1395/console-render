@@ -19,11 +19,17 @@ public class Frame : Control
 
     public Frame() { }
 
-    public Frame(string title) => Title = Guard.Against.Null(title);
+    public Frame(string title)
+    {
+        Title = Guard.Against.Null(title);
+    }
 
     public override Rect ContentRect => Bounds.Deflate(1);
 
-    protected override Size GetPreferredSize(Size available) => new(available.Width, available.Height);
+    protected override Size GetPreferredSize(Size available)
+    {
+        return new(available.Width, available.Height);
+    }
 
     protected override void Draw(ConsoleBuffer buffer)
     {

@@ -2,14 +2,18 @@ namespace ConsoleRender.Tests;
 
 public class SearchBoxTests
 {
-    private static ConsoleKeyInfo Key(ConsoleKey key, char ch = '\0', ConsoleModifiers modifiers = 0) =>
-        new(ch, key,
+    private static ConsoleKeyInfo Key(ConsoleKey key, char ch = '\0', ConsoleModifiers modifiers = 0)
+    {
+        return new(ch, key,
             modifiers.HasFlag(ConsoleModifiers.Shift),
             modifiers.HasFlag(ConsoleModifiers.Alt),
             modifiers.HasFlag(ConsoleModifiers.Control));
+    }
 
-    private static SearchBox Cities() =>
-        new("Berlin", "Hamburg", "München", "Köln", "Frankfurt");
+    private static SearchBox Cities()
+    {
+        return new("Berlin", "Hamburg", "München", "Köln", "Frankfurt");
+    }
 
     [Fact]
     public void AnEmptyQueryShowsEveryItem()

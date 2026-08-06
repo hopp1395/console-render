@@ -40,7 +40,10 @@ public sealed class Renderer
     }
 
     /// <summary>Forces the next <see cref="Present"/> to repaint every cell.</summary>
-    public void Invalidate() => fullRedraw = true;
+    public void Invalidate()
+    {
+        fullRedraw = true;
+    }
 
     /// <summary>Flushes the differences between back and front buffer to the terminal.</summary>
     public void Present(TextWriter output)

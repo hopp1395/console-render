@@ -30,6 +30,8 @@ Merging to `main` triggers the publish job (`.github/workflows/ci.yml`), which p
 ## Code conventions
 
 - Private fields are camelCase **without** a leading underscore (enforced via `.editorconfig`). On field/parameter collisions (constructors), qualify with `this.`.
+- Methods and constructors always use a **block body**, never an expression body (`=>`); a constructor initializer (`: this()` / `: base()`) sits on its own indented line. Properties, accessors and indexers may keep the expression form.
+- Both rules live in `.editorconfig` and are enforced at build time (`EnforceCodeStyleInBuild` + `TreatWarningsAsErrors`), so a violation fails the build rather than just showing an IDE squiggle. Note that the `csharp_style_*` options alone are only IDE hints — the paired `dotnet_diagnostic.IDE00xx.severity` entries are what make them fire during a build.
 - Every public method/setter validates arguments with Ardalis.GuardClauses (`Guard.Against.…`, globally imported via `GlobalUsings.cs`). Exception: the per-cell drawing hot path (`ConsoleBuffer` indexer/`Set`, per-cell loops inside `Draw`) — there, clipping is the defined semantics.
 - `TreatWarningsAsErrors` is on; CS1591 (missing XML doc) is suppressed, but load-bearing types and non-obvious members carry doc comments.
 - Language split: library code, comments and README are English; the demo app's UI strings and commit messages are German.

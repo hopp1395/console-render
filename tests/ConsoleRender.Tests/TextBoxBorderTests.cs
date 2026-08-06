@@ -11,7 +11,10 @@ public class TextBoxBorderTests
 
     private static readonly ConsoleKeyInfo HomeKey = new('\0', ConsoleKey.Home, false, false, false);
 
-    private static TextBox Box(BorderMode mode, string text) => Box(mode, text, 10, 3);
+    private static TextBox Box(BorderMode mode, string text)
+    {
+        return Box(mode, text, 10, 3);
+    }
 
     private static TextBox Box(BorderMode mode, string text, int width, int height)
     {

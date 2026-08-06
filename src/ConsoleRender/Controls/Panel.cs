@@ -1,4 +1,4 @@
-namespace ConsoleRender;
+﻿namespace ConsoleRender;
 
 /// <summary>
 /// A transparent container that only groups and positions children. Useful as a layout
@@ -19,7 +19,10 @@ public class Panel : Control
 
     public override Rect ContentRect => Padding > 0 ? Bounds.Deflate(Padding) : Bounds;
 
-    protected override Size GetPreferredSize(Size available) => new(available.Width, available.Height);
+    protected override Size GetPreferredSize(Size available)
+    {
+        return new(available.Width, available.Height);
+    }
 
     protected override void Draw(ConsoleBuffer buffer)
     {

@@ -7,11 +7,20 @@ public class LayoutTests
     {
         private readonly Size preferred;
 
-        public Box(int width, int height) => preferred = new Size(width, height);
+        public Box(int width, int height)
+        {
+            preferred = new Size(width, height);
+        }
 
-        protected override Size GetPreferredSize(Size available) => preferred;
+        protected override Size GetPreferredSize(Size available)
+        {
+            return preferred;
+        }
 
-        protected override void Draw(ConsoleBuffer buffer) => buffer.FillRect(Bounds, '#');
+        protected override void Draw(ConsoleBuffer buffer)
+        {
+            buffer.FillRect(Bounds, '#');
+        }
     }
 
     private static readonly Rect Area = new(0, 0, 100, 40);

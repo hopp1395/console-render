@@ -226,11 +226,15 @@ internal static class Program
         return panel;
     }
 
-    private static Label Info(int top, string text, Color? color = null) =>
-        new(text) { Left = 0, Top = top, Foreground = color ?? Color.Gray };
+    private static Label Info(int top, string text, Color? color = null)
+    {
+        return new(text) { Left = 0, Top = top, Foreground = color ?? Color.Gray };
+    }
 
-    private static Label Section(int top, string text) =>
-        new(text) { Left = 0, Top = top, Foreground = Color.Yellow, Style = CellStyle.Bold };
+    private static Label Section(int top, string text)
+    {
+        return new(text) { Left = 0, Top = top, Foreground = Color.Yellow, Style = CellStyle.Bold };
+    }
 
     private static Panel OverviewPage()
     {
@@ -587,9 +591,12 @@ internal static class Program
 
         public string Text => editor.Text;
 
-        protected override Size GetPreferredSize(Size available) => new(
-            Math.Clamp(available.Width - 20, 44, 76),
-            Math.Clamp(available.Height - 6, 10, 22));
+        protected override Size GetPreferredSize(Size available)
+        {
+            return new(
+                Math.Clamp(available.Width - 20, 44, 76),
+                Math.Clamp(available.Height - 6, 10, 22));
+        }
 
         public override bool OnKey(ConsoleKeyInfo key)
         {

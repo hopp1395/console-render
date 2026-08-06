@@ -261,9 +261,11 @@ public sealed class MarkdownHighlighter : ISyntaxHighlighter
         return true;
     }
 
-    private static bool Matches(string line, int pos, int end, string token) =>
-        pos + token.Length <= end
-        && string.CompareOrdinal(line, pos, token, 0, token.Length) == 0;
+    private static bool Matches(string line, int pos, int end, string token)
+    {
+        return pos + token.Length <= end
+            && string.CompareOrdinal(line, pos, token, 0, token.Length) == 0;
+    }
 
     private static int IndexOf(string line, string token, int from, int end)
     {

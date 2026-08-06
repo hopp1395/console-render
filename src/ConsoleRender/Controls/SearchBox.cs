@@ -198,6 +198,8 @@ public class SearchBox : Control
         }
     }
 
-    private static bool DefaultFilter(string query, string item) =>
-        item.Contains(query, StringComparison.OrdinalIgnoreCase);
+    private static bool DefaultFilter(string query, string item)
+    {
+        return item.Contains(query, StringComparison.OrdinalIgnoreCase);
+    }
 }

@@ -121,13 +121,20 @@ public class ConfirmDialog : ModalControl
         return false;
     }
 
-    private void Move(int delta) =>
+    private void Move(int delta)
+    {
         selectedIndex = (selectedIndex + delta + buttons.Count) % buttons.Count;
+    }
 
-    private IReadOnlyList<string> WrapText(int width) => TextWrap.Wrap(Text, width);
+    private IReadOnlyList<string> WrapText(int width)
+    {
+        return TextWrap.Wrap(Text, width);
+    }
 
-    private int ButtonRowWidth() =>
-        buttons.Count == 0 ? 0 : buttons.Sum(b => b.Text.Length + 4) + (buttons.Count - 1);
+    private int ButtonRowWidth()
+    {
+        return buttons.Count == 0 ? 0 : buttons.Sum(b => b.Text.Length + 4) + (buttons.Count - 1);
+    }
 
     protected override Size GetPreferredSize(Size available)
     {

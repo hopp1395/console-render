@@ -26,7 +26,10 @@ public readonly struct Color : IEquatable<Color>
     /// <summary>The terminal's default foreground/background color.</summary>
     public static readonly Color Default = default;
 
-    public static Color Rgb(byte r, byte g, byte b) => new(r, g, b);
+    public static Color Rgb(byte r, byte g, byte b)
+    {
+        return new(r, g, b);
+    }
 
     public static readonly Color Black = Rgb(0, 0, 0);
     public static readonly Color White = Rgb(255, 255, 255);
@@ -81,13 +84,33 @@ public readonly struct Color : IEquatable<Color>
         return IsDefault ? this : Rgb((byte)(R * factor), (byte)(G * factor), (byte)(B * factor));
     }
 
-    public bool Equals(Color other) =>
-        hasValue == other.hasValue && r == other.r && g == other.g && b == other.b;
+    public bool Equals(Color other)
+    {
+        return hasValue == other.hasValue && r == other.r && g == other.g && b == other.b;
+    }
 
-    public override bool Equals(object? obj) => obj is Color c && Equals(c);
-    public override int GetHashCode() => HashCode.Combine(hasValue, r, g, b);
-    public static bool operator ==(Color a, Color b) => a.Equals(b);
-    public static bool operator !=(Color a, Color b) => !a.Equals(b);
+    public override bool Equals(object? obj)
+    {
+        return obj is Color c && Equals(c);
+    }
 
-    public override string ToString() => IsDefault ? "Default" : $"#{R:X2}{G:X2}{B:X2}";
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(hasValue, r, g, b);
+    }
+
+    public static bool operator ==(Color a, Color b)
+    {
+        return a.Equals(b);
+    }
+
+    public static bool operator !=(Color a, Color b)
+    {
+        return !a.Equals(b);
+    }
+
+    public override string ToString()
+    {
+        return IsDefault ? "Default" : $"#{R:X2}{G:X2}{B:X2}";
+    }
 }

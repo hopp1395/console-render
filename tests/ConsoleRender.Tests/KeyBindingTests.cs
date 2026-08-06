@@ -2,11 +2,13 @@ namespace ConsoleRender.Tests;
 
 public class KeyBindingTests
 {
-    private static ConsoleKeyInfo Key(ConsoleKey key, ConsoleModifiers modifiers = 0) =>
-        new('\0', key,
+    private static ConsoleKeyInfo Key(ConsoleKey key, ConsoleModifiers modifiers = 0)
+    {
+        return new('\0', key,
             modifiers.HasFlag(ConsoleModifiers.Shift),
             modifiers.HasFlag(ConsoleModifiers.Alt),
             modifiers.HasFlag(ConsoleModifiers.Control));
+    }
 
     [Fact]
     public void ToString_ListsModifiersBeforeTheKey()

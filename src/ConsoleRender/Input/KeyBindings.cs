@@ -3,11 +3,25 @@ namespace ConsoleRender;
 /// <summary>A key together with its modifiers, e.g. Ctrl+Q.</summary>
 public readonly record struct KeyCombo(ConsoleKey Key, ConsoleModifiers Modifiers = 0)
 {
-    public static KeyCombo Ctrl(ConsoleKey key) => new(key, ConsoleModifiers.Control);
-    public static KeyCombo Alt(ConsoleKey key) => new(key, ConsoleModifiers.Alt);
-    public static KeyCombo Shift(ConsoleKey key) => new(key, ConsoleModifiers.Shift);
+    public static KeyCombo Ctrl(ConsoleKey key)
+    {
+        return new(key, ConsoleModifiers.Control);
+    }
 
-    public static KeyCombo FromKeyInfo(ConsoleKeyInfo info) => new(info.Key, info.Modifiers);
+    public static KeyCombo Alt(ConsoleKey key)
+    {
+        return new(key, ConsoleModifiers.Alt);
+    }
+
+    public static KeyCombo Shift(ConsoleKey key)
+    {
+        return new(key, ConsoleModifiers.Shift);
+    }
+
+    public static KeyCombo FromKeyInfo(ConsoleKeyInfo info)
+    {
+        return new(info.Key, info.Modifiers);
+    }
 
     public override string ToString()
     {
@@ -41,10 +55,15 @@ public sealed class KeyBindingManager
         bindings[combo] = new KeyBinding(combo, description, handler);
     }
 
-    public void Register(ConsoleKey key, string description, Action handler) =>
+    public void Register(ConsoleKey key, string description, Action handler)
+    {
         Register(new KeyCombo(key), description, handler);
+    }
 
-    public bool Unregister(KeyCombo combo) => bindings.Remove(combo);
+    public bool Unregister(KeyCombo combo)
+    {
+        return bindings.Remove(combo);
+    }
 
     /// <summary>Runs the handler bound to <paramref name="keyInfo"/>, if any. Returns true if handled.</summary>
     public bool Handle(ConsoleKeyInfo keyInfo)
