@@ -29,7 +29,10 @@ public class TextArea : Control
     private string placeholder = "";
     private BorderStyle border = BorderStyle.Single;
 
-    public TextArea() => Focusable = true;
+    public TextArea()
+    {
+        Focusable = true;
+    }
 
     /// <summary>The whole document, lines separated by '\n'.</summary>
     public string Text
@@ -102,12 +105,15 @@ public class TextArea : Control
     /// <summary>Raised once per editing operation with the new document text.</summary>
     public event Action<string>? TextChanged;
 
-    protected override Size GetPreferredSize(Size available) => BorderMode switch
+    protected override Size GetPreferredSize(Size available)
     {
-        BorderMode.Full => new Size(32, 10),
-        BorderMode.TopAndBottom => new Size(30, 10),
-        _ => new Size(30, 8),
-    };
+        return BorderMode switch
+        {
+            BorderMode.Full => new Size(32, 10),
+            BorderMode.TopAndBottom => new Size(30, 10),
+            _ => new Size(30, 8),
+        };
+    }
 
     /// <summary>True when the current bounds leave room for the chosen border.</summary>
     private bool BorderFits => BorderMode switch

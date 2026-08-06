@@ -4,7 +4,10 @@ public class MarkdownHighlighterTests
 {
     private static readonly MarkdownHighlighter Md = new();
 
-    private static IReadOnlyList<HighlightSpan> Line(string line) => Md.Highlight([line])[0];
+    private static IReadOnlyList<HighlightSpan> Line(string line)
+    {
+        return Md.Highlight([line])[0];
+    }
 
     [Fact]
     public void AHeadingDimsTheHashesAndBoldsTheTitle()

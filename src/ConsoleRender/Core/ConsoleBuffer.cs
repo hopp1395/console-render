@@ -75,12 +75,20 @@ public sealed class ConsoleBuffer
         Clear();
     }
 
-    public void Clear() => Clear(Cell.Empty);
+    public void Clear()
+    {
+        Clear(Cell.Empty);
+    }
 
-    public void Clear(Cell fill) => Array.Fill(cells, fill);
+    public void Clear(Cell fill)
+    {
+        Array.Fill(cells, fill);
+    }
 
     public void Set(int x, int y, char ch, Color fg = default, Color bg = default, CellStyle style = CellStyle.None)
-        => this[x, y] = new Cell(ch, fg, bg, style);
+    {
+        this[x, y] = new Cell(ch, fg, bg, style);
+    }
 
     /// <summary>Writes a string starting at (x, y). Text running past the right edge is clipped.</summary>
     public void Write(int x, int y, string text, Color fg = default, Color bg = default, CellStyle style = CellStyle.None)

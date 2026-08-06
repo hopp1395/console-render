@@ -37,7 +37,10 @@ public class Spinner : Control
 
     public bool Active { get; set; } = true;
 
-    protected override Size GetPreferredSize(Size available) => new(Text.Length + 2, 1);
+    protected override Size GetPreferredSize(Size available)
+    {
+        return new(Text.Length + 2, 1);
+    }
 
     public override void Update(TimeSpan delta)
     {

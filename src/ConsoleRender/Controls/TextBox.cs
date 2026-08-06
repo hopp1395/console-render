@@ -47,14 +47,20 @@ public class TextBox : Control
     /// <summary>Raised whenever the text changes.</summary>
     public event Action<string>? TextChanged;
 
-    public TextBox() => Focusable = true;
-
-    protected override Size GetPreferredSize(Size available) => BorderMode switch
+    public TextBox()
     {
-        BorderMode.Full => new Size(22, 3),
-        BorderMode.TopAndBottom => new Size(20, 3),
-        _ => new Size(20, 1),
-    };
+        Focusable = true;
+    }
+
+    protected override Size GetPreferredSize(Size available)
+    {
+        return BorderMode switch
+        {
+            BorderMode.Full => new Size(22, 3),
+            BorderMode.TopAndBottom => new Size(20, 3),
+            _ => new Size(20, 1),
+        };
+    }
 
     /// <summary>True when the current bounds leave room for the chosen border.</summary>
     private bool BorderFits => BorderMode switch

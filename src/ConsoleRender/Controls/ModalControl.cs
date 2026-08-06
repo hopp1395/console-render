@@ -21,5 +21,8 @@ public abstract class ModalControl : Control
     /// Asks the host to dismiss this dialog. Raise any result event <em>after</em> calling this,
     /// so a handler that opens another dialog is not closed again by this one.
     /// </summary>
-    public void Close() => CloseRequested?.Invoke();
+    public void Close()
+    {
+        CloseRequested?.Invoke();
+    }
 }

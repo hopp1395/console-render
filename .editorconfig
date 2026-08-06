@@ -18,6 +18,23 @@ csharp_new_line_before_open_brace = all
 csharp_style_namespace_declarations = file_scoped:warning
 dotnet_sort_system_directives_first = true
 
+# Methods and constructors always use a block body; the constructor initializer
+# (": this()" / ": base()") goes on its own indented line. Properties and their
+# accessors may keep the expression form.
+csharp_style_expression_bodied_methods = false:warning
+csharp_style_expression_bodied_constructors = false:warning
+csharp_style_expression_bodied_local_functions = false:warning
+csharp_style_expression_bodied_operators = false:warning
+# The "false:warning" suffix above is only an IDE hint; these make the rules actually fire
+# during a build with EnforceCodeStyleInBuild.
+dotnet_diagnostic.IDE0021.severity = warning
+dotnet_diagnostic.IDE0022.severity = warning
+dotnet_diagnostic.IDE0023.severity = warning
+dotnet_diagnostic.IDE0024.severity = warning
+csharp_style_expression_bodied_properties = true:silent
+csharp_style_expression_bodied_accessors = true:silent
+csharp_style_expression_bodied_indexers = true:silent
+
 # Private fields are camelCase without a leading underscore. Where a field and a parameter
 # would collide — typically in constructors — qualify the field with "this.".
 dotnet_naming_rule.private_fields_are_camel_case.symbols = private_fields

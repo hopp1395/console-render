@@ -13,7 +13,10 @@ public class AsciiArt : Control
 
     public AsciiArt() { }
 
-    public AsciiArt(string multilineText) => SetText(multilineText);
+    public AsciiArt(string multilineText)
+    {
+        SetText(multilineText);
+    }
 
     /// <summary>Sets plain text art. Lines are split on newlines.</summary>
     public void SetText(string multilineText)

@@ -120,7 +120,10 @@ public abstract class Control
     }
 
     /// <summary>Natural size of the control when no explicit size or stretching anchors are set.</summary>
-    protected virtual Size GetPreferredSize(Size available) => new(10, 1);
+    protected virtual Size GetPreferredSize(Size available)
+    {
+        return new(10, 1);
+    }
 
     /// <summary>
     /// Hook for containers that position their children themselves instead of letting each
@@ -179,7 +182,10 @@ public abstract class Control
     public virtual void Update(TimeSpan delta) { }
 
     /// <summary>Handles a key press while focused. Return true if the key was consumed.</summary>
-    public virtual bool OnKey(ConsoleKeyInfo key) => false;
+    public virtual bool OnKey(ConsoleKeyInfo key)
+    {
+        return false;
+    }
 
     internal void CollectFocusable(List<Control> result)
     {

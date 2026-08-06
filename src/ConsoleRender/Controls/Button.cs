@@ -31,14 +31,27 @@ public class Button : Control
     /// <summary>Raised when the button is triggered.</summary>
     public event Action? Clicked;
 
-    public Button() => Focusable = true;
+    public Button()
+    {
+        Focusable = true;
+    }
 
-    public Button(string text) : this() => Text = Guard.Against.Null(text);
+    public Button(string text)
+        : this()
+    {
+        Text = Guard.Against.Null(text);
+    }
 
     /// <summary>Triggers the button as if it had been pressed.</summary>
-    public void PerformClick() => Clicked?.Invoke();
+    public void PerformClick()
+    {
+        Clicked?.Invoke();
+    }
 
-    protected override Size GetPreferredSize(Size available) => new(Text.Length + 4, 1);
+    protected override Size GetPreferredSize(Size available)
+    {
+        return new(Text.Length + 4, 1);
+    }
 
     public override bool OnKey(ConsoleKeyInfo key)
     {

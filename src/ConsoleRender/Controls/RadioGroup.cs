@@ -15,9 +15,13 @@ public class RadioGroup : Control
 
     public event Action<int>? SelectionChanged;
 
-    public RadioGroup() => Focusable = true;
+    public RadioGroup()
+    {
+        Focusable = true;
+    }
 
-    public RadioGroup(params string[] items) : this()
+    public RadioGroup(params string[] items)
+        : this()
     {
         Guard.Against.Null(items);
         Items.AddRange(items);
@@ -26,8 +30,10 @@ public class RadioGroup : Control
     public string? SelectedItem =>
         SelectedIndex >= 0 && SelectedIndex < Items.Count ? Items[SelectedIndex] : null;
 
-    protected override Size GetPreferredSize(Size available) =>
-        new(Items.Count == 0 ? 4 : Items.Max(i => i.Length) + 4, Math.Max(1, Items.Count));
+    protected override Size GetPreferredSize(Size available)
+    {
+        return new(Items.Count == 0 ? 4 : Items.Max(i => i.Length) + 4, Math.Max(1, Items.Count));
+    }
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
