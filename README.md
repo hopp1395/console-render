@@ -187,9 +187,11 @@ ratio. On Linux and macOS there is a text-only fallback via `xclip` and `pbcopy`
 dotnet run --project samples/ConsoleRender.Demo
 ```
 
-The sample shows every control at once and knows the commands `/help`, `/echo`, `/clear`,
-`/color`, `/info`, `/confirm`, `/border`, `/typewriter`, `/paste`, `/copy`, `/logo`, `/busy`,
-`/progress`, `/task`, `/editor` and `/exit`. Its user interface is in German.
+The sample is a feature gallery: the searchable list on the left selects a feature, the
+panel on the right presents it live — every control and subsystem has a page. It knows the
+commands `/help`, `/feature`, `/echo`, `/clear`, `/color`, `/info`, `/confirm`, `/border`,
+`/typewriter`, `/paste`, `/copy`, `/logo`, `/busy`, `/progress`, `/task`, `/editor` and
+`/exit`. Its user interface is in German.
 
 A single frame can be rendered without an interactive terminal, which is useful for snapshots:
 
