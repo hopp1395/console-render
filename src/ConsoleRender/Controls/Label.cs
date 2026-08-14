@@ -34,9 +34,15 @@ public class Label : Control
 
     public Label() { }
 
-    public Label(string text) => Text = Guard.Against.Null(text);
+    public Label(string text)
+    {
+        Text = Guard.Against.Null(text);
+    }
 
-    protected override Size GetPreferredSize(Size available) => new(Text.Length, 1);
+    protected override Size GetPreferredSize(Size available)
+    {
+        return new(Text.Length, 1);
+    }
 
     public override void Update(TimeSpan delta)
     {

@@ -18,16 +18,22 @@ public class SelectMenu : Control
     /// <summary>Raised when the highlight moves.</summary>
     public event Action<int>? SelectionChanged;
 
-    public SelectMenu() => Focusable = true;
+    public SelectMenu()
+    {
+        Focusable = true;
+    }
 
-    public SelectMenu(params string[] items) : this()
+    public SelectMenu(params string[] items)
+        : this()
     {
         Guard.Against.Null(items);
         Items.AddRange(items);
     }
 
-    protected override Size GetPreferredSize(Size available) =>
-        new(Items.Count == 0 ? 8 : Items.Max(i => i.Length) + 2, Math.Max(1, Items.Count));
+    protected override Size GetPreferredSize(Size available)
+    {
+        return new(Items.Count == 0 ? 8 : Items.Max(i => i.Length) + 2, Math.Max(1, Items.Count));
+    }
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
@@ -53,7 +59,10 @@ public class SelectMenu : Control
         return false;
     }
 
-    private void Move(int delta) => MoveTo((SelectedIndex + delta + Items.Count) % Items.Count);
+    private void Move(int delta)
+    {
+        MoveTo((SelectedIndex + delta + Items.Count) % Items.Count);
+    }
 
     private void MoveTo(int index)
     {

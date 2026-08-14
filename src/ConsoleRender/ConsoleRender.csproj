@@ -7,6 +7,9 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Runs the .editorconfig style rules during the build, so a violation fails CI
+         instead of only showing up as an IDE squiggle. -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- Self-explanatory members (color constants, enum values, simple accessors) carry no doc comment. -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>

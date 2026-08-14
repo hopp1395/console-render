@@ -2,11 +2,13 @@ namespace ConsoleRender.Tests;
 
 public class ControlBehaviourTests
 {
-    private static ConsoleKeyInfo Key(ConsoleKey key, char ch = '\0', ConsoleModifiers modifiers = 0) =>
-        new(ch, key,
+    private static ConsoleKeyInfo Key(ConsoleKey key, char ch = '\0', ConsoleModifiers modifiers = 0)
+    {
+        return new(ch, key,
             modifiers.HasFlag(ConsoleModifiers.Shift),
             modifiers.HasFlag(ConsoleModifiers.Alt),
             modifiers.HasFlag(ConsoleModifiers.Control));
+    }
 
     [Fact]
     public void TextBox_TypingAndBackspaceEditTheText()

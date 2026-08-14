@@ -13,9 +13,15 @@ public readonly record struct Rect(int X, int Y, int Width, int Height)
     public int Bottom => Y + Height;
     public bool IsEmpty => Width <= 0 || Height <= 0;
 
-    public bool Contains(int px, int py) => px >= X && px < Right && py >= Y && py < Bottom;
+    public bool Contains(int px, int py)
+    {
+        return px >= X && px < Right && py >= Y && py < Bottom;
+    }
 
-    public Rect Deflate(int amount) => Deflate(amount, amount);
+    public Rect Deflate(int amount)
+    {
+        return Deflate(amount, amount);
+    }
 
     public Rect Deflate(int horizontal, int vertical)
     {

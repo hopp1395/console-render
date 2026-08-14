@@ -55,7 +55,10 @@ public class ProgressBar : Control
         ? 0
         : Math.Clamp((value - minimum) / (maximum - minimum), 0, 1);
 
-    protected override Size GetPreferredSize(Size available) => new(20, 1);
+    protected override Size GetPreferredSize(Size available)
+    {
+        return new(20, 1);
+    }
 
     public override void Update(TimeSpan delta)
     {

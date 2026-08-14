@@ -40,7 +40,10 @@ public class OutputField : Control
     public Color Foreground { get; set; } = Color.Default;
     public Color Background { get; set; } = Color.Default;
 
-    public OutputField() => Focusable = true;
+    public OutputField()
+    {
+        Focusable = true;
+    }
 
     public void AppendLine(string text, Color? color = null)
     {

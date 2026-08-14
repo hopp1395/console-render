@@ -2,7 +2,10 @@ namespace ConsoleRender.Tests;
 
 public class DialogTests
 {
-    private static ConsoleKeyInfo Key(ConsoleKey key, char ch = '\0') => new(ch, key, false, false, false);
+    private static ConsoleKeyInfo Key(ConsoleKey key, char ch = '\0')
+    {
+        return new(ch, key, false, false, false);
+    }
 
     [Fact]
     public void Button_EnterAndSpaceTriggerTheClick()

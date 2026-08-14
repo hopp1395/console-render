@@ -52,7 +52,10 @@ public class InfoBox : ModalControl
         return false;
     }
 
-    private IReadOnlyList<string> WrapText(int width) => TextWrap.Wrap(Text, width);
+    private IReadOnlyList<string> WrapText(int width)
+    {
+        return TextWrap.Wrap(Text, width);
+    }
 
     protected override Size GetPreferredSize(Size available)
     {

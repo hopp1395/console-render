@@ -17,11 +17,21 @@ public class Checkbox : Control
 
     public event Action<bool>? CheckedChanged;
 
-    public Checkbox() => Focusable = true;
+    public Checkbox()
+    {
+        Focusable = true;
+    }
 
-    public Checkbox(string text) : this() => Text = Guard.Against.Null(text);
+    public Checkbox(string text)
+        : this()
+    {
+        Text = Guard.Against.Null(text);
+    }
 
-    protected override Size GetPreferredSize(Size available) => new(Text.Length + 4, 1);
+    protected override Size GetPreferredSize(Size available)
+    {
+        return new(Text.Length + 4, 1);
+    }
 
     public override bool OnKey(ConsoleKeyInfo key)
     {

@@ -159,7 +159,10 @@ public sealed class ConsoleApp : IDisposable
     }
 
     /// <summary>Stops the render loop started by <see cref="Run"/>.</summary>
-    public void Exit() => running = false;
+    public void Exit()
+    {
+        running = false;
+    }
 
     /// <summary>
     /// Runs the render loop until <see cref="Exit"/> is called. Initializes the terminal
