@@ -159,6 +159,7 @@ internal static class Program
             ("Suchfeld", SearchPage(status)),
             ("Auswahl & Optionen", ChoicesPage(status, [leftFrame, rightFrame], input, tabsControl)),
             ("Tabs", tabsPage),
+            ("Tabelle", TablePage(status)),
             ("Fortschritt & Spinner", ProgressPage(progress, status)),
             ("Rahmen & Stile", BorderPage()),
             ("Dialoge & Buttons", DialogPage(app, status)),
@@ -418,6 +419,29 @@ internal static class Program
             Info(0, "Pfeiltasten oder Pos1/Ende wechseln den aktiven Tab."),
             Info(1, "Tab springt vom Tab-Kopf in dessen Inhalt, Umschalt+Tab zurück."),
             tabs);
+    }
+
+    private static Panel TablePage(Label status)
+    {
+        var table = new Table { Left = 0, Top = 3, Right = 0, Bottom = 0 };
+        table.AddColumn("Stadt", 16);
+        table.AddColumn("Einwohner", 12);
+        table.AddColumn("Bundesland", 16);
+        table.AddRow("Berlin", "3.700.000", "Berlin");
+        table.AddRow("Hamburg", "1.900.000", "Hamburg");
+        table.AddRow("München", "1.500.000", "Bayern");
+        table.AddRow("Köln", "1.100.000", "Nordrhein-Westfalen");
+        table.AddRow("Frankfurt", "770.000", "Hessen");
+        table.AddRow("Stuttgart", "630.000", "Baden-Württemberg");
+        table.AddRow("Düsseldorf", "620.000", "Nordrhein-Westfalen");
+        table.AddRow("Leipzig", "600.000", "Sachsen");
+        table.SelectionChanged += i => status.Text = $"Zeile gewählt: {table.Rows[i][0]}";
+        table.RowActivated += i => status.Text = $"Zeile aktiviert: {table.Rows[i][0]}";
+
+        return Fill(
+            Info(0, "Pfeiltasten oder Pos1/Ende bewegen die Auswahl, Enter aktiviert die Zeile."),
+            Info(1, "Zellen werden auf die feste Spaltenbreite abgeschnitten, kein Sortieren."),
+            table);
     }
 
     private static Panel ProgressPage(ProgressBar progress, Label status)
