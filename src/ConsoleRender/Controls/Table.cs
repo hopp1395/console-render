@@ -91,21 +91,27 @@ public class Table : Control
 
         switch (key.Key)
         {
+
             case ConsoleKey.UpArrow:
                 Select(Math.Max(0, selectedIndex - 1));
                 return true;
+
             case ConsoleKey.DownArrow:
                 Select(Math.Min(Rows.Count - 1, selectedIndex + 1));
                 return true;
+
             case ConsoleKey.Home:
                 Select(0);
                 return true;
+
             case ConsoleKey.End:
                 Select(Rows.Count - 1);
                 return true;
+
             case ConsoleKey.Enter:
                 RowActivated?.Invoke(selectedIndex);
                 return true;
+
         }
 
         return false;

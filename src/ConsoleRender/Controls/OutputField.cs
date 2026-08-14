@@ -122,15 +122,19 @@ public class OutputField : Control
         var page = Math.Max(1, Bounds.Height - 1);
         switch (key.Key)
         {
+
             case ConsoleKey.PageUp:
                 scrollOffset += page;
                 return true;
+
             case ConsoleKey.PageDown:
                 scrollOffset = Math.Max(0, scrollOffset - page);
                 return true;
+
             case ConsoleKey.End when key.Modifiers.HasFlag(ConsoleModifiers.Control):
                 scrollOffset = 0;
                 return true;
+
         }
 
         return false;

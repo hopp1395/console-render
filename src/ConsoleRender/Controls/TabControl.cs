@@ -109,18 +109,23 @@ public class TabControl : Control
 
         switch (key.Key)
         {
+
             case ConsoleKey.LeftArrow:
                 Select((selectedIndex - 1 + tabs.Count) % tabs.Count);
                 return true;
+
             case ConsoleKey.RightArrow:
                 Select((selectedIndex + 1) % tabs.Count);
                 return true;
+
             case ConsoleKey.Home:
                 Select(0);
                 return true;
+
             case ConsoleKey.End:
                 Select(tabs.Count - 1);
                 return true;
+
         }
 
         return false;

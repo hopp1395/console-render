@@ -44,12 +44,15 @@ public class RadioGroup : Control
 
         switch (key.Key)
         {
+
             case ConsoleKey.UpArrow:
                 cursor = (cursor - 1 + Items.Count) % Items.Count;
                 return true;
+
             case ConsoleKey.DownArrow:
                 cursor = (cursor + 1) % Items.Count;
                 return true;
+
             case ConsoleKey.Spacebar:
             case ConsoleKey.Enter:
                 if (SelectedIndex != cursor)
@@ -59,6 +62,7 @@ public class RadioGroup : Control
                 }
 
                 return true;
+
         }
 
         return false;

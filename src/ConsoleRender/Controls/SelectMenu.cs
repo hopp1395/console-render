@@ -44,21 +44,27 @@ public class SelectMenu : Control
 
         switch (key.Key)
         {
+
             case ConsoleKey.UpArrow:
                 Move(-1);
                 return true;
+
             case ConsoleKey.DownArrow:
                 Move(1);
                 return true;
+
             case ConsoleKey.Home:
                 MoveTo(0);
                 return true;
+
             case ConsoleKey.End:
                 MoveTo(Items.Count - 1);
                 return true;
+
             case ConsoleKey.Enter:
                 ItemActivated?.Invoke(SelectedIndex, Items[SelectedIndex]);
                 return true;
+
         }
 
         return false;

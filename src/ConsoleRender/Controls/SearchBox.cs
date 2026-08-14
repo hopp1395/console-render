@@ -116,12 +116,15 @@ public class SearchBox : Control
 
         switch (key.Key)
         {
+
             case ConsoleKey.UpArrow:
                 Move(-1);
                 return true;
+
             case ConsoleKey.DownArrow:
                 Move(1);
                 return true;
+
             case ConsoleKey.Enter:
                 if (matches.Count > 0)
                 {
@@ -129,9 +132,11 @@ public class SearchBox : Control
                 }
 
                 return true;
+
             case ConsoleKey.Escape when input.Text.Length > 0:
                 input.SetText("");
                 return true;
+
         }
 
         // Everything else — typing, cursor movement, clipboard — belongs to the input line.

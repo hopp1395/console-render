@@ -105,13 +105,16 @@ public class ConfirmDialog : ModalControl
 
         switch (key.Key)
         {
+
             case ConsoleKey.LeftArrow:
                 Move(-1);
                 return true;
+
             case ConsoleKey.RightArrow:
             case ConsoleKey.Tab:
                 Move(1);
                 return true;
+
             case ConsoleKey.Enter:
             case ConsoleKey.Spacebar:
                 var index = selectedIndex;
@@ -119,10 +122,12 @@ public class ConfirmDialog : ModalControl
                 Close();
                 Chosen?.Invoke(index, label);
                 return true;
+
             case ConsoleKey.Escape:
                 Close();
                 Cancelled?.Invoke();
                 return true;
+
         }
 
         return false;

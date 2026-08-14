@@ -141,6 +141,7 @@ public class TextArea : Control
 
         switch (key.Key)
         {
+
             case ConsoleKey.Enter:
                 lines[cursorLine] = line[..cursorCol];
                 lines.Insert(cursorLine + 1, line[cursorCol..]);
@@ -263,6 +264,7 @@ public class TextArea : Control
                 }
 
                 return true;
+
         }
 
         if (!ctrl && key.KeyChar >= ' ' && key.KeyChar != '\x7f')

@@ -92,21 +92,27 @@ public class TextBox : Control
 
         switch (key.Key)
         {
+
             case ConsoleKey.Enter:
                 OnSubmit(Text);
                 return true;
+
             case ConsoleKey.LeftArrow:
                 cursor = Math.Max(0, cursor - 1);
                 return true;
+
             case ConsoleKey.RightArrow:
                 cursor = Math.Min(Text.Length, cursor + 1);
                 return true;
+
             case ConsoleKey.Home:
                 cursor = 0;
                 return true;
+
             case ConsoleKey.End:
                 cursor = Text.Length;
                 return true;
+
             case ConsoleKey.Backspace:
                 if (cursor > 0)
                 {
@@ -116,6 +122,7 @@ public class TextBox : Control
                 }
 
                 return true;
+
             case ConsoleKey.Delete:
                 if (cursor < Text.Length)
                 {
@@ -124,11 +131,13 @@ public class TextBox : Control
                 }
 
                 return true;
+
             case ConsoleKey.U when ctrl:
                 Text = "";
                 cursor = 0;
                 TextChanged?.Invoke(Text);
                 return true;
+
             case ConsoleKey.C when ctrl:
                 if (Text.Length > 0)
                 {
@@ -136,6 +145,7 @@ public class TextBox : Control
                 }
 
                 return true;
+
             case ConsoleKey.V when ctrl:
                 if (Clipboard.TryGetText(out var pasted))
                 {
@@ -143,6 +153,7 @@ public class TextBox : Control
                 }
 
                 return true;
+
         }
 
         if (!ctrl && key.KeyChar >= ' ' && key.KeyChar != '\x7f')

@@ -65,6 +65,7 @@ public class Label : Control
 
         switch (Effect)
         {
+
             case TextEffect.Blink:
                 if (elapsed % 1.0 < 0.5)
                 {
