@@ -168,6 +168,38 @@ public class TableTests
         Assert.Equal('X', lines[1][6]);
     }
 
+    [Fact]
+    public void ColumnsAlignTheirCellTextLeftCenterOrRight()
+    {
+        var table = new Table();
+        table.AddColumn("L", 8, TextAlignment.Left);
+        table.AddColumn("C", 8, TextAlignment.Center);
+        table.AddColumn("R", 8, TextAlignment.Right);
+        table.AddRow("AB", "AB", "AB");
+        table.Left = 0;
+        table.Top = 0;
+        table.Width = 26;
+        table.Height = 2;
+
+        using var app = new ConsoleApp();
+        app.Root.Add(table);
+
+        string[] lines = app.RenderOffscreen(26, 2).ToText().Split('\n');
+
+        Assert.Equal("L       │   C    │       R", lines[0]);
+        Assert.Equal("AB      │   AB   │      AB", lines[1]);
+    }
+
+    [Fact]
+    public void AddColumn_DefaultsToLeftAlignment()
+    {
+        var table = new Table();
+
+        table.AddColumn("A", 5);
+
+        Assert.Equal(TextAlignment.Left, table.Columns[0].Alignment);
+    }
+
     // Column width 4, cell "0123456789" (10 chars): maxOffset = 6, and at 3 chars/second that's
     // exactly a 2s scroll + the 1s hold = a clean 3s cycle, so these times land on exact values.
     private static Table OverflowingRow()

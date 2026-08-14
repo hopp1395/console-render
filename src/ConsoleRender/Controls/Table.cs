@@ -1,7 +1,7 @@
 namespace ConsoleRender;
 
-/// <summary>A fixed-width column of a <see cref="Table"/>.</summary>
-public readonly record struct TableColumn(string Header, int Width);
+/// <summary>A fixed-width column of a <see cref="Table"/>, with its cells' text alignment.</summary>
+public readonly record struct TableColumn(string Header, int Width, TextAlignment Alignment = TextAlignment.Left);
 
 /// <summary>
 /// A scrollable table with fixed-width columns. Arrow keys move the row selection (clamped
@@ -54,11 +54,11 @@ public class Table : Control
         Focusable = true;
     }
 
-    public void AddColumn(string header, int width)
+    public void AddColumn(string header, int width, TextAlignment alignment = TextAlignment.Left)
     {
         Guard.Against.NullOrWhiteSpace(header);
         Guard.Against.NegativeOrZero(width);
-        Columns.Add(new TableColumn(header, width));
+        Columns.Add(new TableColumn(header, width, alignment));
     }
 
     /// <summary>Adds a row. <paramref name="cells"/> must have exactly one entry per column.</summary>
@@ -144,13 +144,14 @@ public class Table : Control
         int x = Bounds.X;
         for (int c = 0; c < Columns.Count; c++)
         {
-            int width = Columns[c].Width;
+            var column = Columns[c];
             string cell = cells[c];
-            string text = scrollOverflow && cell.Length > width
-                ? ScrollText(cell, width)
-                : Truncate(cell, width).PadRight(width);
+            // A scrolling cell already fills the column exactly, so alignment does not apply to it.
+            string text = scrollOverflow && cell.Length > column.Width
+                ? ScrollText(cell, column.Width)
+                : Align(cell, column.Width, column.Alignment);
             buffer.Write(x, y, text, fg, Background, style);
-            x += width;
+            x += column.Width;
 
             if (c < Columns.Count - 1)
             {
@@ -186,6 +187,18 @@ public class Table : Control
     private int RowWidth()
     {
         return Columns.Count == 0 ? 0 : Columns.Sum(c => c.Width) + (Columns.Count - 1);
+    }
+
+    private static string Align(string text, int width, TextAlignment alignment)
+    {
+        string truncated = Truncate(text, width);
+        int pad = width - truncated.Length;
+        return alignment switch
+        {
+            TextAlignment.Right => new string(' ', pad) + truncated,
+            TextAlignment.Center => new string(' ', pad / 2) + truncated + new string(' ', pad - pad / 2),
+            _ => truncated.PadRight(width),
+        };
     }
 
     private static string Truncate(string s, int max)

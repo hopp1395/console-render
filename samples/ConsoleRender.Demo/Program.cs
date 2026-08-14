@@ -425,8 +425,8 @@ internal static class Program
     {
         var table = new Table { Left = 0, Top = 3, Right = 0, Bottom = 0 };
         table.AddColumn("Stadt", 16);
-        table.AddColumn("Einwohner", 12);
-        table.AddColumn("Bundesland", 16);
+        table.AddColumn("Einwohner", 12, TextAlignment.Right);
+        table.AddColumn("Bundesland", 16, TextAlignment.Center);
         table.AddRow("Berlin", "3.700.000", "Berlin");
         table.AddRow("Hamburg", "1.900.000", "Hamburg");
         table.AddRow("München", "1.500.000", "Bayern");
