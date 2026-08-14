@@ -168,27 +168,68 @@ public class TableTests
         Assert.Equal('X', lines[1][6]);
     }
 
-    [Fact]
-    public void AnOverflowingCellInTheSelectedRowScrollsOverTime()
+    // Column width 4, cell "0123456789" (10 chars): maxOffset = 6, and at 3 chars/second that's
+    // exactly a 2s scroll + the 1s hold = a clean 3s cycle, so these times land on exact values.
+    private static Table OverflowingRow()
     {
         var table = new Table();
-        table.AddColumn("N", 5);
-        table.AddRow("ABCDEFGHIJ");
-        table.Left = 0;
-        table.Top = 0;
-        table.Width = 5;
-        table.Height = 2;
+        table.AddColumn("N", 4);
+        table.AddRow("0123456789");
+        return table;
+    }
 
-        using var app = new ConsoleApp();
-        app.Root.Add(table);
+    [Fact]
+    public void TheSelectedRowScrollsTowardTheEndOverTime()
+    {
+        var table = OverflowingRow();
 
-        string before = app.RenderOffscreen(5, 2).ToText().Split('\n')[1];
-        Assert.Equal("ABCDE", before);
+        string atStart = RenderText(table, 4, 2).Split('\n')[1];
+        Assert.Equal("0123", atStart);
 
-        table.Update(TimeSpan.FromSeconds(1)); // 3 chars/second
+        table.Update(TimeSpan.FromSeconds(1));
+        string mid = RenderText(table, 4, 2).Split('\n')[1];
+        Assert.Equal("3456", mid);
+    }
 
-        string after = app.RenderOffscreen(5, 2).ToText().Split('\n')[1];
-        Assert.Equal("DEFGH", after);
+    [Fact]
+    public void TheSelectedRowHoldsAtTheEndInsteadOfScrollingForever()
+    {
+        var table = OverflowingRow();
+
+        table.Update(TimeSpan.FromSeconds(2)); // exactly the 2s it takes to reach the end
+        string atEnd = RenderText(table, 4, 2).Split('\n')[1];
+        Assert.Equal("6789", atEnd);
+
+        table.Update(TimeSpan.FromSeconds(0.9)); // still within the 1s hold
+        string stillAtEnd = RenderText(table, 4, 2).Split('\n')[1];
+        Assert.Equal("6789", stillAtEnd);
+    }
+
+    [Fact]
+    public void TheSelectedRowResetsToTheStartAfterTheHoldAndScrollsAgain()
+    {
+        var table = OverflowingRow();
+
+        table.Update(TimeSpan.FromSeconds(3)); // one full cycle: 2s scroll + 1s hold
+        string restarted = RenderText(table, 4, 2).Split('\n')[1];
+
+        Assert.Equal("0123", restarted);
+    }
+
+    [Fact]
+    public void ChangingTheSelectionRestartsTheScrollFromTheStart()
+    {
+        var table = new Table();
+        table.AddColumn("N", 4);
+        table.AddRow("0123456789");
+        table.AddRow("9876543210");
+
+        table.Update(TimeSpan.FromSeconds(2)); // row 0 is now held at the end
+        table.OnKey(Key(ConsoleKey.DownArrow)); // selecting row 1 must restart its own scroll
+
+        string line = RenderText(table, 4, 3).Split('\n')[2];
+
+        Assert.Equal("9876", line);
     }
 
     [Fact]

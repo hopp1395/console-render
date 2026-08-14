@@ -13,12 +13,14 @@ public class Table : Control
     /// <summary>How many characters an overflowing cell scrolls per second.</summary>
     private const double ScrollCharsPerSecond = 3.0;
 
-    /// <summary>Blank cells inserted between loops of the scrolling text.</summary>
-    private const int ScrollGap = 3;
+    /// <summary>How long the scroll holds at the end before resetting to the start.</summary>
+    private const double ScrollPauseSeconds = 1.0;
 
     private int scroll;
     private int selectedIndex;
-    private double elapsed;
+
+    /// <summary>Time since the current row was selected; drives, and resets, its scroll cycle.</summary>
+    private double rowElapsed;
 
     public List<TableColumn> Columns { get; } = new();
     public List<IReadOnlyList<string>> Rows { get; } = new();
@@ -78,7 +80,7 @@ public class Table : Control
     public override void Update(TimeSpan delta)
     {
         Guard.Against.Negative(delta);
-        elapsed += delta.TotalSeconds;
+        rowElapsed += delta.TotalSeconds;
     }
 
     public override bool OnKey(ConsoleKeyInfo key)
@@ -158,15 +160,18 @@ public class Table : Control
         }
     }
 
-    // Loops "text" plus a blank gap into a marquee: a window of "width" characters slides
-    // across it over time, wrapping smoothly once the loop restarts.
+    // Scrolls from the start to the point where the last character becomes visible, holds
+    // there for ScrollPauseSeconds, then jumps back to the start and scrolls again — timed
+    // from "rowElapsed", which Select() resets to zero whenever a different row is selected.
     private string ScrollText(string text, int width)
     {
-        string looped = text + new string(' ', ScrollGap);
-        int period = looped.Length;
-        int offset = (int)(elapsed * ScrollCharsPerSecond) % period;
-        string doubled = looped + looped;
-        return doubled.Substring(offset, width);
+        int maxOffset = text.Length - width;
+        double scrollDuration = maxOffset / ScrollCharsPerSecond;
+        double cycleDuration = scrollDuration + ScrollPauseSeconds;
+
+        double t = rowElapsed % cycleDuration;
+        int offset = t < scrollDuration ? (int)(t * ScrollCharsPerSecond) : maxOffset;
+        return text.Substring(offset, width);
     }
 
     private void Select(int index)
@@ -174,6 +179,7 @@ public class Table : Control
         if (index == selectedIndex) return;
 
         selectedIndex = index;
+        rowElapsed = 0;
         SelectionChanged?.Invoke(selectedIndex);
     }
 
