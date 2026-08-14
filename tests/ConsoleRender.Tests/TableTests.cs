@@ -169,6 +169,72 @@ public class TableTests
     }
 
     [Fact]
+    public void AnOverflowingCellInTheSelectedRowScrollsOverTime()
+    {
+        var table = new Table();
+        table.AddColumn("N", 5);
+        table.AddRow("ABCDEFGHIJ");
+        table.Left = 0;
+        table.Top = 0;
+        table.Width = 5;
+        table.Height = 2;
+
+        using var app = new ConsoleApp();
+        app.Root.Add(table);
+
+        string before = app.RenderOffscreen(5, 2).ToText().Split('\n')[1];
+        Assert.Equal("ABCDE", before);
+
+        table.Update(TimeSpan.FromSeconds(1)); // 3 chars/second
+
+        string after = app.RenderOffscreen(5, 2).ToText().Split('\n')[1];
+        Assert.Equal("DEFGH", after);
+    }
+
+    [Fact]
+    public void ScrollingIsInactiveOnRowsThatAreNotSelected()
+    {
+        var table = new Table();
+        table.AddColumn("N", 5);
+        table.AddRow("AB"); // selected by default, too short to overflow
+        table.AddRow("ABCDEFGHIJ"); // not selected, overflows
+
+        string text = RenderText(table, 5, 3);
+
+        table.Update(TimeSpan.FromSeconds(5));
+        string afterWaiting = RenderText(table, 5, 3);
+
+        // The non-selected overflowing row stays statically truncated, unaffected by time.
+        string unselectedRow = afterWaiting.Split('\n')[2];
+        Assert.Equal("ABCDE", unselectedRow);
+        Assert.Equal(text.Split('\n')[2], unselectedRow);
+    }
+
+    [Fact]
+    public void ShortCellsInTheSelectedRowDoNotScroll()
+    {
+        var table = Cities();
+        table.Update(TimeSpan.FromSeconds(10));
+
+        string firstLine = RenderText(table, 24, 4).Split('\n')[1];
+
+        Assert.StartsWith("Berlin", firstLine);
+    }
+
+    private static string RenderText(Table table, int width, int height)
+    {
+        table.Parent?.Remove(table);
+        table.Left = 0;
+        table.Top = 0;
+        table.Width = width;
+        table.Height = height;
+
+        using var app = new ConsoleApp();
+        app.Root.Add(table);
+        return app.RenderOffscreen(width, height).ToText();
+    }
+
+    [Fact]
     public void ScrollingKeepsTheSelectionInView()
     {
         var table = new Table();

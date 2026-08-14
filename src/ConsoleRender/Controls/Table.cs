@@ -10,8 +10,15 @@ public readonly record struct TableColumn(string Header, int Width);
 /// </summary>
 public class Table : Control
 {
+    /// <summary>How many characters an overflowing cell scrolls per second.</summary>
+    private const double ScrollCharsPerSecond = 3.0;
+
+    /// <summary>Blank cells inserted between loops of the scrolling text.</summary>
+    private const int ScrollGap = 3;
+
     private int scroll;
     private int selectedIndex;
+    private double elapsed;
 
     public List<TableColumn> Columns { get; } = new();
     public List<IReadOnlyList<string>> Rows { get; } = new();
@@ -67,6 +74,13 @@ public class Table : Control
         return new(RowWidth(), Rows.Count + 1);
     }
 
+    /// <summary>Advances the scroll animation of the selected row's overflowing cells.</summary>
+    public override void Update(TimeSpan delta)
+    {
+        Guard.Against.Negative(delta);
+        elapsed += delta.TotalSeconds;
+    }
+
     public override bool OnKey(ConsoleKeyInfo key)
     {
         if (Rows.Count == 0) return false;
@@ -99,7 +113,7 @@ public class Table : Control
         if (Bounds.Height < 1 || Bounds.Width < 1 || Columns.Count == 0) return;
 
         DrawRow(buffer, Bounds.Y, Columns.Select(c => c.Header).ToArray(),
-            HeaderColor, CellStyle.Bold | CellStyle.Underline);
+            HeaderColor, CellStyle.Bold | CellStyle.Underline, scrollOverflow: false);
 
         int visibleRows = Bounds.Height - 1;
         if (visibleRows <= 0) return;
@@ -118,17 +132,21 @@ public class Table : Control
                 : selected ? CellStyle.Bold
                 : CellStyle.None;
             var fg = selected ? AccentColor : Foreground;
-            DrawRow(buffer, Bounds.Y + 1 + row, Rows[i], fg, style);
+            DrawRow(buffer, Bounds.Y + 1 + row, Rows[i], fg, style, scrollOverflow: selected);
         }
     }
 
-    private void DrawRow(ConsoleBuffer buffer, int y, IReadOnlyList<string> cells, Color fg, CellStyle style)
+    private void DrawRow(ConsoleBuffer buffer, int y, IReadOnlyList<string> cells, Color fg, CellStyle style,
+        bool scrollOverflow)
     {
         int x = Bounds.X;
         for (int c = 0; c < Columns.Count; c++)
         {
             int width = Columns[c].Width;
-            string text = Truncate(cells[c], width).PadRight(width);
+            string cell = cells[c];
+            string text = scrollOverflow && cell.Length > width
+                ? ScrollText(cell, width)
+                : Truncate(cell, width).PadRight(width);
             buffer.Write(x, y, text, fg, Background, style);
             x += width;
 
@@ -138,6 +156,17 @@ public class Table : Control
                 x += 1;
             }
         }
+    }
+
+    // Loops "text" plus a blank gap into a marquee: a window of "width" characters slides
+    // across it over time, wrapping smoothly once the loop restarts.
+    private string ScrollText(string text, int width)
+    {
+        string looped = text + new string(' ', ScrollGap);
+        int period = looped.Length;
+        int offset = (int)(elapsed * ScrollCharsPerSecond) % period;
+        string doubled = looped + looped;
+        return doubled.Substring(offset, width);
     }
 
     private void Select(int index)

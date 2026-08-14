@@ -440,7 +440,7 @@ internal static class Program
 
         return Fill(
             Info(0, "Pfeiltasten oder Pos1/Ende bewegen die Auswahl, Enter aktiviert die Zeile."),
-            Info(1, "Zellen werden auf die feste Spaltenbreite abgeschnitten, kein Sortieren."),
+            Info(1, "Zu lange Zellen scrollen automatisch, aber nur in der ausgewählten Zeile."),
             table);
     }
 
