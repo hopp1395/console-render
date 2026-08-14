@@ -19,15 +19,15 @@ internal static class Program
         """;
 
     private const string SampleMarkdown = """
-        # Markdown-Editor
+        # Markdown Editor
 
-        Der Editor hebt **fett**, *kursiv*, `code` und ~~gestrichen~~ hervor,
-        dazu ***beides zugleich***.
+        The editor highlights **bold**, *italic*, `code` and ~~strikethrough~~,
+        plus ***both at once***.
 
-        - Listenpunkt mit [Link](https://example.org)
-        1. Nummerierte Liste
+        - List item with [a link](https://example.org)
+        1. Numbered list
 
-        > Zitate erscheinen kursiv und grau.
+        > Quotes appear in italic gray.
 
         ```csharp
         var app = new ConsoleApp();
@@ -35,7 +35,7 @@ internal static class Program
         ```
 
         ---
-        Esc schließt den Editor.
+        Esc closes the editor.
         """;
 
     private static void Main(string[] args)
@@ -64,16 +64,16 @@ internal static class Program
                 ui.Input.Commands.Execute(args[runIndex + 1]);
 
             if (args.Contains("--modal"))
-                app.ShowInfo("Information", "Eine modale Infobox. Der Hintergrund wird abgedunkelt.");
+                app.ShowInfo("Information", "A modal info box. The background is dimmed.");
             if (args.Contains("--confirm"))
-                app.ShowConfirm("Beenden", "Demo wirklich beenden?", ["Beenden", "Zurück"], (_, _) => { });
+                app.ShowConfirm("Quit", "Really quit the demo?", ["Quit", "Cancel"], (_, _) => { });
             Console.WriteLine(app.RenderOffscreen(width, height).ToText());
             return;
         }
 
         app.Run();
 
-        Console.WriteLine("ConsoleRender-Demo beendet.");
+        Console.WriteLine("ConsoleRender demo exited.");
     }
 
     /// <summary>The controls the command handlers need to reach after construction.</summary>
@@ -92,7 +92,7 @@ internal static class Program
 
     private static Ui BuildUi(ConsoleApp app)
     {
-        var title = new Label("╔═ ConsoleRender ═ TUI-Framework für .NET ═╗")
+        var title = new Label("╔═ ConsoleRender ═ TUI Framework for .NET ═╗")
         {
             Left = 0, Right = 0, Top = 0, Height = 1,
             TextAlign = TextAlignment.Center,
@@ -100,9 +100,9 @@ internal static class Program
             Style = CellStyle.Bold,
         };
 
-        var spinner = new Spinner { Text = "bereit", Top = 1, Left = 2, Foreground = Color.Green };
+        var spinner = new Spinner { Text = "ready", Top = 1, Left = 2, Foreground = Color.Green };
 
-        var hint = new Label("F1 Hilfe · Tab Fokus · Strg+Q Ende")
+        var hint = new Label("F1 Help · Tab Focus · Ctrl+Q Quit")
         {
             Top = 1, Right = 2,
             Foreground = Color.DarkGray,
@@ -129,10 +129,10 @@ internal static class Program
             Left = 0, Right = 0, Bottom = 1, Height = 3,
             BorderMode = BorderMode.TopAndBottom,
             BorderColor = Color.Magenta,
-            Placeholder = "› Text eingeben oder /befehl – Tab vervollständigt",
+            Placeholder = "› Type text or /command – Tab completes",
         };
 
-        var status = new Label("Bereit.") { Left = 1, Bottom = 0, Foreground = Color.DarkGray };
+        var status = new Label("Ready.") { Left = 1, Bottom = 0, Foreground = Color.DarkGray };
 
         app.Root.AddRange(title, spinner, hint, leftFrame, rightFrame, input, status);
 
@@ -151,21 +151,21 @@ internal static class Program
         var tabsPage = TabsPage(out var tabsControl);
         var pages = new List<(string Name, Control Page)>
         {
-            ("Übersicht", OverviewPage()),
-            ("Labels & Effekte", LabelPage()),
-            ("Ausgabe-Log & Task-Zeilen", OutputPage(app, output, typewriterOption, status)),
-            ("Textfelder", TextBoxPage()),
-            ("Markdown-Editor", EditorPage()),
-            ("Suchfeld", SearchPage(status)),
-            ("Auswahl & Optionen", ChoicesPage(status, [leftFrame, rightFrame], input, tabsControl)),
+            ("Overview", OverviewPage()),
+            ("Labels & Effects", LabelPage()),
+            ("Output Log & Task Lines", OutputPage(app, output, typewriterOption, status)),
+            ("Text Fields", TextBoxPage()),
+            ("Markdown Editor", EditorPage()),
+            ("Search Box", SearchPage(status)),
+            ("Choices & Options", ChoicesPage(status, [leftFrame, rightFrame], input, tabsControl)),
             ("Tabs", tabsPage),
-            ("Tabelle", TablePage(status)),
-            ("Fortschritt & Spinner", ProgressPage(progress, status)),
-            ("Rahmen & Stile", BorderPage()),
-            ("Dialoge & Buttons", DialogPage(app, status)),
-            ("ASCII-Grafik & Zwischenablage", AsciiPage(art, output, status)),
-            ("Layout & Anker", LayoutPage()),
-            ("Befehle & Tastenkürzel", Fill(helpOutput)),
+            ("Table", TablePage(status)),
+            ("Progress & Spinner", ProgressPage(progress, status)),
+            ("Frames & Styles", BorderPage()),
+            ("Dialogs & Buttons", DialogPage(app, status)),
+            ("ASCII Art & Clipboard", AsciiPage(art, output, status)),
+            ("Layout & Anchors", LayoutPage()),
+            ("Commands & Shortcuts", Fill(helpOutput)),
         };
         var pageByName = pages.ToDictionary(p => p.Name, p => p.Page);
         var featureNames = pages.Select(p => p.Name).ToList();
@@ -173,9 +173,9 @@ internal static class Program
         var nav = new SearchBox(featureNames.ToArray())
         {
             Left = 0, Top = 0, Right = 0, Bottom = 0,
-            EmptyText = "keine Treffer",
+            EmptyText = "no matches",
         };
-        nav.Input.Placeholder = "Feature suchen…";
+        nav.Input.Placeholder = "Search features…";
         leftFrame.Add(nav);
 
         Control? currentPage = null;
@@ -213,7 +213,7 @@ internal static class Program
         typewriterOption.CheckedChanged += on =>
         {
             output.Typewriter = on;
-            status.Text = on ? "Typewriter-Effekt an." : "Typewriter-Effekt aus.";
+            status.Text = on ? "Typewriter effect on." : "Typewriter effect off.";
         };
 
         return new Ui(output, input, art, status, spinner, progress, typewriterOption,
@@ -249,15 +249,15 @@ internal static class Program
         };
         return Fill(
             logo,
-            new Label("Ein doppelt gepuffertes TUI-Framework für .NET.")
+            new Label("A double-buffered TUI framework for .NET.")
             {
                 Left = 0, Right = 0, Top = 10, TextAlign = TextAlignment.Center, Foreground = Color.White,
             },
-            new Label("Links ein Feature wählen – Pfeiltasten bewegen, Tippen filtert.")
+            new Label("Pick a feature on the left – arrow keys move, typing filters.")
             {
                 Left = 0, Right = 0, Top = 12, TextAlign = TextAlignment.Center, Foreground = Color.Gray,
             },
-            new Label("Tab wechselt den Fokus, F1 zeigt die Hilfe, /help alle Befehle.")
+            new Label("Tab switches focus, F1 shows help, /help lists all commands.")
             {
                 Left = 0, Right = 0, Top = 13, TextAlign = TextAlignment.Center, Foreground = Color.Gray,
             });
@@ -266,61 +266,61 @@ internal static class Program
     private static Panel LabelPage()
     {
         return Fill(
-            Info(0, "Labels zeigen Text mit Farbe, Stil und Animation."),
-            Section(2, "Effekte"),
-            new Label("Ohne Effekt – aber mit Farbe") { Left = 2, Top = 3, Foreground = Color.Cyan },
-            new Label("Blink: an und aus") { Left = 2, Top = 4, Effect = TextEffect.Blink, Foreground = Color.Yellow },
-            new Label("Rainbow: wandernder Farbverlauf") { Left = 2, Top = 5, Effect = TextEffect.Rainbow },
-            new Label("Pulse: Helligkeit atmet") { Left = 2, Top = 6, Effect = TextEffect.Pulse, Foreground = Color.Magenta },
-            Section(8, "Stile"),
-            new Label("fett") { Left = 2, Top = 9, Style = CellStyle.Bold },
-            new Label("kursiv") { Left = 8, Top = 9, Style = CellStyle.Italic },
-            new Label("unterstrichen") { Left = 16, Top = 9, Style = CellStyle.Underline },
-            new Label("durchgestrichen") { Left = 31, Top = 9, Style = CellStyle.Strikethrough },
-            Section(11, "Ausrichtung"),
-            new Label("linksbündig") { Left = 0, Right = 0, Top = 12, TextAlign = TextAlignment.Left },
-            new Label("zentriert") { Left = 0, Right = 0, Top = 13, TextAlign = TextAlignment.Center },
-            new Label("rechtsbündig") { Left = 0, Right = 0, Top = 14, TextAlign = TextAlignment.Right });
+            Info(0, "Labels show text with color, style and animation."),
+            Section(2, "Effects"),
+            new Label("No effect – but with color") { Left = 2, Top = 3, Foreground = Color.Cyan },
+            new Label("Blink: on and off") { Left = 2, Top = 4, Effect = TextEffect.Blink, Foreground = Color.Yellow },
+            new Label("Rainbow: a drifting color gradient") { Left = 2, Top = 5, Effect = TextEffect.Rainbow },
+            new Label("Pulse: brightness breathes") { Left = 2, Top = 6, Effect = TextEffect.Pulse, Foreground = Color.Magenta },
+            Section(8, "Styles"),
+            new Label("bold") { Left = 2, Top = 9, Style = CellStyle.Bold },
+            new Label("italic") { Left = 8, Top = 9, Style = CellStyle.Italic },
+            new Label("underlined") { Left = 16, Top = 9, Style = CellStyle.Underline },
+            new Label("strikethrough") { Left = 31, Top = 9, Style = CellStyle.Strikethrough },
+            Section(11, "Alignment"),
+            new Label("left-aligned") { Left = 0, Right = 0, Top = 12, TextAlign = TextAlignment.Left },
+            new Label("centered") { Left = 0, Right = 0, Top = 13, TextAlign = TextAlignment.Center },
+            new Label("right-aligned") { Left = 0, Right = 0, Top = 14, TextAlign = TextAlignment.Right });
     }
 
     private static Panel OutputPage(ConsoleApp app, OutputField output, Checkbox typewriter, Label status)
     {
-        var append = new Button("Zeile anhängen") { Left = 0, Bottom = 0 };
+        var append = new Button("Append line") { Left = 0, Bottom = 0 };
         int counter = 0;
-        append.Clicked += () => output.AppendLine($"Zeile {++counter} – umgebrochene Zeilen behalten ihre Einrückung.", Color.Cyan);
+        append.Clicked += () => output.AppendLine($"Line {++counter} – wrapped lines keep their indentation.", Color.Cyan);
 
-        var task = new Button("Task starten") { Left = 19, Bottom = 0 };
+        var task = new Button("Start task") { Left = 19, Bottom = 0 };
         task.Clicked += () => RunDemoTask(app, output, seconds: 3, progress: null);
 
-        output.AppendLine("Willkommen bei ConsoleRender!", Color.Cyan);
+        output.AppendLine("Welcome to ConsoleRender!", Color.Cyan);
         output.AppendLine("");
-        output.AppendLine("/echo, /color und /task schreiben hierher; Bild auf/ab scrollt.", Color.Gray);
+        output.AppendLine("/echo, /color and /task write here; Page Up/Down scrolls.", Color.Gray);
         output.AppendLine("");
 
         return Fill(
-            Info(0, "Ein scrollbares Farb-Log. Task-Zeilen tragen einen Spinner,"),
-            Info(1, "bis Complete/Fail sie mit Haken oder Kreuz einfrieren."),
+            Info(0, "A scrollable color log. Task lines carry a spinner,"),
+            Info(1, "until Complete/Fail freezes them with a check or a cross."),
             output, append, task, typewriter);
     }
 
     private static Panel TextBoxPage()
     {
-        var plain = new TextBox { Left = 0, Top = 3, Right = 0, Height = 1, Placeholder = "ohne Rahmen" };
+        var plain = new TextBox { Left = 0, Top = 3, Right = 0, Height = 1, Placeholder = "no border" };
         var lines = new TextBox
         {
             Left = 0, Top = 6, Right = 0, Height = 3,
             BorderMode = BorderMode.TopAndBottom, BorderColor = Color.Magenta,
-            Placeholder = "Linien oben und unten",
+            Placeholder = "lines above and below",
         };
         var full = new TextBox
         {
             Left = 0, Top = 10, Right = 0, Height = 3,
             BorderMode = BorderMode.Full, BorderColor = Color.Cyan,
-            Placeholder = "voller Rahmen",
+            Placeholder = "full border",
         };
         return Fill(
-            Info(0, "Einzeilige Eingabe mit Cursor, Scrolling und Zwischenablage"),
-            Info(1, "(Strg+C kopiert, Strg+V fügt ein, Strg+U leert)."),
+            Info(0, "Single-line input with cursor, scrolling and clipboard support"),
+            Info(1, "(Ctrl+C copies, Ctrl+V pastes, Ctrl+U clears)."),
             plain, lines, full);
     }
 
@@ -334,41 +334,41 @@ internal static class Program
         };
         editor.OnKey(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true));
         return Fill(
-            Info(0, "Mehrzeiliger Editor, Markdown wird beim Tippen eingefärbt."),
-            Info(1, "Enter bricht um, Strg+Pos1/Ende springt, /editor öffnet ihn modal."),
+            Info(0, "Multi-line editor, Markdown is highlighted as you type."),
+            Info(1, "Enter wraps, Ctrl+Home/End jumps, /editor opens it modally."),
             editor);
     }
 
     private static Panel SearchPage(Label status)
     {
         var search = new SearchBox(
-            "Berlin", "Hamburg", "München", "Köln", "Frankfurt",
+            "Berlin", "Hamburg", "Munich", "Cologne", "Frankfurt",
             "Stuttgart", "Düsseldorf", "Dortmund", "Essen", "Leipzig")
         {
             Left = 0, Top = 3, Width = 32, Bottom = 0,
-            EmptyText = "keine Treffer",
+            EmptyText = "no matches",
         };
-        search.Input.Placeholder = "Stadt suchen…";
-        search.ItemActivated += (_, item) => status.Text = $"Stadt gewählt: {item}";
+        search.Input.Placeholder = "Search city…";
+        search.ItemActivated += (_, item) => status.Text = $"City selected: {item}";
         return Fill(
-            Info(0, "Tippen filtert, Pfeiltasten wählen, Enter aktiviert,"),
-            Info(1, "Escape leert die Suche. Die Feature-Liste links ist auch eins."),
+            Info(0, "Typing filters, arrow keys select, Enter activates,"),
+            Info(1, "Escape clears the search. The feature list on the left is one too."),
             search);
     }
 
     private static Panel ChoicesPage(Label status, Frame[] frames, CommandInput input, TabControl tabs)
     {
-        var menu = new SelectMenu("Übersicht", "Farben & Effekte", "Layout & Anker", "Zwischenablage", "Über")
+        var menu = new SelectMenu("Overview", "Colors & Effects", "Layout & Anchors", "Clipboard", "About")
         {
             Left = 0, Top = 3, Width = 30, Height = 5,
         };
-        menu.SelectionChanged += index => status.Text = $"Menü: {menu.Items[index]}";
+        menu.SelectionChanged += index => status.Text = $"Menu: {menu.Items[index]}";
 
-        var option1 = new Checkbox("Farbige Ausgabe") { Left = 0, Top = 10, Checked = true };
-        var option2 = new Checkbox("Statuszeile pulsieren") { Left = 0, Top = 11 };
+        var option1 = new Checkbox("Colored output") { Left = 0, Top = 10, Checked = true };
+        var option2 = new Checkbox("Pulse the status line") { Left = 0, Top = 11 };
         option2.CheckedChanged += on => status.Effect = on ? TextEffect.Pulse : TextEffect.None;
 
-        var borderChoice = new RadioGroup("Einfach", "Doppelt", "Rund", "Fett")
+        var borderChoice = new RadioGroup("Simple", "Double", "Rounded", "Thick")
         {
             Left = 0, Top = 14, Height = 4,
         };
@@ -385,62 +385,62 @@ internal static class Program
                 frame.Border = style;
             input.Border = style;
             tabs.Border = style;
-            status.Text = $"Rahmenstil: {borderChoice.SelectedItem}";
+            status.Text = $"Border style: {borderChoice.SelectedItem}";
         };
 
         return Fill(
-            Info(0, "Menüs, Checkboxen und Radiogruppen – Leertaste schaltet um."),
-            Section(2, "Menü"), menu,
-            Section(9, "Optionen"), option1, option2,
-            Section(13, "Rahmenstil (wirkt sofort)"), borderChoice);
+            Info(0, "Menus, checkboxes and radio groups – space toggles them."),
+            Section(2, "Menu"), menu,
+            Section(9, "Options"), option1, option2,
+            Section(13, "Border style (applies immediately)"), borderChoice);
     }
 
     private static Panel TabsPage(out TabControl tabs)
     {
         tabs = new TabControl { Left = 0, Top = 3, Right = 0, Bottom = 0 };
 
-        tabs.AddTab("Übersicht", Fill(
-            new Label("Dieser Tab zeigt nur Text – kein eigener Tab-Stop dahinter.")
+        tabs.AddTab("Overview", Fill(
+            new Label("This tab shows only text – no focusable content behind it.")
             {
                 Left = 0, Top = 0, Foreground = Color.Gray,
             }));
 
-        var name = new TextBox { Left = 0, Top = 0, Right = 0, Placeholder = "Name eingeben…" };
-        var subscribe = new Checkbox("Newsletter abonnieren") { Left = 0, Top = 2 };
-        tabs.AddTab("Formular", Fill(name, subscribe));
+        var name = new TextBox { Left = 0, Top = 0, Right = 0, Placeholder = "Enter name…" };
+        var subscribe = new Checkbox("Subscribe to newsletter") { Left = 0, Top = 2 };
+        tabs.AddTab("Form", Fill(name, subscribe));
 
-        tabs.AddTab("Warnung", Fill(
-            new Label("Ein Tab kann seine Akzentfarbe einzeln überschreiben (hier Rot).")
+        tabs.AddTab("Warning", Fill(
+            new Label("A tab can override its accent color individually (red here).")
             {
                 Left = 0, Top = 0, Foreground = Color.Gray,
             }), accentColor: Color.Red);
 
         return Fill(
-            Info(0, "Pfeiltasten oder Pos1/Ende wechseln den aktiven Tab."),
-            Info(1, "Tab springt vom Tab-Kopf in dessen Inhalt, Umschalt+Tab zurück."),
+            Info(0, "Arrow keys or Home/End switch the active tab."),
+            Info(1, "Tab jumps from the tab header into its content, Shift+Tab back."),
             tabs);
     }
 
     private static Panel TablePage(Label status)
     {
         var table = new Table { Left = 0, Top = 3, Right = 0, Bottom = 0 };
-        table.AddColumn("Stadt", 16);
-        table.AddColumn("Einwohner", 12, TextAlignment.Right);
-        table.AddColumn("Bundesland", 16);
-        table.AddRow("Berlin", "3.700.000", "Berlin");
-        table.AddRow("Hamburg", "1.900.000", "Hamburg");
-        table.AddRow("München", "1.500.000", "Bayern");
-        table.AddRow("Köln", "1.100.000", "Nordrhein-Westfalen");
-        table.AddRow("Frankfurt", "770.000", "Hessen");
-        table.AddRow("Stuttgart", "630.000", "Baden-Württemberg");
-        table.AddRow("Düsseldorf", "620.000", "Nordrhein-Westfalen");
-        table.AddRow("Leipzig", "600.000", "Sachsen");
-        table.SelectionChanged += i => status.Text = $"Zeile gewählt: {table.Rows[i][0]}";
-        table.RowActivated += i => status.Text = $"Zeile aktiviert: {table.Rows[i][0]}";
+        table.AddColumn("City", 16);
+        table.AddColumn("Population", 12, TextAlignment.Right);
+        table.AddColumn("State", 16);
+        table.AddRow("Berlin", "3,700,000", "Berlin");
+        table.AddRow("Hamburg", "1,900,000", "Hamburg");
+        table.AddRow("Munich", "1,500,000", "Bavaria");
+        table.AddRow("Cologne", "1,100,000", "North Rhine-Westphalia");
+        table.AddRow("Frankfurt", "770,000", "Hesse");
+        table.AddRow("Stuttgart", "630,000", "Baden-Württemberg");
+        table.AddRow("Düsseldorf", "620,000", "North Rhine-Westphalia");
+        table.AddRow("Leipzig", "600,000", "Saxony");
+        table.SelectionChanged += i => status.Text = $"Row selected: {table.Rows[i][0]}";
+        table.RowActivated += i => status.Text = $"Row activated: {table.Rows[i][0]}";
 
         return Fill(
-            Info(0, "Pfeiltasten oder Pos1/Ende bewegen die Auswahl, Enter aktiviert die Zeile."),
-            Info(1, "Zu lange Zellen scrollen automatisch, aber nur in der ausgewählten Zeile."),
+            Info(0, "Arrow keys or Home/End move the selection, Enter activates the row."),
+            Info(1, "Cells too long to fit scroll automatically, but only in the selected row."),
             table);
     }
 
@@ -451,19 +451,19 @@ internal static class Program
         var minus = new Button("−10 %") { Left = 10, Top = 5 };
         minus.Clicked += () => progress.Value = Math.Max(0, progress.Value - 10);
 
-        var endless = new Checkbox("Endlosanimation") { Left = 22, Top = 5 };
+        var endless = new Checkbox("Indeterminate animation") { Left = 22, Top = 5 };
         endless.CheckedChanged += on =>
         {
             progress.Indeterminate = on;
-            status.Text = on ? "Fortschritt: Endlosanimation." : "Fortschritt: bestimmt.";
+            status.Text = on ? "Progress: indeterminate." : "Progress: determinate.";
         };
 
-        var spinner = new Spinner { Left = 0, Top = 8, Text = "arbeitet…", Foreground = Color.Cyan };
-        var spinnerActive = new Checkbox("Spinner aktiv") { Left = 20, Top = 8, Checked = true };
+        var spinner = new Spinner { Left = 0, Top = 8, Text = "working…", Foreground = Color.Cyan };
+        var spinnerActive = new Checkbox("Spinner active") { Left = 20, Top = 8, Checked = true };
         spinnerActive.CheckedChanged += on => spinner.Active = on;
 
         return Fill(
-            Info(0, "Der Balken füllt achtelzellengenau; /progress und /task steuern ihn."),
+            Info(0, "The bar fills in eighth-cell steps; /progress and /task control it."),
             progress, plus, minus, endless,
             spinner, spinnerActive);
     }
@@ -472,14 +472,14 @@ internal static class Program
     {
         var styles = new (string Name, BorderStyle Style)[]
         {
-            ("Einfach", BorderStyle.Single),
-            ("Doppelt", BorderStyle.Double),
-            ("Rund", BorderStyle.Rounded),
-            ("Fett", BorderStyle.Thick),
+            ("Simple", BorderStyle.Single),
+            ("Double", BorderStyle.Double),
+            ("Rounded", BorderStyle.Rounded),
+            ("Thick", BorderStyle.Thick),
             ("Ascii", BorderStyle.Ascii),
         };
         var page = new Panel { Left = 0, Top = 0, Right = 0, Bottom = 0 };
-        page.Add(Info(0, "Frames tragen Titel und einen von fünf Rahmenstilen."));
+        page.Add(Info(0, "Frames carry a title and one of five border styles."));
         for (int i = 0; i < styles.Length; i++)
         {
             var frame = new Frame(styles[i].Name)
@@ -488,7 +488,7 @@ internal static class Program
                 Border = styles[i].Style,
                 BorderColor = Color.Cyan,
             };
-            frame.Add(new Label("Inhalt") { Left = 1, Top = 1, Foreground = Color.Gray });
+            frame.Add(new Label("Content") { Left = 1, Top = 1, Foreground = Color.Gray });
             page.Add(frame);
         }
         return page;
@@ -496,45 +496,45 @@ internal static class Program
 
     private static Panel DialogPage(ConsoleApp app, Label status)
     {
-        var info = new Button("InfoBox zeigen") { Left = 0, Top = 3 };
+        var info = new Button("Show info box") { Left = 0, Top = 3 };
         info.Clicked += () => app.ShowInfo("Information",
-            "Eine modale Infobox. Der Hintergrund wird abgedunkelt, alle Eingaben gehen an den Dialog.");
+            "A modal info box. The background is dimmed, all input goes to the dialog.");
 
-        var confirm = new Button("Rückfrage zeigen") { Left = 0, Top = 5 };
-        confirm.Clicked += () => app.ShowConfirm("Rückfrage", "Änderungen vor dem Beenden speichern?",
-            ["Speichern", "Verwerfen", "Abbrechen"],
-            (_, label) => status.Text = $"Gewählt: {label}");
+        var confirm = new Button("Show confirmation") { Left = 0, Top = 5 };
+        confirm.Clicked += () => app.ShowConfirm("Confirm", "Save changes before quitting?",
+            ["Save", "Discard", "Cancel"],
+            (_, label) => status.Text = $"Chosen: {label}");
 
-        var editor = new Button("Markdown-Editor öffnen") { Left = 0, Top = 7 };
+        var editor = new Button("Open Markdown editor") { Left = 0, Top = 7 };
         editor.Clicked += () => ShowEditorDialog(app, status);
 
         return Fill(
-            Info(0, "Modale Dialoge legen sich über die Oberfläche; Escape schließt."),
-            Info(1, "Buttons reagieren auf Enter oder Leertaste."),
+            Info(0, "Modal dialogs lie on top of the UI; Escape closes them."),
+            Info(1, "Buttons respond to Enter or Space."),
             info, confirm, editor);
     }
 
     private static Panel AsciiPage(AsciiArt art, OutputField output, Label status)
     {
-        var paste = new Button("Zwischenablage einfügen") { Left = 0, Bottom = 0 };
+        var paste = new Button("Paste clipboard") { Left = 0, Bottom = 0 };
         paste.Clicked += () => PasteClipboard(art, output, status);
 
-        var reset = new Button("Logo wiederherstellen") { Left = 27, Bottom = 0 };
+        var reset = new Button("Restore logo") { Left = 27, Bottom = 0 };
         reset.Clicked += () =>
         {
             art.SetText(Logo);
-            status.Text = "Logo wiederhergestellt.";
+            status.Text = "Logo restored.";
         };
 
         return Fill(
-            Info(0, "ASCII-Grafik, einfarbig oder als farbiges Zeichenraster."),
-            Info(1, "Ein Bild aus der Zwischenablage wird zu ASCII-Art (/paste)."),
+            Info(0, "ASCII art, single-color or as a colored character grid."),
+            Info(1, "An image from the clipboard becomes ASCII art (/paste)."),
             art, paste, reset);
     }
 
     private static Panel LayoutPage()
     {
-        var playground = new Frame("Spielfläche")
+        var playground = new Frame("Playground")
         {
             Left = 0, Top = 4, Right = 0, Bottom = 0,
             BorderColor = Color.DarkGray,
@@ -544,22 +544,22 @@ internal static class Program
             new Label("Right=0, Top=0") { Right = 0, Top = 0, Foreground = Color.Cyan },
             new Label("Left=0, Bottom=0") { Left = 0, Bottom = 0, Foreground = Color.Cyan },
             new Label("Right=0, Bottom=0") { Right = 0, Bottom = 0, Foreground = Color.Cyan },
-            new Label("zentriert (ohne Anker)")
+            new Label("centered (no anchors)")
             {
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Middle,
                 Foreground = Color.Yellow, Style = CellStyle.Bold,
             },
-            new Label("Left=4 und Right=4 gesetzt → dehnt sich beim Resize")
+            new Label("Left=4 and Right=4 set → stretches on resize")
             {
                 Left = 4, Right = 4, Top = 2,
                 TextAlign = TextAlignment.Center,
                 Background = Color.DarkBlue, Foreground = Color.White,
             });
         return Fill(
-            Info(0, "Anker wie bei CSS absolute: Left/Top/Right/Bottom plus Width/Height."),
-            Info(1, "Beide Anker gesetzt = das Element wächst mit dem Terminal;"),
-            Info(2, "ohne Anker entscheidet die Ausrichtung. Fenstergröße ändern!"),
+            Info(0, "Anchors like CSS absolute: Left/Top/Right/Bottom plus Width/Height."),
+            Info(1, "Both anchors set = the element grows with the terminal;"),
+            Info(2, "without anchors, alignment decides. Resize the window!"),
             playground);
     }
 
@@ -568,7 +568,7 @@ internal static class Program
     /// <summary>Simulates work: a task line counts up and optionally drives the progress bar.</summary>
     private static void RunDemoTask(ConsoleApp app, OutputField output, double seconds, ProgressBar? progress)
     {
-        var task = output.BeginTask("Verarbeite Daten…");
+        var task = output.BeginTask("Processing data…");
         double done = 0;
 
         void OnTick(TimeSpan delta)
@@ -580,10 +580,10 @@ internal static class Program
                 progress.Indeterminate = false;
                 progress.Value = percent;
             }
-            task.Text = $"Verarbeite Daten… {percent:0} %";
+            task.Text = $"Processing data… {percent:0} %";
             if (done >= seconds)
             {
-                task.Complete($"Daten verarbeitet ({seconds:0.#} s).");
+                task.Complete($"Data processed ({seconds:0.#} s).");
                 app.Tick -= OnTick;
             }
         }
@@ -597,7 +597,7 @@ internal static class Program
         {
             var ascii = AsciiImageConverter.Convert(image, Math.Max(10, art.Bounds.Width));
             art.SetImage(ascii);
-            status.Text = $"Bild übernommen ({image.Width}×{image.Height} Pixel).";
+            status.Text = $"Image imported ({image.Width}×{image.Height} pixels).";
             return;
         }
 
@@ -605,17 +605,17 @@ internal static class Program
         {
             foreach (string line in clipboardText.Replace("\r", "").Split('\n'))
                 output.AppendLine(line, Color.Cyan);
-            status.Text = "Text aus der Zwischenablage ins Ausgabe-Log übernommen.";
+            status.Text = "Text from the clipboard added to the output log.";
             return;
         }
 
-        status.Text = "Die Zwischenablage enthält weder Text noch ein Bild.";
+        status.Text = "The clipboard contains neither text nor an image.";
     }
 
     private static void ShowEditorDialog(ConsoleApp app, Label status)
     {
         var dialog = new MarkdownEditorDialog(SampleMarkdown);
-        dialog.CloseRequested += () => status.Text = "Editor geschlossen.";
+        dialog.CloseRequested += () => status.Text = "Editor closed.";
         app.ShowDialog(dialog);
     }
 
@@ -662,7 +662,7 @@ internal static class Program
         {
             buffer.FillRect(Bounds, ' ', Color.White, Color.DarkBlue);
             buffer.DrawBorder(Bounds, BorderStyle.Rounded, Color.Cyan, Color.DarkBlue,
-                "Markdown-Editor · Esc schließt", Color.Yellow);
+                "Markdown Editor · Esc closes", Color.Yellow);
         }
     }
 
@@ -680,13 +680,13 @@ internal static class Program
                 ui.Output.AppendLine(result.Message, Color.Red);
         };
 
-        commands.Register("help", "Zeigt Befehle und Tastenkürzel", _ =>
+        commands.Register("help", "Shows commands and shortcuts", _ =>
         {
             FillHelpPage(app, ui);
-            ui.ShowFeature("Befehle & Tastenkürzel");
+            ui.ShowFeature("Commands & Shortcuts");
         });
 
-        commands.Register("feature", "Wechselt das Feature: /feature <name>", args =>
+        commands.Register("feature", "Switches the feature: /feature <name>", args =>
         {
             string query = string.Join(' ', args);
             Guard.Against.NullOrWhiteSpace(query, nameof(args));
@@ -694,178 +694,178 @@ internal static class Program
                 .FirstOrDefault(n => n.Contains(query, StringComparison.OrdinalIgnoreCase));
             if (match is null)
             {
-                ui.Status.Text = $"Kein Feature passt zu \"{query}\".";
+                ui.Status.Text = $"No feature matches \"{query}\".";
                 return;
             }
             ui.ShowFeature(match);
         });
 
-        commands.Register("echo", "Gibt den Text im Ausgabe-Log aus", args =>
+        commands.Register("echo", "Prints the text to the output log", args =>
         {
             ui.Output.AppendLine(string.Join(' ', args), Color.Green);
-            ui.ShowFeature("Ausgabe-Log & Task-Zeilen");
+            ui.ShowFeature("Output Log & Task Lines");
         });
 
-        commands.Register("clear", "Leert das Ausgabe-Log", _ =>
+        commands.Register("clear", "Clears the output log", _ =>
         {
             ui.Output.Clear();
-            ui.Status.Text = "Ausgabe geleert.";
+            ui.Status.Text = "Output cleared.";
         });
 
-        commands.Register("color", "Färbt eine Testzeile: /color <name> <text>", args =>
+        commands.Register("color", "Colors a test line: /color <name> <text>", args =>
         {
             if (args.Length == 0)
             {
-                ui.Output.AppendLine("Verwendung: /color <rot|gruen|blau|gelb|cyan|magenta> [Text]", Color.Yellow);
+                ui.Output.AppendLine("Usage: /color <red|green|blue|yellow|cyan|magenta> [text]", Color.Yellow);
                 return;
             }
             var color = args[0].ToLowerInvariant() switch
             {
-                "rot" or "red" => Color.Red,
-                "gruen" or "grün" or "green" => Color.Green,
-                "blau" or "blue" => Color.Blue,
-                "gelb" or "yellow" => Color.Yellow,
+                "red" => Color.Red,
+                "green" => Color.Green,
+                "blue" => Color.Blue,
+                "yellow" => Color.Yellow,
                 "cyan" => Color.Cyan,
                 "magenta" => Color.Magenta,
                 _ => Color.White,
             };
-            string text = args.Length > 1 ? string.Join(' ', args[1..]) : $"Farbprobe {args[0]}";
+            string text = args.Length > 1 ? string.Join(' ', args[1..]) : $"Color sample {args[0]}";
             ui.Output.AppendLine(text, color);
-            ui.ShowFeature("Ausgabe-Log & Task-Zeilen");
+            ui.ShowFeature("Output Log & Task Lines");
         });
 
-        commands.Register("typewriter", "Schaltet den Schreibmaschineneffekt: /typewriter <an|aus>", args =>
+        commands.Register("typewriter", "Toggles the typewriter effect: /typewriter <on|off>", args =>
         {
-            bool on = args.Length == 0 ? !ui.Output.Typewriter : args[0] is "an" or "on" or "1";
+            bool on = args.Length == 0 ? !ui.Output.Typewriter : args[0] is "on" or "1";
             ui.TypewriterOption.Checked = on;
             ui.Output.Typewriter = on;
-            ui.Status.Text = on ? "Typewriter-Effekt an." : "Typewriter-Effekt aus.";
+            ui.Status.Text = on ? "Typewriter effect on." : "Typewriter effect off.";
         });
 
-        commands.Register("task", "Simuliert eine Aufgabe mit Task-Zeile: /task [sekunden]", args =>
+        commands.Register("task", "Simulates a task with a task line: /task [seconds]", args =>
         {
             double seconds = args.Length > 0 ? double.Parse(args[0]) : 3;
             Guard.Against.NegativeOrZero(seconds, nameof(args));
             RunDemoTask(app, ui.Output, seconds, ui.Progress);
-            ui.ShowFeature("Ausgabe-Log & Task-Zeilen");
+            ui.ShowFeature("Output Log & Task Lines");
         });
 
-        commands.Register("progress", "Setzt den Fortschrittsbalken: /progress <0-100|endlos>", args =>
+        commands.Register("progress", "Sets the progress bar: /progress <0-100|indeterminate>", args =>
         {
-            if (args.Length == 0 || args[0] is "endlos" or "marquee")
+            if (args.Length == 0 || args[0] is "indeterminate" or "marquee")
             {
                 ui.Progress.Indeterminate = !ui.Progress.Indeterminate;
                 ui.Status.Text = ui.Progress.Indeterminate
-                    ? "Fortschritt: Endlosanimation."
-                    : "Fortschritt: bestimmt.";
+                    ? "Progress: indeterminate."
+                    : "Progress: determinate.";
             }
             else
             {
                 ui.Progress.Indeterminate = false;
                 ui.Progress.Value = double.Parse(args[0]);
-                ui.Status.Text = $"Fortschritt: {ui.Progress.Value:0} %";
+                ui.Status.Text = $"Progress: {ui.Progress.Value:0} %";
             }
-            ui.ShowFeature("Fortschritt & Spinner");
+            ui.ShowFeature("Progress & Spinner");
         });
 
-        commands.Register("paste", "Fügt Text oder ein Bild aus der Zwischenablage ein", _ =>
+        commands.Register("paste", "Pastes text or an image from the clipboard", _ =>
         {
             PasteClipboard(ui.Art, ui.Output, ui.Status);
-            ui.ShowFeature("ASCII-Grafik & Zwischenablage");
+            ui.ShowFeature("ASCII Art & Clipboard");
         });
 
-        commands.Register("logo", "Stellt die ASCII-Grafik auf das Logo zurück", _ =>
+        commands.Register("logo", "Resets the ASCII art back to the logo", _ =>
         {
             ui.Art.SetText(Logo);
-            ui.Status.Text = "Logo wiederhergestellt.";
-            ui.ShowFeature("ASCII-Grafik & Zwischenablage");
+            ui.Status.Text = "Logo restored.";
+            ui.ShowFeature("ASCII Art & Clipboard");
         });
 
-        commands.Register("copy", "Kopiert Text in die Zwischenablage: /copy <Text>", args =>
+        commands.Register("copy", "Copies text to the clipboard: /copy <text>", args =>
         {
             string text = string.Join(' ', args);
             Guard.Against.NullOrWhiteSpace(text, nameof(args));
             ui.Status.Text = Clipboard.TrySetText(text)
-                ? "In die Zwischenablage kopiert."
-                : "Zugriff auf die Zwischenablage fehlgeschlagen.";
+                ? "Copied to the clipboard."
+                : "Clipboard access failed.";
         });
 
-        commands.Register("busy", "Schaltet den Spinner in der Kopfzeile um", _ =>
+        commands.Register("busy", "Toggles the spinner in the header", _ =>
         {
             ui.Spinner.Active = !ui.Spinner.Active;
-            ui.Spinner.Text = ui.Spinner.Active ? "arbeitet…" : "fertig";
+            ui.Spinner.Text = ui.Spinner.Active ? "working…" : "done";
         });
 
-        commands.Register("border", "Rahmen des Eingabefelds: /border <voll|linien|keiner>", args =>
+        commands.Register("border", "Border of the input field: /border <full|lines|none>", args =>
         {
             ui.Input.BorderMode = args.Length == 0
                 ? (BorderMode)(((int)ui.Input.BorderMode + 1) % 3)
                 : args[0].ToLowerInvariant() switch
                 {
-                    "voll" or "full" => BorderMode.Full,
-                    "linien" or "lines" => BorderMode.TopAndBottom,
-                    "keiner" or "kein" or "none" => BorderMode.None,
-                    _ => throw new ArgumentException($"Unbekannter Rahmen: {args[0]}"),
+                    "full" => BorderMode.Full,
+                    "lines" => BorderMode.TopAndBottom,
+                    "none" => BorderMode.None,
+                    _ => throw new ArgumentException($"Unknown border: {args[0]}"),
                 };
-            ui.Status.Text = $"Eingabefeld-Rahmen: {ui.Input.BorderMode}";
+            ui.Status.Text = $"Input field border: {ui.Input.BorderMode}";
         });
 
-        commands.Register("info", "Zeigt eine modale Infobox: /info <Text>", args =>
+        commands.Register("info", "Shows a modal info box: /info <text>", args =>
             app.ShowInfo("Information", args.Length > 0
                 ? string.Join(' ', args)
-                : "Eine modale Infobox. Der Hintergrund wird abgedunkelt, alle Eingaben gehen an den Dialog."));
+                : "A modal info box. The background is dimmed, all input goes to the dialog."));
 
-        commands.Register("confirm", "Zeigt einen Rückfragedialog", _ =>
-            app.ShowConfirm("Rückfrage", "Änderungen vor dem Beenden speichern?",
-                ["Speichern", "Verwerfen", "Abbrechen"],
-                (_, label) => ui.Status.Text = $"Gewählt: {label}"));
+        commands.Register("confirm", "Shows a confirmation dialog", _ =>
+            app.ShowConfirm("Confirm", "Save changes before quitting?",
+                ["Save", "Discard", "Cancel"],
+                (_, label) => ui.Status.Text = $"Chosen: {label}"));
 
-        commands.Register("editor", "Öffnet den Markdown-Editor", _ => ShowEditorDialog(app, ui.Status));
+        commands.Register("editor", "Opens the Markdown editor", _ => ShowEditorDialog(app, ui.Status));
 
-        commands.Register("exit", "Beendet die Demo", _ => ConfirmExit(app, ui));
+        commands.Register("exit", "Exits the demo", _ => ConfirmExit(app, ui));
     }
 
     /// <summary>Asks before quitting — the case a button row handles better than a shortcut.</summary>
     private static void ConfirmExit(ConsoleApp app, Ui ui)
     {
-        app.ShowConfirm("Beenden", "Demo wirklich beenden?", ["Beenden", "Zurück"], (index, _) =>
+        app.ShowConfirm("Quit", "Really quit the demo?", ["Quit", "Cancel"], (index, _) =>
         {
             if (index == 0)
                 app.Exit();
             else
-                ui.Status.Text = "Beenden abgebrochen.";
+                ui.Status.Text = "Quit cancelled.";
         });
     }
 
     private static void FillHelpPage(ConsoleApp app, Ui ui)
     {
         ui.HelpOutput.Clear();
-        ui.HelpOutput.AppendLine("Befehle beginnen mit / – Tab vervollständigt sie.", Color.Gray);
+        ui.HelpOutput.AppendLine("Commands start with / – Tab completes them.", Color.Gray);
         ui.HelpOutput.AppendLine("");
-        ui.HelpOutput.AppendLine("Befehle:", Color.Yellow);
+        ui.HelpOutput.AppendLine("Commands:", Color.Yellow);
         foreach (var command in ui.Input.Commands.All)
             ui.HelpOutput.AppendLine($"  /{command.Name,-12} {command.Description}", Color.Gray);
         ui.HelpOutput.AppendLine("");
-        ui.HelpOutput.AppendLine("Tastenkürzel:", Color.Yellow);
+        ui.HelpOutput.AppendLine("Shortcuts:", Color.Yellow);
         foreach (var binding in app.KeyBindings.All)
             ui.HelpOutput.AppendLine($"  {binding.Combo,-12} {binding.Description}", Color.Gray);
-        ui.HelpOutput.AppendLine("  Tab/Shift+Tab  Fokus wechseln · Pfeile bewegen · Leertaste schaltet", Color.Gray);
+        ui.HelpOutput.AppendLine("  Tab/Shift+Tab  switch focus · arrows move · space toggles", Color.Gray);
     }
 
     private static void WireKeyBindings(ConsoleApp app, Ui ui)
     {
-        app.KeyBindings.Register(ConsoleKey.F1, "Hilfe anzeigen", () =>
+        app.KeyBindings.Register(ConsoleKey.F1, "Show help", () =>
         {
             FillHelpPage(app, ui);
-            ui.ShowFeature("Befehle & Tastenkürzel");
+            ui.ShowFeature("Commands & Shortcuts");
         });
 
-        app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.Q), "Beenden", () => ConfirmExit(app, ui));
+        app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.Q), "Quit", () => ConfirmExit(app, ui));
 
-        app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.L), "Ausgabe leeren", () =>
+        app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.L), "Clear output", () =>
         {
             ui.Output.Clear();
-            ui.Status.Text = "Ausgabe geleert.";
+            ui.Status.Text = "Output cleared.";
         });
     }
 }
