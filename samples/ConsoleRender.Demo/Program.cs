@@ -148,6 +148,7 @@ internal static class Program
         var progress = new ProgressBar { Left = 0, Top = 3, Right = 0, Height = 1 };
         var helpOutput = new OutputField { Left = 0, Top = 0, Right = 0, Bottom = 0 };
 
+        var tabsPage = TabsPage(out var tabsControl);
         var pages = new List<(string Name, Control Page)>
         {
             ("Übersicht", OverviewPage()),
@@ -156,7 +157,8 @@ internal static class Program
             ("Textfelder", TextBoxPage()),
             ("Markdown-Editor", EditorPage()),
             ("Suchfeld", SearchPage(status)),
-            ("Auswahl & Optionen", ChoicesPage(status, [leftFrame, rightFrame], input)),
+            ("Auswahl & Optionen", ChoicesPage(status, [leftFrame, rightFrame], input, tabsControl)),
+            ("Tabs", tabsPage),
             ("Fortschritt & Spinner", ProgressPage(progress, status)),
             ("Rahmen & Stile", BorderPage()),
             ("Dialoge & Buttons", DialogPage(app, status)),
@@ -353,7 +355,7 @@ internal static class Program
             search);
     }
 
-    private static Panel ChoicesPage(Label status, Frame[] frames, CommandInput input)
+    private static Panel ChoicesPage(Label status, Frame[] frames, CommandInput input, TabControl tabs)
     {
         var menu = new SelectMenu("Übersicht", "Farben & Effekte", "Layout & Anker", "Zwischenablage", "Über")
         {
@@ -381,6 +383,7 @@ internal static class Program
             foreach (var frame in frames)
                 frame.Border = style;
             input.Border = style;
+            tabs.Border = style;
             status.Text = $"Rahmenstil: {borderChoice.SelectedItem}";
         };
 
@@ -389,6 +392,32 @@ internal static class Program
             Section(2, "Menü"), menu,
             Section(9, "Optionen"), option1, option2,
             Section(13, "Rahmenstil (wirkt sofort)"), borderChoice);
+    }
+
+    private static Panel TabsPage(out TabControl tabs)
+    {
+        tabs = new TabControl { Left = 0, Top = 3, Right = 0, Bottom = 0 };
+
+        tabs.AddTab("Übersicht", Fill(
+            new Label("Dieser Tab zeigt nur Text – kein eigener Tab-Stop dahinter.")
+            {
+                Left = 0, Top = 0, Foreground = Color.Gray,
+            }));
+
+        var name = new TextBox { Left = 0, Top = 0, Right = 0, Placeholder = "Name eingeben…" };
+        var subscribe = new Checkbox("Newsletter abonnieren") { Left = 0, Top = 2 };
+        tabs.AddTab("Formular", Fill(name, subscribe));
+
+        tabs.AddTab("Warnung", Fill(
+            new Label("Ein Tab kann seine Akzentfarbe einzeln überschreiben (hier Rot).")
+            {
+                Left = 0, Top = 0, Foreground = Color.Gray,
+            }), accentColor: Color.Red);
+
+        return Fill(
+            Info(0, "Pfeiltasten oder Pos1/Ende wechseln den aktiven Tab."),
+            Info(1, "Tab springt vom Tab-Kopf in dessen Inhalt, Umschalt+Tab zurück."),
+            tabs);
     }
 
     private static Panel ProgressPage(ProgressBar progress, Label status)
