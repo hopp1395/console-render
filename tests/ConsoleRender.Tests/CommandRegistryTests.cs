@@ -66,7 +66,7 @@ public class CommandRegistryTests
     public void Execute_IsCaseInsensitive()
     {
         var registry = new CommandRegistry();
-        bool called = false;
+        var called = false;
         registry.Register("Help", "test", _ => called = true);
 
         Assert.True(registry.Execute("/HELP").Success);

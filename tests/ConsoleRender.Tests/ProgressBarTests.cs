@@ -45,10 +45,15 @@ public class ProgressBarTests
         var bar = new ProgressBar { Value = 50, ShowPercent = false };
         var buffer = Render(bar, 10);
 
-        for (int x = 0; x < 5; x++)
+        for (var x = 0; x < 5; x++)
+        {
             Assert.Equal(bar.BarColor, buffer[x, 0].Background);
-        for (int x = 5; x < 10; x++)
+        }
+
+        for (var x = 5; x < 10; x++)
+        {
             Assert.Equal(bar.TrackColor, buffer[x, 0].Background);
+        }
     }
 
     [Fact]
@@ -67,7 +72,7 @@ public class ProgressBarTests
     {
         var bar = new ProgressBar { Value = 42 };
 
-        string text = Render(bar, 20).ToText();
+        var text = Render(bar, 20).ToText();
 
         Assert.Contains("42 %", text);
     }
@@ -79,10 +84,14 @@ public class ProgressBarTests
         bar.Update(TimeSpan.FromSeconds(0.5));
 
         var buffer = Render(bar, 20);
-        int litCells = 0;
-        for (int x = 0; x < 20; x++)
+        var litCells = 0;
+        for (var x = 0; x < 20; x++)
+        {
             if (buffer[x, 0].Background == bar.BarColor)
+            {
                 litCells++;
+            }
+        }
 
         Assert.InRange(litCells, 1, 5);
     }

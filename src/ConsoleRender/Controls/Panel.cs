@@ -29,6 +29,8 @@ public class Panel : Control
         Guard.Against.Null(buffer);
 
         if (!Background.IsDefault)
+        {
             buffer.FillRect(Bounds, ' ', Color.Default, Background);
+        }
     }
 }

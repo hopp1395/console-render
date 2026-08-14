@@ -230,7 +230,7 @@ public class TabControlTests
         tabControl.AddTab("Zweite", new Label("VerstecktText") { Left = 0, Top = 0 });
         app.Root.Add(tabControl);
 
-        string text = app.RenderOffscreen(30, 10).ToText();
+        var text = app.RenderOffscreen(30, 10).ToText();
 
         Assert.Contains("SichtbarerText", text);
         Assert.DoesNotContain("VerstecktText", text);
@@ -245,7 +245,7 @@ public class TabControlTests
         tabControl.AddTab("Formular", new Label("y") { Left = 0, Top = 0 });
         app.Root.Add(tabControl);
 
-        string[] lines = app.RenderOffscreen(30, 10).ToText().Split('\n');
+        var lines = app.RenderOffscreen(30, 10).ToText().Split('\n');
 
         Assert.Contains("Übersicht", lines[0]);
         Assert.Contains("Formular", lines[0]);

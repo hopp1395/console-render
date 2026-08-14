@@ -169,7 +169,7 @@ public class MarkdownHighlighterTests
 
         foreach (var lineSpans in doc)
         {
-            int previousEnd = -1;
+            var previousEnd = -1;
             foreach (var span in lineSpans)
             {
                 Assert.True(span.Start >= previousEnd, $"Span at {span.Start} overlaps or is out of order.");

@@ -54,7 +54,9 @@ public sealed class TaskLine
         this.marker = marker;
         finalColor = color;
         if (text is not null)
+        {
             this.text = text;
+        }
     }
 
     /// <summary>The line as it should appear right now; the clock drives the spinner.</summary>

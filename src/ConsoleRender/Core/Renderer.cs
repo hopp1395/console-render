@@ -33,7 +33,11 @@ public sealed class Renderer
         Guard.Against.NegativeOrZero(width);
         Guard.Against.NegativeOrZero(height);
 
-        if (width == Width && height == Height) return;
+        if (width == Width && height == Height)
+        {
+            return;
+        }
+
         back.Resize(width, height);
         front.Resize(width, height);
         fullRedraw = true;
@@ -52,17 +56,22 @@ public sealed class Renderer
 
         sb.Clear();
 
-        int curX = int.MinValue, curY = int.MinValue;
-        Color penFg = default, penBg = default;
-        CellStyle penStyle = CellStyle.None;
-        bool penValid = false;
+        var curX = int.MinValue;
+        var curY = int.MinValue;
+        var penFg = default(Color);
+        var penBg = default(Color);
+        var penStyle = CellStyle.None;
+        var penValid = false;
 
-        for (int y = 0; y < Height; y++)
+        for (var y = 0; y < Height; y++)
         {
-            for (int x = 0; x < Width; x++)
+            for (var x = 0; x < Width; x++)
             {
                 var cell = back[x, y];
-                if (!fullRedraw && cell == front[x, y]) continue;
+                if (!fullRedraw && cell == front[x, y])
+                {
+                    continue;
+                }
 
                 if (curY != y || curX != x)
                 {
@@ -100,21 +109,60 @@ public sealed class Renderer
     {
         sb.Append("\x1b[0");
         var s = cell.Style;
-        if ((s & CellStyle.Bold) != 0) sb.Append(";1");
-        if ((s & CellStyle.Dim) != 0) sb.Append(";2");
-        if ((s & CellStyle.Italic) != 0) sb.Append(";3");
-        if ((s & CellStyle.Underline) != 0) sb.Append(";4");
-        if ((s & CellStyle.Blink) != 0) sb.Append(";5");
-        if ((s & CellStyle.Reverse) != 0) sb.Append(";7");
-        if ((s & CellStyle.Strikethrough) != 0) sb.Append(";9");
+        if ((s & CellStyle.Bold) != 0)
+        {
+            sb.Append(";1");
+        }
+
+        if ((s & CellStyle.Dim) != 0)
+        {
+            sb.Append(";2");
+        }
+
+        if ((s & CellStyle.Italic) != 0)
+        {
+            sb.Append(";3");
+        }
+
+        if ((s & CellStyle.Underline) != 0)
+        {
+            sb.Append(";4");
+        }
+
+        if ((s & CellStyle.Blink) != 0)
+        {
+            sb.Append(";5");
+        }
+
+        if ((s & CellStyle.Reverse) != 0)
+        {
+            sb.Append(";7");
+        }
+
+        if ((s & CellStyle.Strikethrough) != 0)
+        {
+            sb.Append(";9");
+        }
 
         var fg = cell.Foreground;
-        if (fg.IsDefault) sb.Append(";39");
-        else sb.Append(";38;2;").Append(fg.R).Append(';').Append(fg.G).Append(';').Append(fg.B);
+        if (fg.IsDefault)
+        {
+            sb.Append(";39");
+        }
+        else
+        {
+            sb.Append(";38;2;").Append(fg.R).Append(';').Append(fg.G).Append(';').Append(fg.B);
+        }
 
         var bg = cell.Background;
-        if (bg.IsDefault) sb.Append(";49");
-        else sb.Append(";48;2;").Append(bg.R).Append(';').Append(bg.G).Append(';').Append(bg.B);
+        if (bg.IsDefault)
+        {
+            sb.Append(";49");
+        }
+        else
+        {
+            sb.Append(";48;2;").Append(bg.R).Append(';').Append(bg.G).Append(';').Append(bg.B);
+        }
 
         sb.Append('m');
     }

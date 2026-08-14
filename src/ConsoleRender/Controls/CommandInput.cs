@@ -21,11 +21,13 @@ public class CommandInput : TextBox
     {
         Guard.Against.Null(text);
 
-        string trimmed = text.Trim();
+        var trimmed = text.Trim();
         SetText("");
 
         if (trimmed.Length == 0)
+        {
             return;
+        }
 
         if (trimmed.StartsWith('/'))
         {
@@ -43,14 +45,18 @@ public class CommandInput : TextBox
         // Tab completion only while typing a command; otherwise Tab keeps cycling focus.
         if (key.Key == ConsoleKey.Tab && Text.StartsWith('/'))
         {
-            string prefix = Text[1..];
+            var prefix = Text[1..];
             if (!prefix.Contains(' '))
             {
                 var matches = Commands.Complete(prefix);
                 if (matches.Count == 1)
+                {
                     SetText("/" + matches[0] + " ");
+                }
                 else if (matches.Count > 1)
+                {
                     SetText("/" + CommonPrefix(matches));
+                }
             }
             return true;
         }
@@ -61,13 +67,16 @@ public class CommandInput : TextBox
     {
         Guard.Against.NullOrEmpty(values);
 
-        string prefix = values[0];
-        foreach (string v in values.Skip(1))
+        var prefix = values[0];
+        foreach (var v in values.Skip(1))
         {
-            int len = 0;
+            var len = 0;
             while (len < prefix.Length && len < v.Length &&
                    char.ToLowerInvariant(prefix[len]) == char.ToLowerInvariant(v[len]))
+            {
                 len++;
+            }
+
             prefix = prefix[..len];
         }
         return prefix;

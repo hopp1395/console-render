@@ -42,9 +42,13 @@ public static class Clipboard
     private static bool TryOpenClipboard()
     {
         // The clipboard is a shared resource; retry briefly if another process holds it.
-        for (int i = 0; i < 5; i++)
+        for (var i = 0; i < 5; i++)
         {
-            if (OpenClipboard(IntPtr.Zero)) return true;
+            if (OpenClipboard(IntPtr.Zero))
+            {
+                return true;
+            }
+
             Thread.Sleep(10);
         }
         return false;
@@ -54,15 +58,29 @@ public static class Clipboard
     {
         text = "";
         if (!OperatingSystem.IsWindows())
+        {
             return TryGetTextUnix(out text);
+        }
 
-        if (!TryOpenClipboard()) return false;
+        if (!TryOpenClipboard())
+        {
+            return false;
+        }
+
         try
         {
-            IntPtr handle = GetClipboardData(CfUnicodeText);
-            if (handle == IntPtr.Zero) return false;
-            IntPtr ptr = GlobalLock(handle);
-            if (ptr == IntPtr.Zero) return false;
+            var handle = GetClipboardData(CfUnicodeText);
+            if (handle == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            var ptr = GlobalLock(handle);
+            if (ptr == IntPtr.Zero)
+            {
+                return false;
+            }
+
             try
             {
                 text = Marshal.PtrToStringUni(ptr) ?? "";
@@ -84,17 +102,31 @@ public static class Clipboard
         Guard.Against.Null(text);
 
         if (!OperatingSystem.IsWindows())
+        {
             return TrySetTextUnix(text);
+        }
 
-        if (!TryOpenClipboard()) return false;
+        if (!TryOpenClipboard())
+        {
+            return false;
+        }
+
         try
         {
             EmptyClipboard();
-            int bytes = (text.Length + 1) * 2;
-            IntPtr hMem = GlobalAlloc(GmemMoveable, (UIntPtr)bytes);
-            if (hMem == IntPtr.Zero) return false;
-            IntPtr ptr = GlobalLock(hMem);
-            if (ptr == IntPtr.Zero) return false;
+            var bytes = (text.Length + 1) * 2;
+            var hMem = GlobalAlloc(GmemMoveable, (UIntPtr)bytes);
+            if (hMem == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            var ptr = GlobalLock(hMem);
+            if (ptr == IntPtr.Zero)
+            {
+                return false;
+            }
+
             try
             {
                 Marshal.Copy(text.ToCharArray(), 0, ptr, text.Length);
@@ -118,17 +150,33 @@ public static class Clipboard
     public static bool TryGetImage(out IPixelSource image)
     {
         image = null!;
-        if (!OperatingSystem.IsWindows()) return false;
-        if (!TryOpenClipboard()) return false;
+        if (!OperatingSystem.IsWindows())
+        {
+            return false;
+        }
+
+        if (!TryOpenClipboard())
+        {
+            return false;
+        }
+
         try
         {
-            IntPtr handle = GetClipboardData(CfDib);
-            if (handle == IntPtr.Zero) return false;
-            IntPtr ptr = GlobalLock(handle);
-            if (ptr == IntPtr.Zero) return false;
+            var handle = GetClipboardData(CfDib);
+            if (handle == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            var ptr = GlobalLock(handle);
+            if (ptr == IntPtr.Zero)
+            {
+                return false;
+            }
+
             try
             {
-                int size = (int)GlobalSize(handle);
+                var size = (int)GlobalSize(handle);
                 var data = new byte[size];
                 Marshal.Copy(ptr, data, 0, size);
                 return DibPixelSource.TryParse(data, out image);
@@ -147,8 +195,8 @@ public static class Clipboard
     private static bool TryGetTextUnix(out string text)
     {
         text = "";
-        string? tool = OperatingSystem.IsMacOS() ? "pbpaste" : "xclip";
-        string args = OperatingSystem.IsMacOS() ? "" : "-selection clipboard -o";
+        var tool = OperatingSystem.IsMacOS() ? "pbpaste" : "xclip";
+        var args = OperatingSystem.IsMacOS() ? "" : "-selection clipboard -o";
         try
         {
             var psi = new System.Diagnostics.ProcessStartInfo(tool, args)
@@ -157,7 +205,11 @@ public static class Clipboard
                 UseShellExecute = false,
             };
             using var p = System.Diagnostics.Process.Start(psi);
-            if (p is null) return false;
+            if (p is null)
+            {
+                return false;
+            }
+
             text = p.StandardOutput.ReadToEnd();
             p.WaitForExit(2000);
             return p.ExitCode == 0 && text.Length > 0;
@@ -172,8 +224,8 @@ public static class Clipboard
     {
         Guard.Against.Null(text);
 
-        string tool = OperatingSystem.IsMacOS() ? "pbcopy" : "xclip";
-        string args = OperatingSystem.IsMacOS() ? "" : "-selection clipboard";
+        var tool = OperatingSystem.IsMacOS() ? "pbcopy" : "xclip";
+        var args = OperatingSystem.IsMacOS() ? "" : "-selection clipboard";
         try
         {
             var psi = new System.Diagnostics.ProcessStartInfo(tool, args)
@@ -182,7 +234,11 @@ public static class Clipboard
                 UseShellExecute = false,
             };
             using var p = System.Diagnostics.Process.Start(psi);
-            if (p is null) return false;
+            if (p is null)
+            {
+                return false;
+            }
+
             p.StandardInput.Write(text);
             p.StandardInput.Close();
             p.WaitForExit(2000);

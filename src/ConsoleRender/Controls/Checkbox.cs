@@ -49,7 +49,7 @@ public class Checkbox : Control
         Guard.Against.Null(buffer);
 
         var style = Focused ? CellStyle.Reverse : CellStyle.None;
-        string box = Checked ? "[x] " : "[ ] ";
+        var box = Checked ? "[x] " : "[ ] ";
         buffer.Write(Bounds.X, Bounds.Y, box, Checked ? AccentColor : Foreground, default, style);
         buffer.Write(Bounds.X + 4, Bounds.Y, Text, Foreground, default, style);
     }

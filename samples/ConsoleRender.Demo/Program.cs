@@ -54,19 +54,27 @@ internal static class Program
         // which makes the layout verifiable without an interactive terminal.
         if (args.Length > 0 && args[0] == "--snapshot")
         {
-            int width = args.Length > 1 ? int.Parse(args[1]) : 120;
-            int height = args.Length > 2 ? int.Parse(args[2]) : 32;
+            var width = args.Length > 1 ? int.Parse(args[1]) : 120;
+            var height = args.Length > 2 ? int.Parse(args[2]) : 32;
             ui.ApplyResponsiveLayout(width);
 
             // "--run /befehl" führt einen Befehl aus, bevor das Bild gerendert wird.
-            int runIndex = Array.IndexOf(args, "--run");
+            var runIndex = Array.IndexOf(args, "--run");
             if (runIndex >= 0 && runIndex + 1 < args.Length)
+            {
                 ui.Input.Commands.Execute(args[runIndex + 1]);
+            }
 
             if (args.Contains("--modal"))
+            {
                 app.ShowInfo("Information", "A modal info box. The background is dimmed.");
+            }
+
             if (args.Contains("--confirm"))
+            {
                 app.ShowConfirm("Quit", "Really quit the demo?", ["Quit", "Cancel"], (_, _) => { });
+            }
+
             Console.WriteLine(app.RenderOffscreen(width, height).ToText());
             return;
         }
@@ -182,9 +190,15 @@ internal static class Program
         void ShowFeature(string name)
         {
             if (!pageByName.TryGetValue(name, out var page) || ReferenceEquals(page, currentPage))
+            {
                 return;
+            }
+
             if (currentPage is not null)
+            {
                 rightFrame.Remove(currentPage);
+            }
+
             rightFrame.Add(page);
             rightFrame.Title = name;
             currentPage = page;
@@ -198,12 +212,12 @@ internal static class Program
         // Drop the feature list on narrow terminals so the presentation stays usable.
         void ApplyResponsiveLayout(int width)
         {
-            bool showNav = width >= 64;
+            var showNav = width >= 64;
             leftFrame.Visible = showNav;
             rightFrame.Left = showNav ? 30 : 0;
             hint.Visible = width >= 70;
 
-            int inputRows = input.BorderMode == BorderMode.None ? 1 : 3;
+            var inputRows = input.BorderMode == BorderMode.None ? 1 : 3;
             input.Height = inputRows;
             leftFrame.Bottom = rightFrame.Bottom = inputRows + 1;
         }
@@ -286,7 +300,7 @@ internal static class Program
     private static Panel OutputPage(ConsoleApp app, OutputField output, Checkbox typewriter, Label status)
     {
         var append = new Button("Append line") { Left = 0, Bottom = 0 };
-        int counter = 0;
+        var counter = 0;
         append.Clicked += () => output.AppendLine($"Line {++counter} – wrapped lines keep their indentation.", Color.Cyan);
 
         var task = new Button("Start task") { Left = 19, Bottom = 0 };
@@ -382,7 +396,10 @@ internal static class Program
                 _ => BorderStyle.Single,
             };
             foreach (var frame in frames)
+            {
                 frame.Border = style;
+            }
+
             input.Border = style;
             tabs.Border = style;
             status.Text = $"Border style: {borderChoice.SelectedItem}";
@@ -480,7 +497,7 @@ internal static class Program
         };
         var page = new Panel { Left = 0, Top = 0, Right = 0, Bottom = 0 };
         page.Add(Info(0, "Frames carry a title and one of five border styles."));
-        for (int i = 0; i < styles.Length; i++)
+        for (var i = 0; i < styles.Length; i++)
         {
             var frame = new Frame(styles[i].Name)
             {
@@ -574,7 +591,7 @@ internal static class Program
         void OnTick(TimeSpan delta)
         {
             done += delta.TotalSeconds;
-            double percent = Math.Min(100, done / seconds * 100);
+            var percent = Math.Min(100, done / seconds * 100);
             if (progress is not null)
             {
                 progress.Indeterminate = false;
@@ -601,10 +618,13 @@ internal static class Program
             return;
         }
 
-        if (Clipboard.TryGetText(out string clipboardText))
+        if (Clipboard.TryGetText(out var clipboardText))
         {
-            foreach (string line in clipboardText.Replace("\r", "").Split('\n'))
+            foreach (var line in clipboardText.Replace("\r", "").Split('\n'))
+            {
                 output.AppendLine(line, Color.Cyan);
+            }
+
             status.Text = "Text from the clipboard added to the output log.";
             return;
         }
@@ -653,7 +673,11 @@ internal static class Program
 
         public override bool OnKey(ConsoleKeyInfo key)
         {
-            if (key.Key != ConsoleKey.Escape) return false;
+            if (key.Key != ConsoleKey.Escape)
+            {
+                return false;
+            }
+
             Close();
             return true;
         }
@@ -677,7 +701,9 @@ internal static class Program
         ui.Input.CommandExecuted += result =>
         {
             if (!result.Success)
+            {
                 ui.Output.AppendLine(result.Message, Color.Red);
+            }
         };
 
         commands.Register("help", "Shows commands and shortcuts", _ =>
@@ -688,9 +714,9 @@ internal static class Program
 
         commands.Register("feature", "Switches the feature: /feature <name>", args =>
         {
-            string query = string.Join(' ', args);
+            var query = string.Join(' ', args);
             Guard.Against.NullOrWhiteSpace(query, nameof(args));
-            string? match = ui.FeatureNames
+            var match = ui.FeatureNames
                 .FirstOrDefault(n => n.Contains(query, StringComparison.OrdinalIgnoreCase));
             if (match is null)
             {
@@ -729,14 +755,14 @@ internal static class Program
                 "magenta" => Color.Magenta,
                 _ => Color.White,
             };
-            string text = args.Length > 1 ? string.Join(' ', args[1..]) : $"Color sample {args[0]}";
+            var text = args.Length > 1 ? string.Join(' ', args[1..]) : $"Color sample {args[0]}";
             ui.Output.AppendLine(text, color);
             ui.ShowFeature("Output Log & Task Lines");
         });
 
         commands.Register("typewriter", "Toggles the typewriter effect: /typewriter <on|off>", args =>
         {
-            bool on = args.Length == 0 ? !ui.Output.Typewriter : args[0] is "on" or "1";
+            var on = args.Length == 0 ? !ui.Output.Typewriter : args[0] is "on" or "1";
             ui.TypewriterOption.Checked = on;
             ui.Output.Typewriter = on;
             ui.Status.Text = on ? "Typewriter effect on." : "Typewriter effect off.";
@@ -744,7 +770,7 @@ internal static class Program
 
         commands.Register("task", "Simulates a task with a task line: /task [seconds]", args =>
         {
-            double seconds = args.Length > 0 ? double.Parse(args[0]) : 3;
+            var seconds = args.Length > 0 ? double.Parse(args[0]) : 3;
             Guard.Against.NegativeOrZero(seconds, nameof(args));
             RunDemoTask(app, ui.Output, seconds, ui.Progress);
             ui.ShowFeature("Output Log & Task Lines");
@@ -783,7 +809,7 @@ internal static class Program
 
         commands.Register("copy", "Copies text to the clipboard: /copy <text>", args =>
         {
-            string text = string.Join(' ', args);
+            var text = string.Join(' ', args);
             Guard.Against.NullOrWhiteSpace(text, nameof(args));
             ui.Status.Text = Clipboard.TrySetText(text)
                 ? "Copied to the clipboard."
@@ -831,9 +857,13 @@ internal static class Program
         app.ShowConfirm("Quit", "Really quit the demo?", ["Quit", "Cancel"], (index, _) =>
         {
             if (index == 0)
+            {
                 app.Exit();
+            }
             else
+            {
                 ui.Status.Text = "Quit cancelled.";
+            }
         });
     }
 
@@ -844,11 +874,17 @@ internal static class Program
         ui.HelpOutput.AppendLine("");
         ui.HelpOutput.AppendLine("Commands:", Color.Yellow);
         foreach (var command in ui.Input.Commands.All)
+        {
             ui.HelpOutput.AppendLine($"  /{command.Name,-12} {command.Description}", Color.Gray);
+        }
+
         ui.HelpOutput.AppendLine("");
         ui.HelpOutput.AppendLine("Shortcuts:", Color.Yellow);
         foreach (var binding in app.KeyBindings.All)
+        {
             ui.HelpOutput.AppendLine($"  {binding.Combo,-12} {binding.Description}", Color.Gray);
+        }
+
         ui.HelpOutput.AppendLine("  Tab/Shift+Tab  switch focus · arrows move · space toggles", Color.Gray);
     }
 

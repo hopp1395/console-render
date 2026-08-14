@@ -37,7 +37,11 @@ public class RadioGroup : Control
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        if (Items.Count == 0) return false;
+        if (Items.Count == 0)
+        {
+            return false;
+        }
+
         switch (key.Key)
         {
             case ConsoleKey.UpArrow:
@@ -62,12 +66,12 @@ public class RadioGroup : Control
     {
         Guard.Against.Null(buffer);
 
-        for (int i = 0; i < Items.Count && i < Bounds.Height; i++)
+        for (var i = 0; i < Items.Count && i < Bounds.Height; i++)
         {
-            bool selected = i == SelectedIndex;
-            bool highlighted = Focused && i == cursor;
+            var selected = i == SelectedIndex;
+            var highlighted = Focused && i == cursor;
             var style = highlighted ? CellStyle.Reverse : CellStyle.None;
-            string bullet = selected ? "(•) " : "( ) ";
+            var bullet = selected ? "(•) " : "( ) ";
             buffer.Write(Bounds.X, Bounds.Y + i, bullet, selected ? AccentColor : Foreground, default, style);
             buffer.Write(Bounds.X + 4, Bounds.Y + i, Items[i], Foreground, default, style);
         }

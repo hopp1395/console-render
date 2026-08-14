@@ -139,7 +139,7 @@ public class TextBoxBorderTests
             Border = BorderStyle.Double,
         };
 
-        string text = Render(box, 6, 3).ToText();
+        var text = Render(box, 6, 3).ToText();
 
         Assert.StartsWith("╔════╗", text);
     }
@@ -155,7 +155,7 @@ public class TextBoxBorderTests
             Placeholder = "",
         };
 
-        string text = Render(input, 8, 3).ToText();
+        var text = Render(input, 8, 3).ToText();
 
         Assert.StartsWith("--------", text);
         Assert.EndsWith("--------", text);

@@ -1,11 +1,5 @@
 namespace ConsoleRender;
 
-/// <summary>Result of executing a command line via <see cref="CommandRegistry.Execute"/>.</summary>
-public readonly record struct CommandResult(bool Success, string Message);
-
-/// <summary>A registered slash command.</summary>
-public sealed record CommandDefinition(string Name, string Description, Action<string[]> Handler);
-
 /// <summary>
 /// Registry for "/name arg1 arg2"-style commands. Arguments may be quoted with double quotes.
 /// </summary>
@@ -21,7 +15,7 @@ public sealed class CommandRegistry
         Guard.Against.NullOrWhiteSpace(description);
         Guard.Against.Null(handler);
 
-        string key = name.TrimStart('/');
+        var key = name.TrimStart('/');
         Guard.Against.NullOrWhiteSpace(key, nameof(name));
 
         commands[key] = new CommandDefinition(key, description, handler);
@@ -53,10 +47,14 @@ public sealed class CommandRegistry
 
         var tokens = Tokenize(input.TrimStart('/'));
         if (tokens.Length == 0)
+        {
             return new CommandResult(false, "Empty command.");
+        }
 
         if (!commands.TryGetValue(tokens[0], out var command))
+        {
             return new CommandResult(false, $"Unknown command: /{tokens[0]} (try /help)");
+        }
 
         try
         {
@@ -76,9 +74,9 @@ public sealed class CommandRegistry
 
         var tokens = new List<string>();
         var current = new System.Text.StringBuilder();
-        bool inQuotes = false;
+        var inQuotes = false;
 
-        foreach (char c in input)
+        foreach (var c in input)
         {
             if (c == '"')
             {
@@ -98,7 +96,9 @@ public sealed class CommandRegistry
             }
         }
         if (current.Length > 0)
+        {
             tokens.Add(current.ToString());
+        }
 
         return tokens.ToArray();
     }

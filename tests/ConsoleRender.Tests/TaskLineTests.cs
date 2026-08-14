@@ -19,7 +19,7 @@ public class TaskLineTests
         var output = new OutputField();
         output.BeginTask("lädt…");
 
-        string text = Render(output);
+        var text = Render(output);
 
         Assert.Contains("⠋ lädt…", text);
     }
@@ -78,7 +78,7 @@ public class TaskLineTests
         var task = output.BeginTask("sofort da");
 
         // No Update has run, so the typewriter has not revealed anything yet.
-        string text = Render(output);
+        var text = Render(output);
 
         Assert.DoesNotContain("eine langsame Zeile", text);
         Assert.Contains("⠋ sofort da", text);
@@ -93,7 +93,7 @@ public class TaskLineTests
         output.AppendLine("danach");
         task.Complete();
 
-        string[] rows = Render(output).Split('\n');
+        var rows = Render(output).Split('\n');
 
         Assert.Contains("davor", rows[0]);
         Assert.Contains("✓ lädt…", rows[1]);

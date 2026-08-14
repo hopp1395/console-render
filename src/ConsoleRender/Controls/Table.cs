@@ -1,8 +1,5 @@
 namespace ConsoleRender;
 
-/// <summary>A fixed-width column of a <see cref="Table"/>, with its cells' text alignment.</summary>
-public readonly record struct TableColumn(string Header, int Width, TextAlignment Alignment = TextAlignment.Left);
-
 /// <summary>
 /// A scrollable table with fixed-width columns. Arrow keys move the row selection (clamped
 /// to the first/last row, the same as <see cref="SelectMenu"/> — a table's rows are a list
@@ -66,7 +63,9 @@ public class Table : Control
     {
         Guard.Against.Null(cells);
         if (cells.Length != Columns.Count)
+        {
             throw new ArgumentException($"Expected {Columns.Count} cell(s), got {cells.Length}.", nameof(cells));
+        }
 
         Rows.Add(cells);
     }
@@ -85,7 +84,10 @@ public class Table : Control
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        if (Rows.Count == 0) return false;
+        if (Rows.Count == 0)
+        {
+            return false;
+        }
 
         switch (key.Key)
         {
@@ -112,24 +114,40 @@ public class Table : Control
     {
         Guard.Against.Null(buffer);
 
-        if (Bounds.Height < 1 || Bounds.Width < 1 || Columns.Count == 0) return;
+        if (Bounds.Height < 1 || Bounds.Width < 1 || Columns.Count == 0)
+        {
+            return;
+        }
 
         DrawRow(buffer, Bounds.Y, Columns.Select(c => c.Header).ToArray(),
             HeaderColor, CellStyle.Bold | CellStyle.Underline, scrollOverflow: false);
 
-        int visibleRows = Bounds.Height - 1;
-        if (visibleRows <= 0) return;
+        var visibleRows = Bounds.Height - 1;
+        if (visibleRows <= 0)
+        {
+            return;
+        }
 
         // Keep the selection in view.
-        if (selectedIndex < scroll) scroll = selectedIndex;
-        if (selectedIndex >= scroll + visibleRows) scroll = selectedIndex - visibleRows + 1;
-
-        for (int row = 0; row < visibleRows; row++)
+        if (selectedIndex < scroll)
         {
-            int i = scroll + row;
-            if (i >= Rows.Count) break;
+            scroll = selectedIndex;
+        }
 
-            bool selected = i == selectedIndex;
+        if (selectedIndex >= scroll + visibleRows)
+        {
+            scroll = selectedIndex - visibleRows + 1;
+        }
+
+        for (var row = 0; row < visibleRows; row++)
+        {
+            var i = scroll + row;
+            if (i >= Rows.Count)
+            {
+                break;
+            }
+
+            var selected = i == selectedIndex;
             var style = selected && Focused ? CellStyle.Reverse | CellStyle.Bold
                 : selected ? CellStyle.Bold
                 : CellStyle.None;
@@ -141,13 +159,13 @@ public class Table : Control
     private void DrawRow(ConsoleBuffer buffer, int y, IReadOnlyList<string> cells, Color fg, CellStyle style,
         bool scrollOverflow)
     {
-        int x = Bounds.X;
-        for (int c = 0; c < Columns.Count; c++)
+        var x = Bounds.X;
+        for (var c = 0; c < Columns.Count; c++)
         {
             var column = Columns[c];
-            string cell = cells[c];
+            var cell = cells[c];
             // A scrolling cell already fills the column exactly, so alignment does not apply to it.
-            string text = scrollOverflow && cell.Length > column.Width
+            var text = scrollOverflow && cell.Length > column.Width
                 ? ScrollText(cell, column.Width)
                 : Align(cell, column.Width, column.Alignment);
             buffer.Write(x, y, text, fg, Background, style);
@@ -166,18 +184,21 @@ public class Table : Control
     // from "rowElapsed", which Select() resets to zero whenever a different row is selected.
     private string ScrollText(string text, int width)
     {
-        int maxOffset = text.Length - width;
-        double scrollDuration = maxOffset / ScrollCharsPerSecond;
-        double cycleDuration = scrollDuration + ScrollPauseSeconds;
+        var maxOffset = text.Length - width;
+        var scrollDuration = maxOffset / ScrollCharsPerSecond;
+        var cycleDuration = scrollDuration + ScrollPauseSeconds;
 
-        double t = rowElapsed % cycleDuration;
-        int offset = t < scrollDuration ? (int)(t * ScrollCharsPerSecond) : maxOffset;
+        var t = rowElapsed % cycleDuration;
+        var offset = t < scrollDuration ? (int)(t * ScrollCharsPerSecond) : maxOffset;
         return text.Substring(offset, width);
     }
 
     private void Select(int index)
     {
-        if (index == selectedIndex) return;
+        if (index == selectedIndex)
+        {
+            return;
+        }
 
         selectedIndex = index;
         rowElapsed = 0;
@@ -191,8 +212,8 @@ public class Table : Control
 
     private static string Align(string text, int width, TextAlignment alignment)
     {
-        string truncated = Truncate(text, width);
-        int pad = width - truncated.Length;
+        var truncated = Truncate(text, width);
+        var pad = width - truncated.Length;
         return alignment switch
         {
             TextAlignment.Right => new string(' ', pad) + truncated,

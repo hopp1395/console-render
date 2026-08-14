@@ -51,10 +51,10 @@ public readonly struct Color : IEquatable<Color>
         Guard.Against.OutOfRange(value, nameof(value), 0, 1);
 
         hue = ((hue % 360) + 360) % 360;
-        double c = value * saturation;
-        double x = c * (1 - Math.Abs(hue / 60 % 2 - 1));
-        double m = value - c;
-        (double r, double g, double b) = ((int)(hue / 60)) switch
+        var c = value * saturation;
+        var x = c * (1 - Math.Abs(hue / 60 % 2 - 1));
+        var m = value - c;
+        (var r, var g, var b) = ((int)(hue / 60)) switch
         {
             0 => (c, x, 0.0),
             1 => (x, c, 0.0),

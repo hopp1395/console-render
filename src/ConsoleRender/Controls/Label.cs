@@ -1,17 +1,5 @@
 namespace ConsoleRender;
 
-/// <summary>Built-in text animations for <see cref="Label"/>.</summary>
-public enum TextEffect
-{
-    None,
-    /// <summary>Text toggles visibility twice per second.</summary>
-    Blink,
-    /// <summary>Animated hue gradient across the characters.</summary>
-    Rainbow,
-    /// <summary>Brightness oscillates smoothly.</summary>
-    Pulse,
-}
-
 /// <summary>A single-line text output field with color, style and optional animation.</summary>
 public class Label : Control
 {
@@ -55,29 +43,37 @@ public class Label : Control
     {
         Guard.Against.Null(buffer);
 
-        if (Bounds.Height < 1) return;
+        if (Bounds.Height < 1)
+        {
+            return;
+        }
 
-        string visible = Text.Length > Bounds.Width ? Text[..Bounds.Width] : Text;
-        int x = TextAlign switch
+        var visible = Text.Length > Bounds.Width ? Text[..Bounds.Width] : Text;
+        var x = TextAlign switch
         {
             TextAlignment.Center => Bounds.X + (Bounds.Width - visible.Length) / 2,
             TextAlignment.Right => Bounds.Right - visible.Length,
             _ => Bounds.X,
         };
-        int y = Bounds.Y;
+        var y = Bounds.Y;
 
         if (!Background.IsDefault)
+        {
             buffer.FillRect(new Rect(Bounds.X, y, Bounds.Width, 1), ' ', Foreground, Background);
+        }
 
         switch (Effect)
         {
             case TextEffect.Blink:
                 if (elapsed % 1.0 < 0.5)
+                {
                     buffer.Write(x, y, visible, Foreground, Background, Style);
+                }
+
                 break;
 
             case TextEffect.Rainbow:
-                for (int i = 0; i < visible.Length; i++)
+                for (var i = 0; i < visible.Length; i++)
                 {
                     var c = Color.FromHsv(i * 18 + elapsed * 140, 0.85, 1);
                     buffer.Set(x + i, y, visible[i], c, Background, Style);
@@ -85,7 +81,7 @@ public class Label : Control
                 break;
 
             case TextEffect.Pulse:
-                double v = 0.55 + 0.45 * Math.Sin(elapsed * 4);
+                var v = 0.55 + 0.45 * Math.Sin(elapsed * 4);
                 var fg = Foreground.IsDefault ? Color.White : Foreground;
                 buffer.Write(x, y, visible, fg.Scale(v), Background, Style);
                 break;

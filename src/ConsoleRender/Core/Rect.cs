@@ -1,11 +1,5 @@
 namespace ConsoleRender;
 
-/// <summary>An integer point in screen coordinates.</summary>
-public readonly record struct Point(int X, int Y);
-
-/// <summary>An integer size in character cells.</summary>
-public readonly record struct Size(int Width, int Height);
-
 /// <summary>An integer rectangle in screen coordinates. Right/Bottom are exclusive.</summary>
 public readonly record struct Rect(int X, int Y, int Width, int Height)
 {
@@ -34,10 +28,10 @@ public readonly record struct Rect(int X, int Y, int Width, int Height)
 
     public Rect Intersect(Rect other)
     {
-        int x1 = Math.Max(X, other.X);
-        int y1 = Math.Max(Y, other.Y);
-        int x2 = Math.Min(Right, other.Right);
-        int y2 = Math.Min(Bottom, other.Bottom);
+        var x1 = Math.Max(X, other.X);
+        var y1 = Math.Max(Y, other.Y);
+        var x2 = Math.Min(Right, other.Right);
+        var y2 = Math.Min(Bottom, other.Bottom);
         return x2 <= x1 || y2 <= y1 ? new Rect(x1, y1, 0, 0) : new Rect(x1, y1, x2 - x1, y2 - y1);
     }
 }

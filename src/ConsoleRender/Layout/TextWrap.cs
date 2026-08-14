@@ -14,7 +14,7 @@ internal static class TextWrap
         Guard.Against.NegativeOrZero(width);
 
         var lines = new List<string>();
-        foreach (string paragraph in text.Replace("\r", "").Split('\n'))
+        foreach (var paragraph in text.Replace("\r", "").Split('\n'))
         {
             if (paragraph.Length == 0)
             {
@@ -23,12 +23,16 @@ internal static class TextWrap
             }
 
             var current = "";
-            foreach (string word in paragraph.Split(' '))
+            foreach (var word in paragraph.Split(' '))
             {
                 if (current.Length == 0)
+                {
                     current = word;
+                }
                 else if (current.Length + 1 + word.Length <= width)
+                {
                     current += " " + word;
+                }
                 else
                 {
                     lines.Add(current);
@@ -36,7 +40,9 @@ internal static class TextWrap
                 }
             }
             if (current.Length > 0)
+            {
                 lines.Add(current);
+            }
         }
         return lines;
     }

@@ -60,10 +60,21 @@ public sealed class ConsoleApp : IDisposable
     /// <summary>Gives keyboard focus to <paramref name="control"/>.</summary>
     public void SetFocus(Control? control)
     {
-        if (ReferenceEquals(FocusedControl, control)) return;
-        if (FocusedControl is not null) FocusedControl.Focused = false;
+        if (ReferenceEquals(FocusedControl, control))
+        {
+            return;
+        }
+
+        if (FocusedControl is not null)
+        {
+            FocusedControl.Focused = false;
+        }
+
         FocusedControl = control;
-        if (FocusedControl is not null) FocusedControl.Focused = true;
+        if (FocusedControl is not null)
+        {
+            FocusedControl.Focused = true;
+        }
     }
 
     /// <summary>Moves focus to the next (or previous) focusable control in tree order.</summary>
@@ -76,8 +87,8 @@ public sealed class ConsoleApp : IDisposable
             return;
         }
 
-        int index = FocusedControl is null ? -1 : focusables.IndexOf(FocusedControl);
-        int next = index < 0
+        var index = FocusedControl is null ? -1 : focusables.IndexOf(FocusedControl);
+        var next = index < 0
             ? (backwards ? focusables.Count - 1 : 0)
             : (index + (backwards ? -1 : 1) + focusables.Count) % focusables.Count;
         SetFocus(focusables[next]);
@@ -142,12 +153,18 @@ public sealed class ConsoleApp : IDisposable
     /// <summary>Closes the topmost modal dialog, if any.</summary>
     public void CloseTopModal()
     {
-        if (modals.Count == 0) return;
+        if (modals.Count == 0)
+        {
+            return;
+        }
 
         var closing = modals[^1];
         modals.RemoveAt(modals.Count - 1);
         if (closing is ModalControl dialog)
+        {
             dialog.CloseRequested -= CloseTopModal;
+        }
+
         RefreshFocusables();
 
         // Restore whatever had focus before the dialog opened, if it is still reachable.
@@ -177,7 +194,9 @@ public sealed class ConsoleApp : IDisposable
         clock.Restart();
 
         if (FocusedControl is null)
+        {
             CycleFocus();
+        }
 
         try
         {
@@ -189,21 +208,28 @@ public sealed class ConsoleApp : IDisposable
                 last = now;
 
                 DrainInput();
-                if (!running) break;
+                if (!running)
+                {
+                    break;
+                }
 
                 SyncTerminalSize();
 
                 Tick?.Invoke(delta);
                 Root.UpdateAll(delta);
                 foreach (var modal in modals)
+                {
                     modal.UpdateAll(delta);
+                }
 
                 RenderFrame();
 
-                int frameMs = Math.Max(1, 1000 / TargetFps);
-                int elapsedMs = (int)(clock.Elapsed - now).TotalMilliseconds;
+                var frameMs = Math.Max(1, 1000 / TargetFps);
+                var elapsedMs = (int)(clock.Elapsed - now).TotalMilliseconds;
                 if (elapsedMs < frameMs)
+                {
                     Thread.Sleep(frameMs - elapsedMs);
+                }
             }
         }
         finally
@@ -237,7 +263,9 @@ public sealed class ConsoleApp : IDisposable
         Root.Height = full.Height;
         Root.PerformLayout(full);
         foreach (var modal in modals)
+        {
             modal.PerformLayout(full);
+        }
 
         buffer.Clear();
         Root.Render(buffer);
@@ -247,7 +275,9 @@ public sealed class ConsoleApp : IDisposable
             // Dim the background so the dialog stands out.
             DimBuffer(buffer);
             foreach (var modal in modals)
+            {
                 modal.Render(buffer);
+            }
         }
     }
 
@@ -259,8 +289,9 @@ public sealed class ConsoleApp : IDisposable
 
     private static void DimBuffer(ConsoleBuffer buffer)
     {
-        for (int y = 0; y < buffer.Height; y++)
-            for (int x = 0; x < buffer.Width; x++)
+        for (var y = 0; y < buffer.Height; y++)
+        {
+            for (var x = 0; x < buffer.Width; x++)
             {
                 var cell = buffer[x, y];
                 buffer[x, y] = cell with
@@ -269,20 +300,27 @@ public sealed class ConsoleApp : IDisposable
                     Background = cell.Background.Scale(0.45),
                 };
             }
+        }
     }
 
     private void DrainInput()
     {
         // Console.KeyAvailable throws when stdin is not a real console (piped or redirected).
-        if (Console.IsInputRedirected) return;
+        if (Console.IsInputRedirected)
+        {
+            return;
+        }
 
         // Process every buffered key so fast typing and paste bursts stay responsive,
         // but cap the batch so input can never starve rendering.
-        for (int i = 0; i < 64 && Console.KeyAvailable; i++)
+        for (var i = 0; i < 64 && Console.KeyAvailable; i++)
         {
             var key = Console.ReadKey(intercept: true);
             DispatchKey(key);
-            if (!running) return;
+            if (!running)
+            {
+                return;
+            }
         }
     }
 
@@ -291,23 +329,39 @@ public sealed class ConsoleApp : IDisposable
         if (modals.Count > 0)
         {
             var modal = modals[^1];
-            if (FocusedControl is not null && FocusedControl.OnKey(key)) return;
+            if (FocusedControl is not null && FocusedControl.OnKey(key))
+            {
+                return;
+            }
+
             modal.OnKey(key);
             return;
         }
 
-        if (KeyBindings.Handle(key)) return;
+        if (KeyBindings.Handle(key))
+        {
+            return;
+        }
 
-        if (FocusedControl is not null && FocusedControl.OnKey(key)) return;
+        if (FocusedControl is not null && FocusedControl.OnKey(key))
+        {
+            return;
+        }
 
         if (key.Key == ConsoleKey.Tab)
+        {
             CycleFocus(key.Modifiers.HasFlag(ConsoleModifiers.Shift));
+        }
     }
 
     private void SyncTerminalSize()
     {
         var (width, height) = GetTerminalSize();
-        if (width == lastWidth && height == lastHeight) return;
+        if (width == lastWidth && height == lastHeight)
+        {
+            return;
+        }
+
         lastWidth = width;
         lastHeight = height;
         renderer.Resize(width, height);
@@ -328,7 +382,11 @@ public sealed class ConsoleApp : IDisposable
 
     public void Dispose()
     {
-        if (disposed) return;
+        if (disposed)
+        {
+            return;
+        }
+
         disposed = true;
         running = false;
     }

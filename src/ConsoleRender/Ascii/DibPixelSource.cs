@@ -38,37 +38,61 @@ public sealed class DibPixelSource : IPixelSource
         Guard.Against.Null(data);
 
         source = null!;
-        if (data.Length < 40) return false;
+        if (data.Length < 40)
+        {
+            return false;
+        }
 
         var span = data.AsSpan();
-        int headerSize = BinaryPrimitives.ReadInt32LittleEndian(span);
-        if (headerSize < 40 || headerSize > data.Length) return false;
+        var headerSize = BinaryPrimitives.ReadInt32LittleEndian(span);
+        if (headerSize < 40 || headerSize > data.Length)
+        {
+            return false;
+        }
 
-        int width = BinaryPrimitives.ReadInt32LittleEndian(span[4..]);
-        int rawHeight = BinaryPrimitives.ReadInt32LittleEndian(span[8..]);
+        var width = BinaryPrimitives.ReadInt32LittleEndian(span[4..]);
+        var rawHeight = BinaryPrimitives.ReadInt32LittleEndian(span[8..]);
         int bitCount = BinaryPrimitives.ReadInt16LittleEndian(span[14..]);
-        int compression = BinaryPrimitives.ReadInt32LittleEndian(span[16..]);
-        int clrUsed = BinaryPrimitives.ReadInt32LittleEndian(span[32..]);
+        var compression = BinaryPrimitives.ReadInt32LittleEndian(span[16..]);
+        var clrUsed = BinaryPrimitives.ReadInt32LittleEndian(span[32..]);
 
-        if (width <= 0 || rawHeight == 0) return false;
-        if (bitCount != 24 && bitCount != 32) return false;
+        if (width <= 0 || rawHeight == 0)
+        {
+            return false;
+        }
+
+        if (bitCount != 24 && bitCount != 32)
+        {
+            return false;
+        }
 
         // BI_RGB (0) and BI_BITFIELDS (3) only; BI_BITFIELDS on 32bpp is BGRA in practice.
-        if (compression != 0 && compression != 3) return false;
+        if (compression != 0 && compression != 3)
+        {
+            return false;
+        }
 
-        bool bottomUp = rawHeight > 0;
-        int height = Math.Abs(rawHeight);
+        var bottomUp = rawHeight > 0;
+        var height = Math.Abs(rawHeight);
 
         // The pixel array starts after the header, the optional bitfield masks and the color table.
-        int offset = headerSize;
+        var offset = headerSize;
         if (compression == 3 && headerSize == 40)
+        {
             offset += 12; // three DWORD masks follow a plain BITMAPINFOHEADER
-        if (bitCount <= 8)
-            offset += (clrUsed == 0 ? 1 << bitCount : clrUsed) * 4;
+        }
 
-        int stride = (width * bitCount / 8 + 3) & ~3;
-        long required = (long)offset + (long)stride * height;
-        if (required > data.Length) return false;
+        if (bitCount <= 8)
+        {
+            offset += (clrUsed == 0 ? 1 << bitCount : clrUsed) * 4;
+        }
+
+        var stride = (width * bitCount / 8 + 3) & ~3;
+        var required = (long)offset + (long)stride * height;
+        if (required > data.Length)
+        {
+            return false;
+        }
 
         source = new DibPixelSource(data, offset, width, height, bitCount, stride, bottomUp);
         return true;
@@ -79,8 +103,8 @@ public sealed class DibPixelSource : IPixelSource
         Guard.Against.OutOfRange(x, nameof(x), 0, Width - 1);
         Guard.Against.OutOfRange(y, nameof(y), 0, Height - 1);
 
-        int row = bottomUp ? Height - 1 - y : y;
-        int index = pixelOffset + row * stride + x * (bitsPerPixel / 8);
+        var row = bottomUp ? Height - 1 - y : y;
+        var index = pixelOffset + row * stride + x * (bitsPerPixel / 8);
         // DIB pixel order is BGR(A).
         return (data[index + 2], data[index + 1], data[index]);
     }

@@ -34,7 +34,9 @@ public sealed class ConsoleBuffer
         set
         {
             if (clip.Contains(x, y))
+            {
                 cells[y * Width + x] = value;
+            }
         }
     }
 
@@ -52,7 +54,10 @@ public sealed class ConsoleBuffer
     public void PopClip()
     {
         if (clips.Count == 0)
+        {
             throw new InvalidOperationException("PopClip called without a matching PushClip.");
+        }
+
         clip = clips.Pop();
     }
 
@@ -95,14 +100,30 @@ public sealed class ConsoleBuffer
     {
         Guard.Against.Null(text);
 
-        if (y < clip.Y || y >= clip.Bottom) return;
-        for (int i = 0; i < text.Length; i++)
+        if (y < clip.Y || y >= clip.Bottom)
         {
-            int cx = x + i;
-            if (cx >= clip.Right) break;
-            if (cx < clip.X) continue;
-            char ch = text[i];
-            if (ch == '\n' || ch == '\r') break;
+            return;
+        }
+
+        for (var i = 0; i < text.Length; i++)
+        {
+            var cx = x + i;
+            if (cx >= clip.Right)
+            {
+                break;
+            }
+
+            if (cx < clip.X)
+            {
+                continue;
+            }
+
+            var ch = text[i];
+            if (ch == '\n' || ch == '\r')
+            {
+                break;
+            }
+
             cells[y * Width + cx] = new Cell(ch, fg, bg, style);
         }
     }
@@ -111,21 +132,27 @@ public sealed class ConsoleBuffer
     {
         var r = rect.Intersect(clip);
         var cell = new Cell(ch, fg, bg, style);
-        for (int y = r.Y; y < r.Bottom; y++)
-            for (int x = r.X; x < r.Right; x++)
+        for (var y = r.Y; y < r.Bottom; y++)
+        {
+            for (var x = r.X; x < r.Right; x++)
+            {
                 cells[y * Width + x] = cell;
+            }
+        }
     }
 
     /// <summary>Sets the background color of a rectangle without touching characters.</summary>
     public void TintBackground(Rect rect, Color bg)
     {
         var r = rect.Intersect(clip);
-        for (int y = r.Y; y < r.Bottom; y++)
-            for (int x = r.X; x < r.Right; x++)
+        for (var y = r.Y; y < r.Bottom; y++)
+        {
+            for (var x = r.X; x < r.Right; x++)
             {
                 var c = cells[y * Width + x];
                 cells[y * Width + x] = c with { Background = bg };
             }
+        }
     }
 
     /// <summary>Draws a box border along the edge of <paramref name="rect"/>, optionally with a title in the top edge.</summary>
@@ -134,19 +161,24 @@ public sealed class ConsoleBuffer
     {
         Guard.Against.Null(border);
 
-        if (rect.Width < 2 || rect.Height < 2) return;
-        int x2 = rect.Right - 1, y2 = rect.Bottom - 1;
+        if (rect.Width < 2 || rect.Height < 2)
+        {
+            return;
+        }
+
+        var x2 = rect.Right - 1;
+        var y2 = rect.Bottom - 1;
 
         Set(rect.X, rect.Y, border.TopLeft, fg, bg);
         Set(x2, rect.Y, border.TopRight, fg, bg);
         Set(rect.X, y2, border.BottomLeft, fg, bg);
         Set(x2, y2, border.BottomRight, fg, bg);
-        for (int x = rect.X + 1; x < x2; x++)
+        for (var x = rect.X + 1; x < x2; x++)
         {
             Set(x, rect.Y, border.Horizontal, fg, bg);
             Set(x, y2, border.Horizontal, fg, bg);
         }
-        for (int y = rect.Y + 1; y < y2; y++)
+        for (var y = rect.Y + 1; y < y2; y++)
         {
             Set(rect.X, y, border.Vertical, fg, bg);
             Set(x2, y, border.Vertical, fg, bg);
@@ -154,10 +186,10 @@ public sealed class ConsoleBuffer
 
         if (!string.IsNullOrEmpty(title))
         {
-            int maxLen = rect.Width - 4;
+            var maxLen = rect.Width - 4;
             if (maxLen > 0)
             {
-                string t = title.Length > maxLen ? title[..maxLen] : title;
+                var t = title.Length > maxLen ? title[..maxLen] : title;
                 Write(rect.X + 2, rect.Y, $" {t} ",
                     titleColor.IsDefault ? fg : titleColor, bg, CellStyle.Bold);
             }
@@ -171,14 +203,17 @@ public sealed class ConsoleBuffer
     public string ToText()
     {
         var sb = new System.Text.StringBuilder(Width * Height + Height);
-        for (int y = 0; y < Height; y++)
+        for (var y = 0; y < Height; y++)
         {
-            for (int x = 0; x < Width; x++)
+            for (var x = 0; x < Width; x++)
             {
-                char ch = this[x, y].Char;
+                var ch = this[x, y].Char;
                 sb.Append(ch == '\0' ? ' ' : ch);
             }
-            if (y < Height - 1) sb.Append('\n');
+            if (y < Height - 1)
+            {
+                sb.Append('\n');
+            }
         }
         return sb.ToString();
     }

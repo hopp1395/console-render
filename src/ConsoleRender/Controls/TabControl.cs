@@ -73,7 +73,7 @@ public class TabControl : Control
         Guard.Against.NullOrWhiteSpace(title);
         Guard.Against.Null(content);
 
-        bool first = tabs.Count == 0;
+        var first = tabs.Count == 0;
         content.Left = 0;
         content.Top = 0;
         content.Right = 0;
@@ -88,7 +88,7 @@ public class TabControl : Control
     {
         get
         {
-            int height = Math.Max(0, Bounds.Height - HeaderHeight);
+            var height = Math.Max(0, Bounds.Height - HeaderHeight);
             return new Rect(Bounds.X, Bounds.Y + HeaderHeight, Bounds.Width, height);
         }
     }
@@ -102,7 +102,10 @@ public class TabControl : Control
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        if (tabs.Count == 0) return false;
+        if (tabs.Count == 0)
+        {
+            return false;
+        }
 
         switch (key.Key)
         {
@@ -126,21 +129,27 @@ public class TabControl : Control
     {
         Guard.Against.Null(buffer);
 
-        if (Bounds.Height < 1 || Bounds.Width < 1) return;
-
-        int x = Bounds.X;
-        for (int i = 0; i < tabs.Count; i++)
+        if (Bounds.Height < 1 || Bounds.Width < 1)
         {
-            if (x >= Bounds.Right) break;
+            return;
+        }
 
-            bool active = i == selectedIndex;
+        var x = Bounds.X;
+        for (var i = 0; i < tabs.Count; i++)
+        {
+            if (x >= Bounds.Right)
+            {
+                break;
+            }
+
+            var active = i == selectedIndex;
             var color = tabs[i].AccentColor ?? AccentColor;
             var fg = active ? color : Foreground;
             var style = active
                 ? (Focused ? CellStyle.Reverse | CellStyle.Bold : CellStyle.Bold)
                 : CellStyle.None;
 
-            string label = $" {tabs[i].Title} ";
+            var label = $" {tabs[i].Title} ";
             buffer.Write(x, Bounds.Y, label, fg, Background, style);
             x += label.Length;
 
@@ -156,7 +165,10 @@ public class TabControl : Control
 
     private void Select(int index)
     {
-        if (index == selectedIndex) return;
+        if (index == selectedIndex)
+        {
+            return;
+        }
 
         tabs[selectedIndex].Content.Visible = false;
         selectedIndex = index;

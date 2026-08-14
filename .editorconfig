@@ -35,6 +35,16 @@ csharp_style_expression_bodied_properties = true:silent
 csharp_style_expression_bodied_accessors = true:silent
 csharp_style_expression_bodied_indexers = true:silent
 
+# A single-line if statement always gets braces.
+csharp_prefer_braces = true:warning
+dotnet_diagnostic.IDE0011.severity = warning
+
+# var instead of an explicit type, even when the type isn't obvious from the right-hand side.
+csharp_style_var_for_built_in_types = true:warning
+csharp_style_var_when_type_is_apparent = true:warning
+csharp_style_var_elsewhere = true:warning
+dotnet_diagnostic.IDE0007.severity = warning
+
 # Private fields are camelCase without a leading underscore. Where a field and a parameter
 # would collide — typically in constructors — qualify the field with "this.".
 dotnet_naming_rule.private_fields_are_camel_case.symbols = private_fields

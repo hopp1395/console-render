@@ -170,8 +170,10 @@ public class ControlBehaviourTests
     public void OutputField_DropsTheOldestLinesBeyondMaxLines()
     {
         var field = new OutputField { MaxLines = 3, Left = 0, Top = 0, Width = 20, Height = 3 };
-        for (int i = 0; i < 5; i++)
+        for (var i = 0; i < 5; i++)
+        {
             field.AppendLine($"Zeile {i}");
+        }
 
         var buffer = Render(field, 20, 3);
 
@@ -254,7 +256,7 @@ public class ControlBehaviourTests
         // Anchored past the bottom edge of the frame's content area.
         frame.Add(new Label("XXXXXXXX") { Left = 0, Top = 5 });
 
-        string text = Render(frame, 8, 4).ToText();
+        var text = Render(frame, 8, 4).ToText();
 
         Assert.DoesNotContain("X", text);
         Assert.Equal(
