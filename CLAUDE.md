@@ -31,7 +31,11 @@ Merging to `main` triggers the publish job (`.github/workflows/ci.yml`), which p
 
 - Private fields are camelCase **without** a leading underscore (enforced via `.editorconfig`). On field/parameter collisions (constructors), qualify with `this.`.
 - Methods and constructors always use a **block body**, never an expression body (`=>`); a constructor initializer (`: this()` / `: base()`) sits on its own indented line. Properties, accessors and indexers may keep the expression form.
-- Both rules live in `.editorconfig` and are enforced at build time (`EnforceCodeStyleInBuild` + `TreatWarningsAsErrors`), so a violation fails the build rather than just showing an IDE squiggle. Note that the `csharp_style_*` options alone are only IDE hints — the paired `dotnet_diagnostic.IDE00xx.severity` entries are what make them fire during a build.
+- `if`/`else`/`for`/`foreach`/`while` always get braces, even for a single-statement body.
+- Local variables use `var`, even where the type isn't obvious from the right-hand side. `var` cannot have multiple declarators (`CS0819`), so a line like `int a = 1, b = 2;` becomes one `var` statement per variable.
+- All of the above live in `.editorconfig` and are enforced at build time (`EnforceCodeStyleInBuild` + `TreatWarningsAsErrors`), so a violation fails the build rather than just showing an IDE squiggle. Note that the `csharp_style_*` options alone are only IDE hints — the paired `dotnet_diagnostic.IDE00xx.severity` entries are what make them fire during a build.
+- A closing `}` is followed by a blank line, except when the next line is itself a closing brace or starts with `else`, `catch` or `finally`. Not build-enforced (no Roslyn/StyleCop rule covers it) — apply it by hand.
+- One type per file — classes, records, structs and enums each get their own file, named after the type. Exception: private types nested inside the type that owns them (e.g. `OutputField`'s private `Line` record).
 - Every public method/setter validates arguments with Ardalis.GuardClauses (`Guard.Against.…`, globally imported via `GlobalUsings.cs`). Exception: the per-cell drawing hot path (`ConsoleBuffer` indexer/`Set`, per-cell loops inside `Draw`) — there, clipping is the defined semantics.
 - `TreatWarningsAsErrors` is on; CS1591 (missing XML doc) is suppressed, but load-bearing types and non-obvious members carry doc comments.
 - Language split: library code, comments, README and the demo app's UI strings are English; commit messages are German.

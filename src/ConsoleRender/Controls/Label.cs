@@ -55,6 +55,7 @@ public class Label : Control
             TextAlignment.Right => Bounds.Right - visible.Length,
             _ => Bounds.X,
         };
+
         var y = Bounds.Y;
 
         if (!Background.IsDefault)
@@ -78,6 +79,7 @@ public class Label : Control
                     var c = Color.FromHsv(i * 18 + elapsed * 140, 0.85, 1);
                     buffer.Set(x + i, y, visible[i], c, Background, Style);
                 }
+
                 break;
 
             case TextEffect.Pulse:

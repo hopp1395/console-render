@@ -63,6 +63,7 @@ public readonly struct Color : IEquatable<Color>
             4 => (x, 0.0, c),
             _ => (c, 0.0, x),
         };
+
         return Rgb((byte)((r + m) * 255), (byte)((g + m) * 255), (byte)((b + m) * 255));
     }
 

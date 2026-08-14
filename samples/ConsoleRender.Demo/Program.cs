@@ -153,6 +153,7 @@ internal static class Program
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Middle,
         };
+
         var progress = new ProgressBar { Left = 0, Top = 3, Right = 0, Height = 1 };
         var helpOutput = new OutputField { Left = 0, Top = 0, Right = 0, Bottom = 0 };
 
@@ -175,6 +176,7 @@ internal static class Program
             ("Layout & Anchors", LayoutPage()),
             ("Commands & Shortcuts", Fill(helpOutput)),
         };
+
         var pageByName = pages.ToDictionary(p => p.Name, p => p.Page);
         var featureNames = pages.Select(p => p.Name).ToList();
 
@@ -183,6 +185,7 @@ internal static class Program
             Left = 0, Top = 0, Right = 0, Bottom = 0,
             EmptyText = "no matches",
         };
+
         nav.Input.Placeholder = "Search features…";
         leftFrame.Add(nav);
 
@@ -261,6 +264,7 @@ internal static class Program
             HorizontalAlignment = HorizontalAlignment.Center,
             Top = 2,
         };
+
         return Fill(
             logo,
             new Label("A double-buffered TUI framework for .NET.")
@@ -326,12 +330,14 @@ internal static class Program
             BorderMode = BorderMode.TopAndBottom, BorderColor = Color.Magenta,
             Placeholder = "lines above and below",
         };
+
         var full = new TextBox
         {
             Left = 0, Top = 10, Right = 0, Height = 3,
             BorderMode = BorderMode.Full, BorderColor = Color.Cyan,
             Placeholder = "full border",
         };
+
         return Fill(
             Info(0, "Single-line input with cursor, scrolling and clipboard support"),
             Info(1, "(Ctrl+C copies, Ctrl+V pastes, Ctrl+U clears)."),
@@ -346,6 +352,7 @@ internal static class Program
             Highlighter = new MarkdownHighlighter(),
             Text = SampleMarkdown,
         };
+
         editor.OnKey(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true));
         return Fill(
             Info(0, "Multi-line editor, Markdown is highlighted as you type."),
@@ -362,6 +369,7 @@ internal static class Program
             Left = 0, Top = 3, Width = 32, Bottom = 0,
             EmptyText = "no matches",
         };
+
         search.Input.Placeholder = "Search city…";
         search.ItemActivated += (_, item) => status.Text = $"City selected: {item}";
         return Fill(
@@ -376,6 +384,7 @@ internal static class Program
         {
             Left = 0, Top = 3, Width = 30, Height = 5,
         };
+
         menu.SelectionChanged += index => status.Text = $"Menu: {menu.Items[index]}";
 
         var option1 = new Checkbox("Colored output") { Left = 0, Top = 10, Checked = true };
@@ -386,6 +395,7 @@ internal static class Program
         {
             Left = 0, Top = 14, Height = 4,
         };
+
         borderChoice.SelectionChanged += index =>
         {
             var style = index switch
@@ -395,6 +405,7 @@ internal static class Program
                 3 => BorderStyle.Thick,
                 _ => BorderStyle.Single,
             };
+
             foreach (var frame in frames)
             {
                 frame.Border = style;
@@ -495,6 +506,7 @@ internal static class Program
             ("Thick", BorderStyle.Thick),
             ("Ascii", BorderStyle.Ascii),
         };
+
         var page = new Panel { Left = 0, Top = 0, Right = 0, Bottom = 0 };
         page.Add(Info(0, "Frames carry a title and one of five border styles."));
         for (var i = 0; i < styles.Length; i++)
@@ -505,9 +517,11 @@ internal static class Program
                 Border = styles[i].Style,
                 BorderColor = Color.Cyan,
             };
+
             frame.Add(new Label("Content") { Left = 1, Top = 1, Foreground = Color.Gray });
             page.Add(frame);
         }
+
         return page;
     }
 
@@ -556,6 +570,7 @@ internal static class Program
             Left = 0, Top = 4, Right = 0, Bottom = 0,
             BorderColor = Color.DarkGray,
         };
+
         playground.AddRange(
             new Label("Left=0, Top=0") { Left = 0, Top = 0, Foreground = Color.Cyan },
             new Label("Right=0, Top=0") { Right = 0, Top = 0, Foreground = Color.Cyan },
@@ -597,6 +612,7 @@ internal static class Program
                 progress.Indeterminate = false;
                 progress.Value = percent;
             }
+
             task.Text = $"Processing data… {percent:0} %";
             if (done >= seconds)
             {
@@ -657,6 +673,7 @@ internal static class Program
                 Highlighter = new MarkdownHighlighter(),
                 Text = initialText,
             };
+
             // The Text setter leaves the cursor at the end; start reading at the top.
             editor.OnKey(new ConsoleKeyInfo('\0', ConsoleKey.Home, false, false, true));
             Add(editor);
@@ -723,6 +740,7 @@ internal static class Program
                 ui.Status.Text = $"No feature matches \"{query}\".";
                 return;
             }
+
             ui.ShowFeature(match);
         });
 
@@ -745,6 +763,7 @@ internal static class Program
                 ui.Output.AppendLine("Usage: /color <red|green|blue|yellow|cyan|magenta> [text]", Color.Yellow);
                 return;
             }
+
             var color = args[0].ToLowerInvariant() switch
             {
                 "red" => Color.Red,
@@ -755,6 +774,7 @@ internal static class Program
                 "magenta" => Color.Magenta,
                 _ => Color.White,
             };
+
             var text = args.Length > 1 ? string.Join(' ', args[1..]) : $"Color sample {args[0]}";
             ui.Output.AppendLine(text, color);
             ui.ShowFeature("Output Log & Task Lines");
@@ -791,6 +811,7 @@ internal static class Program
                 ui.Progress.Value = double.Parse(args[0]);
                 ui.Status.Text = $"Progress: {ui.Progress.Value:0} %";
             }
+
             ui.ShowFeature("Progress & Spinner");
         });
 
@@ -833,6 +854,7 @@ internal static class Program
                     "none" => BorderMode.None,
                     _ => throw new ArgumentException($"Unknown border: {args[0]}"),
                 };
+
             ui.Status.Text = $"Input field border: {ui.Input.BorderMode}";
         });
 

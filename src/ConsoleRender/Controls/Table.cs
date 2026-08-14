@@ -107,6 +107,7 @@ public class Table : Control
                 RowActivated?.Invoke(selectedIndex);
                 return true;
         }
+
         return false;
     }
 

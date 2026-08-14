@@ -122,6 +122,7 @@ public class TabControl : Control
                 Select(tabs.Count - 1);
                 return true;
         }
+
         return false;
     }
 

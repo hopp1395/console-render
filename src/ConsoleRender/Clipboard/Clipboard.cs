@@ -51,6 +51,7 @@ public static class Clipboard
 
             Thread.Sleep(10);
         }
+
         return false;
     }
 
@@ -136,6 +137,7 @@ public static class Clipboard
             {
                 GlobalUnlock(hMem);
             }
+
             // On success the system owns the memory; on failure we leak a small block, which
             // is the standard trade-off with SetClipboardData.
             return SetClipboardData(CfUnicodeText, hMem) != IntPtr.Zero;
@@ -204,6 +206,7 @@ public static class Clipboard
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
             };
+
             using var p = System.Diagnostics.Process.Start(psi);
             if (p is null)
             {
@@ -233,6 +236,7 @@ public static class Clipboard
                 RedirectStandardInput = true,
                 UseShellExecute = false,
             };
+
             using var p = System.Diagnostics.Process.Start(psi);
             if (p is null)
             {

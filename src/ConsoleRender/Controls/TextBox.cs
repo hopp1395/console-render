@@ -114,6 +114,7 @@ public class TextBox : Control
                     cursor--;
                     TextChanged?.Invoke(Text);
                 }
+
                 return true;
             case ConsoleKey.Delete:
                 if (cursor < Text.Length)
@@ -121,6 +122,7 @@ public class TextBox : Control
                     Text = Text.Remove(cursor, 1);
                     TextChanged?.Invoke(Text);
                 }
+
                 return true;
             case ConsoleKey.U when ctrl:
                 Text = "";

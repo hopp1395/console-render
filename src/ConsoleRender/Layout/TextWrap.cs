@@ -39,11 +39,13 @@ internal static class TextWrap
                     current = word;
                 }
             }
+
             if (current.Length > 0)
             {
                 lines.Add(current);
             }
         }
+
         return lines;
     }
 }

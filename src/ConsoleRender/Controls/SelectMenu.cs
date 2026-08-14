@@ -60,6 +60,7 @@ public class SelectMenu : Control
                 ItemActivated?.Invoke(SelectedIndex, Items[SelectedIndex]);
                 return true;
         }
+
         return false;
     }
 

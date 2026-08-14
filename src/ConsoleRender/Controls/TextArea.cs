@@ -167,6 +167,7 @@ public class TextArea : Control
                     cursorLine--;
                     Bump();
                 }
+
                 return true;
 
             case ConsoleKey.Delete:
@@ -181,6 +182,7 @@ public class TextArea : Control
                     lines.RemoveAt(cursorLine + 1);
                     Bump();
                 }
+
                 return true;
 
             case ConsoleKey.LeftArrow:
@@ -193,6 +195,7 @@ public class TextArea : Control
                     cursorLine--;
                     cursorCol = lines[cursorLine].Length;
                 }
+
                 desiredCol = cursorCol;
                 return true;
 
@@ -206,6 +209,7 @@ public class TextArea : Control
                     cursorLine++;
                     cursorCol = 0;
                 }
+
                 desiredCol = cursorCol;
                 return true;
 
@@ -337,6 +341,7 @@ public class TextArea : Control
                 result.Append(c);
             }
         }
+
         return result.ToString();
     }
 
@@ -463,6 +468,7 @@ public class TextArea : Control
             highlightCache = highlighter.Highlight(lines);
             highlightedVersion = version;
         }
+
         return highlightCache;
     }
 

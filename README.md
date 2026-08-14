@@ -208,6 +208,11 @@ away as an `ArgumentException`, rather than surprising you later with a skewed l
 drawing hot path is excluded (`ConsoleBuffer`'s indexer and `Set`), where clipping is the defined
 behaviour.
 
+## Source layout
+
+One type per file: classes, records, structs and enums each live in their own file, named after
+the type.
+
 ## Releasing
 
 The workflow in `.github/workflows/ci.yml` builds and tests every pull request on Linux and

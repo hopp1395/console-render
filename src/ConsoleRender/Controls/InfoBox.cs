@@ -49,6 +49,7 @@ public class InfoBox : ModalControl
             Close();
             return true;
         }
+
         return false;
     }
 

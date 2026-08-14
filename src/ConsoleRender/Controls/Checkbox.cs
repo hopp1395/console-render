@@ -41,6 +41,7 @@ public class Checkbox : Control
             CheckedChanged?.Invoke(Checked);
             return true;
         }
+
         return false;
     }
 

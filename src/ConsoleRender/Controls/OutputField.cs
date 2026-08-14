@@ -132,6 +132,7 @@ public class OutputField : Control
                 scrollOffset = 0;
                 return true;
         }
+
         return false;
     }
 
@@ -164,6 +165,7 @@ public class OutputField : Control
                 WrapInto(rows, line);
             }
         }
+
         if (revealing is { } current)
         {
             WrapInto(rows, new Line(current.Text[..Math.Min(revealCount, current.Text.Length)], current.Color));
@@ -205,6 +207,7 @@ public class OutputField : Control
         {
             indent++;
         }
+
         // Cap the indent at half the field, so a continuation row always carries at least as
         // many characters as padding — and a deeply indented line still terminates.
         indent = Math.Min(indent, width / 2);

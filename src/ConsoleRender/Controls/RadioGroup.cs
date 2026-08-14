@@ -57,8 +57,10 @@ public class RadioGroup : Control
                     SelectedIndex = cursor;
                     SelectionChanged?.Invoke(SelectedIndex);
                 }
+
                 return true;
         }
+
         return false;
     }
 

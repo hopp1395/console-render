@@ -60,6 +60,7 @@ public class Button : Control
             PerformClick();
             return true;
         }
+
         return false;
     }
 

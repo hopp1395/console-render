@@ -117,6 +117,7 @@ public sealed class ConsoleApp : IDisposable
             dialog.CloseRequested -= CloseTopModal;
             dialog.CloseRequested += CloseTopModal;
         }
+
         RefreshFocusables();
         SetFocus(focusables.FirstOrDefault() ?? modal);
         renderer.Invalidate();

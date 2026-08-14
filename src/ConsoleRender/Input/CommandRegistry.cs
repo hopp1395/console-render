@@ -95,6 +95,7 @@ public sealed class CommandRegistry
                 current.Append(c);
             }
         }
+
         if (current.Length > 0)
         {
             tokens.Add(current.ToString());

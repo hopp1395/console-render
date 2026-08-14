@@ -124,6 +124,7 @@ public class ConfirmDialog : ModalControl
                 Cancelled?.Invoke();
                 return true;
         }
+
         return false;
     }
 

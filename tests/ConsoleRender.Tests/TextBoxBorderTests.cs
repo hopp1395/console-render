@@ -33,6 +33,7 @@ public class TextBoxBorderTests
             BorderMode = mode,
             Border = BorderStyle.Ascii,
         };
+
         box.SetText(text);
         return box;
     }

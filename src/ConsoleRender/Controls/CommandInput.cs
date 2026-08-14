@@ -58,8 +58,10 @@ public class CommandInput : TextBox
                     SetText("/" + CommonPrefix(matches));
                 }
             }
+
             return true;
         }
+
         return base.OnKey(key);
     }
 
@@ -79,6 +81,7 @@ public class CommandInput : TextBox
 
             prefix = prefix[..len];
         }
+
         return prefix;
     }
 }

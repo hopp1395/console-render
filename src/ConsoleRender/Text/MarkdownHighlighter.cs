@@ -34,6 +34,7 @@ public sealed class MarkdownHighlighter : ISyntaxHighlighter
             HighlightLine(line, spans, ref inFence);
             result.Add(spans);
         }
+
         return result;
     }
 
@@ -159,6 +160,7 @@ public sealed class MarkdownHighlighter : ISyntaxHighlighter
                 return false;
             }
         }
+
         return count >= 3;
     }
 
@@ -223,6 +225,7 @@ public sealed class MarkdownHighlighter : ISyntaxHighlighter
                     pos = gapStart = next;
                     continue;
                 }
+
                 if (Matches(line, pos, end, "**")
                     && TryEmphasis(line, pos, end, "**", color, style | CellStyle.Bold,
                         spans, FlushGap, out next))
@@ -230,6 +233,7 @@ public sealed class MarkdownHighlighter : ISyntaxHighlighter
                     pos = gapStart = next;
                     continue;
                 }
+
                 if (TryEmphasis(line, pos, end, "*", color, style | CellStyle.Italic,
                         spans, FlushGap, out next))
                 {

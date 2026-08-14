@@ -178,6 +178,7 @@ public sealed class ConsoleBuffer
             Set(x, rect.Y, border.Horizontal, fg, bg);
             Set(x, y2, border.Horizontal, fg, bg);
         }
+
         for (var y = rect.Y + 1; y < y2; y++)
         {
             Set(rect.X, y, border.Vertical, fg, bg);
@@ -210,11 +211,13 @@ public sealed class ConsoleBuffer
                 var ch = this[x, y].Char;
                 sb.Append(ch == '\0' ? ' ' : ch);
             }
+
             if (y < Height - 1)
             {
                 sb.Append('\n');
             }
         }
+
         return sb.ToString();
     }
 
