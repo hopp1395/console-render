@@ -117,6 +117,7 @@ override the control's natural size.
 | `Checkbox` | a single yes/no option |
 | `RadioGroup` | option group with exactly one selection |
 | `SelectMenu` | scrollable selection list |
+| `MultiSelectMenu` | scrollable list where any number of items can be checked; Space toggles, Enter submits the checked items |
 | `SearchBox` | selection list with a search input on top: typing filters the items, up/down move the highlight, Enter activates |
 | `Table` | scrollable table with fixed-width columns, row selection and overflowing cells that auto-scroll |
 | `Spinner` | animated activity indicator |
