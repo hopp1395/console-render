@@ -49,6 +49,7 @@ public class InfoBox : ModalControl
             Close();
             return true;
         }
+
         return false;
     }
 
@@ -59,9 +60,9 @@ public class InfoBox : ModalControl
 
     protected override Size GetPreferredSize(Size available)
     {
-        int textWidth = Math.Min(MaxTextWidth, Math.Max(10, available.Width - 8));
+        var textWidth = Math.Min(MaxTextWidth, Math.Max(10, available.Width - 8));
         var lines = WrapText(textWidth);
-        int contentWidth = Math.Max(Title.Length + 2, Math.Max(lines.Count == 0 ? 0 : lines.Max(l => l.Length), 12));
+        var contentWidth = Math.Max(Title.Length + 2, Math.Max(lines.Count == 0 ? 0 : lines.Max(l => l.Length), 12));
         // Top border, the text, one blank row, and the bottom border that carries the hint.
         return new Size(contentWidth + 4, lines.Count + 3);
     }
@@ -74,13 +75,18 @@ public class InfoBox : ModalControl
         buffer.DrawBorder(Bounds, Border, BorderColor, Background, Title, Color.Yellow);
 
         var inner = Bounds.Deflate(2, 1);
-        if (inner.Width <= 0) return;
+        if (inner.Width <= 0)
+        {
+            return;
+        }
 
         var lines = WrapText(inner.Width);
-        for (int i = 0; i < lines.Count && i < inner.Height; i++)
+        for (var i = 0; i < lines.Count && i < inner.Height; i++)
+        {
             buffer.Write(inner.X, inner.Y + i, lines[i], Foreground, Background);
+        }
 
-        string hint = "[ Enter ]";
+        var hint = "[ Enter ]";
         buffer.Write(Bounds.X + (Bounds.Width - hint.Length) / 2, Bounds.Bottom - 1,
             hint, Color.Yellow, Background, CellStyle.Bold);
     }

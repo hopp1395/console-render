@@ -96,7 +96,7 @@ public class SearchBox : Control
 
     protected override Size GetPreferredSize(Size available)
     {
-        int width = Math.Max(20, Items.Count == 0 ? 0 : Items.Max(i => i.Length) + 2);
+        var width = Math.Max(20, Items.Count == 0 ? 0 : Items.Max(i => i.Length) + 2);
         return new Size(width, InputHeight + Math.Max(1, Items.Count));
     }
 
@@ -116,19 +116,27 @@ public class SearchBox : Control
 
         switch (key.Key)
         {
+
             case ConsoleKey.UpArrow:
                 Move(-1);
                 return true;
+
             case ConsoleKey.DownArrow:
                 Move(1);
                 return true;
+
             case ConsoleKey.Enter:
                 if (matches.Count > 0)
+                {
                     ItemActivated?.Invoke(matches[selectedIndex], Items[matches[selectedIndex]]);
+                }
+
                 return true;
+
             case ConsoleKey.Escape when input.Text.Length > 0:
                 input.SetText("");
                 return true;
+
         }
 
         // Everything else — typing, cursor movement, clipboard — belongs to the input line.
@@ -137,7 +145,11 @@ public class SearchBox : Control
 
     private void Move(int delta)
     {
-        if (matches.Count == 0) return;
+        if (matches.Count == 0)
+        {
+            return;
+        }
+
         selectedIndex = (selectedIndex + delta + matches.Count) % matches.Count;
         SelectionChanged?.Invoke(matches[selectedIndex], Items[matches[selectedIndex]]);
     }
@@ -149,12 +161,16 @@ public class SearchBox : Control
     /// </summary>
     private void Refilter()
     {
-        int previous = selectedIndex < matches.Count ? matches[selectedIndex] : -1;
+        var previous = selectedIndex < matches.Count ? matches[selectedIndex] : -1;
 
         matches.Clear();
-        for (int i = 0; i < Items.Count; i++)
+        for (var i = 0; i < Items.Count; i++)
+        {
             if (Query.Length == 0 || filter(Query, Items[i]))
+            {
                 matches.Add(i);
+            }
+        }
 
         selectedIndex = Math.Max(0, matches.IndexOf(previous));
     }
@@ -163,37 +179,62 @@ public class SearchBox : Control
     {
         Guard.Against.Null(buffer);
 
-        if (Bounds.Width < 1 || Bounds.Height < 1) return;
+        if (Bounds.Width < 1 || Bounds.Height < 1)
+        {
+            return;
+        }
 
         Refilter();
 
-        int top = Bounds.Y + InputHeight;
-        int rows = Bounds.Bottom - top;
-        if (rows < 1) return;
+        var top = Bounds.Y + InputHeight;
+        var rows = Bounds.Bottom - top;
+        if (rows < 1)
+        {
+            return;
+        }
 
         if (matches.Count == 0)
         {
             if (emptyText.Length > 0)
+            {
                 buffer.Write(Bounds.X + 2, top, emptyText, Color.DarkGray, default, CellStyle.Italic);
+            }
+
             return;
         }
 
         // Keep the highlight in view.
-        if (selectedIndex < scroll) scroll = selectedIndex;
-        if (selectedIndex >= scroll + rows) scroll = selectedIndex - rows + 1;
+        if (selectedIndex < scroll)
+        {
+            scroll = selectedIndex;
+        }
+
+        if (selectedIndex >= scroll + rows)
+        {
+            scroll = selectedIndex - rows + 1;
+        }
+
         scroll = Math.Clamp(scroll, 0, Math.Max(0, matches.Count - rows));
 
-        for (int row = 0; row < rows; row++)
+        for (var row = 0; row < rows; row++)
         {
-            int m = scroll + row;
-            if (m >= matches.Count) break;
-            bool selected = m == selectedIndex;
+            var m = scroll + row;
+            if (m >= matches.Count)
+            {
+                break;
+            }
+
+            var selected = m == selectedIndex;
             var fg = selected ? AccentColor : Foreground;
             var style = selected && Focused ? CellStyle.Reverse | CellStyle.Bold
                 : selected ? CellStyle.Bold
                 : CellStyle.None;
-            string text = (selected ? "› " : "  ") + Items[matches[m]];
-            if (text.Length > Bounds.Width) text = text[..Bounds.Width];
+            var text = (selected ? "› " : "  ") + Items[matches[m]];
+            if (text.Length > Bounds.Width)
+            {
+                text = text[..Bounds.Width];
+            }
+
             buffer.Write(Bounds.X, top + row, text.PadRight(Bounds.Width), fg, default, style);
         }
     }

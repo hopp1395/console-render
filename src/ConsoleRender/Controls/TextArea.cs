@@ -43,8 +43,11 @@ public class TextArea : Control
             Guard.Against.Null(value);
 
             lines.Clear();
-            foreach (string line in Normalize(value).Split('\n'))
+            foreach (var line in Normalize(value).Split('\n'))
+            {
                 lines.Add(line);
+            }
+
             cursorLine = lines.Count - 1;
             cursorCol = lines[^1].Length;
             desiredCol = cursorCol;
@@ -132,12 +135,13 @@ public class TextArea : Control
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        bool ctrl = key.Modifiers.HasFlag(ConsoleModifiers.Control);
-        string line = lines[cursorLine];
-        int rows = Math.Max(1, TextRect.Height);
+        var ctrl = key.Modifiers.HasFlag(ConsoleModifiers.Control);
+        var line = lines[cursorLine];
+        var rows = Math.Max(1, TextRect.Height);
 
         switch (key.Key)
         {
+
             case ConsoleKey.Enter:
                 lines[cursorLine] = line[..cursorCol];
                 lines.Insert(cursorLine + 1, line[cursorCol..]);
@@ -164,6 +168,7 @@ public class TextArea : Control
                     cursorLine--;
                     Bump();
                 }
+
                 return true;
 
             case ConsoleKey.Delete:
@@ -178,27 +183,34 @@ public class TextArea : Control
                     lines.RemoveAt(cursorLine + 1);
                     Bump();
                 }
+
                 return true;
 
             case ConsoleKey.LeftArrow:
                 if (cursorCol > 0)
+                {
                     cursorCol--;
+                }
                 else if (cursorLine > 0)
                 {
                     cursorLine--;
                     cursorCol = lines[cursorLine].Length;
                 }
+
                 desiredCol = cursorCol;
                 return true;
 
             case ConsoleKey.RightArrow:
                 if (cursorCol < line.Length)
+                {
                     cursorCol++;
+                }
                 else if (cursorLine < lines.Count - 1)
                 {
                     cursorLine++;
                     cursorCol = 0;
                 }
+
                 desiredCol = cursorCol;
                 return true;
 
@@ -246,9 +258,13 @@ public class TextArea : Control
                 return true;
 
             case ConsoleKey.V when ctrl:
-                if (Clipboard.TryGetText(out string pasted))
+                if (Clipboard.TryGetText(out var pasted))
+                {
                     Insert(pasted);
+                }
+
                 return true;
+
         }
 
         if (!ctrl && key.KeyChar >= ' ' && key.KeyChar != '\x7f')
@@ -265,13 +281,15 @@ public class TextArea : Control
     {
         Guard.Against.Null(text);
 
-        string[] parts = Normalize(text).Split('\n');
-        string line = lines[cursorLine];
-        string tail = line[cursorCol..];
+        var parts = Normalize(text).Split('\n');
+        var line = lines[cursorLine];
+        var tail = line[cursorCol..];
 
         lines[cursorLine] = line[..cursorCol] + parts[0];
-        for (int i = 1; i < parts.Length; i++)
+        for (var i = 1; i < parts.Length; i++)
+        {
             lines.Insert(cursorLine + i, parts[i]);
+        }
 
         cursorLine += parts.Length - 1;
         cursorCol = lines[cursorLine].Length;
@@ -304,19 +322,28 @@ public class TextArea : Control
         Guard.Against.Null(text);
 
         var result = new System.Text.StringBuilder(text.Length);
-        for (int i = 0; i < text.Length; i++)
+        for (var i = 0; i < text.Length; i++)
         {
-            char c = text[i];
+            var c = text[i];
             if (c == '\r')
             {
-                if (i + 1 < text.Length && text[i + 1] == '\n') continue;
+                if (i + 1 < text.Length && text[i + 1] == '\n')
+                {
+                    continue;
+                }
+
                 result.Append('\n');
             }
             else if (c == '\t')
+            {
                 result.Append("    ");
+            }
             else if (c >= ' ' || c == '\n')
+            {
                 result.Append(c);
+            }
         }
+
         return result.ToString();
     }
 
@@ -324,12 +351,18 @@ public class TextArea : Control
     {
         Guard.Against.Null(buffer);
 
-        if (Bounds.Width < 1 || Bounds.Height < 1) return;
+        if (Bounds.Width < 1 || Bounds.Height < 1)
+        {
+            return;
+        }
 
         DrawBorder(buffer);
 
         var area = TextRect;
-        if (area.Width < 1 || area.Height < 1) return;
+        if (area.Width < 1 || area.Height < 1)
+        {
+            return;
+        }
 
         buffer.PushClip(area);
         try
@@ -348,18 +381,34 @@ public class TextArea : Control
 
         // Scroll clamping lives here and only here, so a resize or an externally replaced
         // Text heals on the next frame without scattered fixups.
-        int rows = area.Height;
-        if (cursorLine < scrollY) scrollY = cursorLine;
-        if (cursorLine >= scrollY + rows) scrollY = cursorLine - rows + 1;
+        var rows = area.Height;
+        if (cursorLine < scrollY)
+        {
+            scrollY = cursorLine;
+        }
+
+        if (cursorLine >= scrollY + rows)
+        {
+            scrollY = cursorLine - rows + 1;
+        }
+
         scrollY = Math.Clamp(scrollY, 0, Math.Max(0, lines.Count - rows));
 
         // One column of slack keeps the caret visible when it sits past the line's end.
-        int visible = Math.Max(1, area.Width - 1);
-        if (cursorCol < scrollX) scrollX = cursorCol;
-        if (cursorCol > scrollX + visible) scrollX = cursorCol - visible;
+        var visible = Math.Max(1, area.Width - 1);
+        if (cursorCol < scrollX)
+        {
+            scrollX = cursorCol;
+        }
+
+        if (cursorCol > scrollX + visible)
+        {
+            scrollX = cursorCol - visible;
+        }
+
         scrollX = Math.Max(0, scrollX);
 
-        bool empty = lines.Count == 1 && lines[0].Length == 0;
+        var empty = lines.Count == 1 && lines[0].Length == 0;
         if (empty && !Focused && Placeholder.Length > 0)
         {
             buffer.Write(area.X, area.Y, Placeholder, PlaceholderColor, Background, CellStyle.Italic);
@@ -368,19 +417,26 @@ public class TextArea : Control
 
         var spans = HighlightedSpans();
 
-        for (int r = 0; r < rows && scrollY + r < lines.Count; r++)
+        for (var r = 0; r < rows && scrollY + r < lines.Count; r++)
         {
-            int index = scrollY + r;
-            string line = lines[index];
-            int y = area.Y + r;
+            var index = scrollY + r;
+            var line = lines[index];
+            var y = area.Y + r;
 
             buffer.Write(area.X - scrollX, y, line, Foreground, Background);
 
-            if (spans is null || index >= spans.Count) continue;
+            if (spans is null || index >= spans.Count)
+            {
+                continue;
+            }
+
             foreach (var span in spans[index])
             {
                 if (span.Start + span.Length <= scrollX || span.Start >= scrollX + area.Width)
+                {
                     continue;
+                }
+
                 buffer.Write(area.X + span.Start - scrollX, y,
                     line.Substring(span.Start, Math.Min(span.Length, line.Length - span.Start)),
                     span.Foreground.IsDefault ? Foreground : span.Foreground,
@@ -390,8 +446,8 @@ public class TextArea : Control
 
         if (Focused)
         {
-            int cx = area.X + cursorCol - scrollX;
-            int cy = area.Y + cursorLine - scrollY;
+            var cx = area.X + cursorCol - scrollX;
+            var cy = area.Y + cursorLine - scrollY;
             // Reverse the cell in place, so a highlight color stays visible under the caret.
             // The clip check also guards the unclipped indexer read.
             if (buffer.ClipRect.Contains(cx, cy))
@@ -404,18 +460,26 @@ public class TextArea : Control
 
     private IReadOnlyList<IReadOnlyList<HighlightSpan>>? HighlightedSpans()
     {
-        if (highlighter is null) return null;
+        if (highlighter is null)
+        {
+            return null;
+        }
+
         if (highlightedVersion != version)
         {
             highlightCache = highlighter.Highlight(lines);
             highlightedVersion = version;
         }
+
         return highlightCache;
     }
 
     private void DrawBorder(ConsoleBuffer buffer)
     {
-        if (!BorderFits) return;
+        if (!BorderFits)
+        {
+            return;
+        }
 
         if (BorderMode == BorderMode.Full)
         {
@@ -423,7 +487,7 @@ public class TextArea : Control
             return;
         }
 
-        for (int x = Bounds.X; x < Bounds.Right; x++)
+        for (var x = Bounds.X; x < Bounds.Right; x++)
         {
             buffer.Set(x, Bounds.Y, Border.Horizontal, BorderColor);
             buffer.Set(x, Bounds.Bottom - 1, Border.Horizontal, BorderColor);

@@ -37,15 +37,22 @@ public class RadioGroup : Control
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        if (Items.Count == 0) return false;
+        if (Items.Count == 0)
+        {
+            return false;
+        }
+
         switch (key.Key)
         {
+
             case ConsoleKey.UpArrow:
                 cursor = (cursor - 1 + Items.Count) % Items.Count;
                 return true;
+
             case ConsoleKey.DownArrow:
                 cursor = (cursor + 1) % Items.Count;
                 return true;
+
             case ConsoleKey.Spacebar:
             case ConsoleKey.Enter:
                 if (SelectedIndex != cursor)
@@ -53,8 +60,11 @@ public class RadioGroup : Control
                     SelectedIndex = cursor;
                     SelectionChanged?.Invoke(SelectedIndex);
                 }
+
                 return true;
+
         }
+
         return false;
     }
 
@@ -62,12 +72,12 @@ public class RadioGroup : Control
     {
         Guard.Against.Null(buffer);
 
-        for (int i = 0; i < Items.Count && i < Bounds.Height; i++)
+        for (var i = 0; i < Items.Count && i < Bounds.Height; i++)
         {
-            bool selected = i == SelectedIndex;
-            bool highlighted = Focused && i == cursor;
+            var selected = i == SelectedIndex;
+            var highlighted = Focused && i == cursor;
             var style = highlighted ? CellStyle.Reverse : CellStyle.None;
-            string bullet = selected ? "(•) " : "( ) ";
+            var bullet = selected ? "(•) " : "( ) ";
             buffer.Write(Bounds.X, Bounds.Y + i, bullet, selected ? AccentColor : Foreground, default, style);
             buffer.Write(Bounds.X + 4, Bounds.Y + i, Items[i], Foreground, default, style);
         }

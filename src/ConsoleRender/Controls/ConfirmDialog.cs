@@ -78,10 +78,13 @@ public class ConfirmDialog : ModalControl
         Guard.Against.NullOrEmpty(options);
 
         foreach (var button in buttons)
+        {
             Remove(button);
+        }
+
         buttons.Clear();
 
-        foreach (string option in options)
+        foreach (var option in options)
         {
             Guard.Against.Null(option, nameof(options));
             // The dialog drives the selection, so the buttons stay out of the focus cycle.
@@ -95,29 +98,38 @@ public class ConfirmDialog : ModalControl
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        if (buttons.Count == 0) return false;
+        if (buttons.Count == 0)
+        {
+            return false;
+        }
 
         switch (key.Key)
         {
+
             case ConsoleKey.LeftArrow:
                 Move(-1);
                 return true;
+
             case ConsoleKey.RightArrow:
             case ConsoleKey.Tab:
                 Move(1);
                 return true;
+
             case ConsoleKey.Enter:
             case ConsoleKey.Spacebar:
-                int index = selectedIndex;
-                string label = buttons[index].Text;
+                var index = selectedIndex;
+                var label = buttons[index].Text;
                 Close();
                 Chosen?.Invoke(index, label);
                 return true;
+
             case ConsoleKey.Escape:
                 Close();
                 Cancelled?.Invoke();
                 return true;
+
         }
+
         return false;
     }
 
@@ -138,9 +150,9 @@ public class ConfirmDialog : ModalControl
 
     protected override Size GetPreferredSize(Size available)
     {
-        int textWidth = Math.Min(MaxTextWidth, Math.Max(10, available.Width - 8));
+        var textWidth = Math.Min(MaxTextWidth, Math.Max(10, available.Width - 8));
         var lines = WrapText(textWidth);
-        int contentWidth = Math.Max(
+        var contentWidth = Math.Max(
             Math.Max(Title.Length + 2, ButtonRowWidth()),
             Math.Max(lines.Count == 0 ? 0 : lines.Max(l => l.Length), 12));
         // Top border, the text, a blank row, the button row, and the bottom border.
@@ -152,16 +164,19 @@ public class ConfirmDialog : ModalControl
     protected override void ArrangeChildren()
     {
         var inner = ContentRect;
-        if (inner.IsEmpty || buttons.Count == 0) return;
+        if (inner.IsEmpty || buttons.Count == 0)
+        {
+            return;
+        }
 
-        int rowWidth = ButtonRowWidth();
-        int offset = Math.Max(0, (inner.Width - rowWidth) / 2);
-        int row = Math.Max(0, inner.Height - 1);
+        var rowWidth = ButtonRowWidth();
+        var offset = Math.Max(0, (inner.Width - rowWidth) / 2);
+        var row = Math.Max(0, inner.Height - 1);
 
-        for (int i = 0; i < buttons.Count; i++)
+        for (var i = 0; i < buttons.Count; i++)
         {
             var button = buttons[i];
-            int width = button.Text.Length + 4;
+            var width = button.Text.Length + 4;
             button.Left = offset;
             button.Top = row;
             button.Width = width;
@@ -179,10 +194,15 @@ public class ConfirmDialog : ModalControl
         buffer.DrawBorder(Bounds, Border, BorderColor, Background, Title, Color.Yellow);
 
         var inner = ContentRect;
-        if (inner.Width <= 0) return;
+        if (inner.Width <= 0)
+        {
+            return;
+        }
 
         var lines = WrapText(inner.Width);
-        for (int i = 0; i < lines.Count && i < inner.Height; i++)
+        for (var i = 0; i < lines.Count && i < inner.Height; i++)
+        {
             buffer.Write(inner.X, inner.Y + i, lines[i], Foreground, Background);
+        }
     }
 }

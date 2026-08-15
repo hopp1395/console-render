@@ -88,25 +88,31 @@ public class TextBox : Control
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        bool ctrl = key.Modifiers.HasFlag(ConsoleModifiers.Control);
+        var ctrl = key.Modifiers.HasFlag(ConsoleModifiers.Control);
 
         switch (key.Key)
         {
+
             case ConsoleKey.Enter:
                 OnSubmit(Text);
                 return true;
+
             case ConsoleKey.LeftArrow:
                 cursor = Math.Max(0, cursor - 1);
                 return true;
+
             case ConsoleKey.RightArrow:
                 cursor = Math.Min(Text.Length, cursor + 1);
                 return true;
+
             case ConsoleKey.Home:
                 cursor = 0;
                 return true;
+
             case ConsoleKey.End:
                 cursor = Text.Length;
                 return true;
+
             case ConsoleKey.Backspace:
                 if (cursor > 0)
                 {
@@ -114,27 +120,40 @@ public class TextBox : Control
                     cursor--;
                     TextChanged?.Invoke(Text);
                 }
+
                 return true;
+
             case ConsoleKey.Delete:
                 if (cursor < Text.Length)
                 {
                     Text = Text.Remove(cursor, 1);
                     TextChanged?.Invoke(Text);
                 }
+
                 return true;
+
             case ConsoleKey.U when ctrl:
                 Text = "";
                 cursor = 0;
                 TextChanged?.Invoke(Text);
                 return true;
+
             case ConsoleKey.C when ctrl:
                 if (Text.Length > 0)
+                {
                     Clipboard.TrySetText(Text);
+                }
+
                 return true;
+
             case ConsoleKey.V when ctrl:
-                if (Clipboard.TryGetText(out string pasted))
+                if (Clipboard.TryGetText(out var pasted))
+                {
                     Insert(pasted.Replace("\r", "").Replace('\n', ' '));
+                }
+
                 return true;
+
         }
 
         if (!ctrl && key.KeyChar >= ' ' && key.KeyChar != '\x7f')
@@ -174,19 +193,33 @@ public class TextBox : Control
     {
         Guard.Against.Null(buffer);
 
-        if (Bounds.Width < 1 || Bounds.Height < 1) return;
+        if (Bounds.Width < 1 || Bounds.Height < 1)
+        {
+            return;
+        }
 
         DrawBorder(buffer);
 
         var area = TextRect;
-        if (area.Width < 1) return;
+        if (area.Width < 1)
+        {
+            return;
+        }
 
         buffer.FillRect(area, ' ', Foreground, Background);
 
         // Keep the cursor visible by scrolling horizontally.
-        int visible = Math.Max(1, area.Width - 1);
-        if (cursor < scroll) scroll = cursor;
-        if (cursor > scroll + visible) scroll = cursor - visible;
+        var visible = Math.Max(1, area.Width - 1);
+        if (cursor < scroll)
+        {
+            scroll = cursor;
+        }
+
+        if (cursor > scroll + visible)
+        {
+            scroll = cursor - visible;
+        }
+
         scroll = Math.Clamp(scroll, 0, Math.Max(0, Text.Length - 1));
 
         if (Text.Length == 0 && !Focused && Placeholder.Length > 0)
@@ -196,15 +229,15 @@ public class TextBox : Control
             return;
         }
 
-        string view = Text.Length > scroll ? Text[scroll..] : "";
+        var view = Text.Length > scroll ? Text[scroll..] : "";
         buffer.Write(area.X, area.Y, Truncate(view, area.Width), Foreground, Background);
 
         if (Focused)
         {
-            int cx = area.X + (cursor - scroll);
+            var cx = area.X + (cursor - scroll);
             if (cx >= area.X && cx < area.Right)
             {
-                char under = cursor < Text.Length ? Text[cursor] : ' ';
+                var under = cursor < Text.Length ? Text[cursor] : ' ';
                 buffer.Set(cx, area.Y, under, Foreground, Background, CellStyle.Reverse);
             }
         }
@@ -212,7 +245,10 @@ public class TextBox : Control
 
     private void DrawBorder(ConsoleBuffer buffer)
     {
-        if (!BorderFits) return;
+        if (!BorderFits)
+        {
+            return;
+        }
 
         if (BorderMode == BorderMode.Full)
         {
@@ -220,7 +256,7 @@ public class TextBox : Control
             return;
         }
 
-        for (int x = Bounds.X; x < Bounds.Right; x++)
+        for (var x = Bounds.X; x < Bounds.Right; x++)
         {
             buffer.Set(x, Bounds.Y, Border.Horizontal, BorderColor);
             buffer.Set(x, Bounds.Bottom - 1, Border.Horizontal, BorderColor);

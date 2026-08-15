@@ -36,7 +36,10 @@ public class Frame : Control
         Guard.Against.Null(buffer);
 
         if (!Background.IsDefault)
+        {
             buffer.FillRect(Bounds, ' ', Color.Default, Background);
+        }
+
         buffer.DrawBorder(Bounds, Border, BorderColor, Background, Title, TitleColor);
     }
 }

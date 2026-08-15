@@ -122,7 +122,7 @@ public class LayoutTests
         var box = new Box(10, 2) { Right = 0, Top = 0 };
 
         box.PerformLayout(new Rect(0, 0, 100, 40));
-        int wide = box.Bounds.X;
+        var wide = box.Bounds.X;
         box.PerformLayout(new Rect(0, 0, 60, 40));
 
         Assert.Equal(90, wide);

@@ -14,5 +14,5 @@ public interface ISyntaxHighlighter
     /// Returns one span list per line, index-parallel to <paramref name="lines"/>. Each
     /// line's spans are sorted by start and free of overlaps (see <see cref="HighlightSpan"/>).
     /// </summary>
-    IReadOnlyList<IReadOnlyList<HighlightSpan>> Highlight(IReadOnlyList<string> lines);
+    IReadOnlyList<IReadOnlyList<HighlightSpan>> Highlight(IEnumerable<string> lines);
 }

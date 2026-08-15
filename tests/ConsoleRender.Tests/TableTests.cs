@@ -137,7 +137,7 @@ public class TableTests
         using var app = new ConsoleApp();
         app.Root.Add(table);
 
-        string[] lines = app.RenderOffscreen(24, 4).ToText().Split('\n');
+        var lines = app.RenderOffscreen(24, 4).ToText().Split('\n');
 
         Assert.Contains("Stadt", lines[0]);
         Assert.Contains("Einwohner", lines[0]);
@@ -161,7 +161,7 @@ public class TableTests
         using var app = new ConsoleApp();
         app.Root.Add(table);
 
-        string[] lines = app.RenderOffscreen(20, 2).ToText().Split('\n');
+        var lines = app.RenderOffscreen(20, 2).ToText().Split('\n');
 
         // The overlong first cell must not swallow the separator or the second column's "X".
         Assert.Equal('│', lines[1][5]);
@@ -184,7 +184,7 @@ public class TableTests
         using var app = new ConsoleApp();
         app.Root.Add(table);
 
-        string[] lines = app.RenderOffscreen(26, 2).ToText().Split('\n');
+        var lines = app.RenderOffscreen(26, 2).ToText().Split('\n');
 
         Assert.Equal("L       │   C    │       R", lines[0]);
         Assert.Equal("AB      │   AB   │      AB", lines[1]);
@@ -215,11 +215,11 @@ public class TableTests
     {
         var table = OverflowingRow();
 
-        string atStart = RenderText(table, 4, 2).Split('\n')[1];
+        var atStart = RenderText(table, 4, 2).Split('\n')[1];
         Assert.Equal("0123", atStart);
 
         table.Update(TimeSpan.FromSeconds(1));
-        string mid = RenderText(table, 4, 2).Split('\n')[1];
+        var mid = RenderText(table, 4, 2).Split('\n')[1];
         Assert.Equal("3456", mid);
     }
 
@@ -229,11 +229,11 @@ public class TableTests
         var table = OverflowingRow();
 
         table.Update(TimeSpan.FromSeconds(2)); // exactly the 2s it takes to reach the end
-        string atEnd = RenderText(table, 4, 2).Split('\n')[1];
+        var atEnd = RenderText(table, 4, 2).Split('\n')[1];
         Assert.Equal("6789", atEnd);
 
         table.Update(TimeSpan.FromSeconds(0.9)); // still within the 1s hold
-        string stillAtEnd = RenderText(table, 4, 2).Split('\n')[1];
+        var stillAtEnd = RenderText(table, 4, 2).Split('\n')[1];
         Assert.Equal("6789", stillAtEnd);
     }
 
@@ -243,7 +243,7 @@ public class TableTests
         var table = OverflowingRow();
 
         table.Update(TimeSpan.FromSeconds(3)); // one full cycle: 2s scroll + 1s hold
-        string restarted = RenderText(table, 4, 2).Split('\n')[1];
+        var restarted = RenderText(table, 4, 2).Split('\n')[1];
 
         Assert.Equal("0123", restarted);
     }
@@ -259,7 +259,7 @@ public class TableTests
         table.Update(TimeSpan.FromSeconds(2)); // row 0 is now held at the end
         table.OnKey(Key(ConsoleKey.DownArrow)); // selecting row 1 must restart its own scroll
 
-        string line = RenderText(table, 4, 3).Split('\n')[2];
+        var line = RenderText(table, 4, 3).Split('\n')[2];
 
         Assert.Equal("9876", line);
     }
@@ -272,13 +272,13 @@ public class TableTests
         table.AddRow("AB"); // selected by default, too short to overflow
         table.AddRow("ABCDEFGHIJ"); // not selected, overflows
 
-        string text = RenderText(table, 5, 3);
+        var text = RenderText(table, 5, 3);
 
         table.Update(TimeSpan.FromSeconds(5));
-        string afterWaiting = RenderText(table, 5, 3);
+        var afterWaiting = RenderText(table, 5, 3);
 
         // The non-selected overflowing row stays statically truncated, unaffected by time.
-        string unselectedRow = afterWaiting.Split('\n')[2];
+        var unselectedRow = afterWaiting.Split('\n')[2];
         Assert.Equal("ABCDE", unselectedRow);
         Assert.Equal(text.Split('\n')[2], unselectedRow);
     }
@@ -289,7 +289,7 @@ public class TableTests
         var table = Cities();
         table.Update(TimeSpan.FromSeconds(10));
 
-        string firstLine = RenderText(table, 24, 4).Split('\n')[1];
+        var firstLine = RenderText(table, 24, 4).Split('\n')[1];
 
         Assert.StartsWith("Berlin", firstLine);
     }
@@ -312,8 +312,11 @@ public class TableTests
     {
         var table = new Table();
         table.AddColumn("N", 4);
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
+        {
             table.AddRow(i.ToString());
+        }
+
         table.Left = 0;
         table.Top = 0;
         table.Width = 6;
@@ -323,10 +326,12 @@ public class TableTests
         app.Root.Add(table);
         app.SetFocus(table);
 
-        for (int i = 0; i < 9; i++)
+        for (var i = 0; i < 9; i++)
+        {
             table.OnKey(Key(ConsoleKey.DownArrow));
+        }
 
-        string text = app.RenderOffscreen(6, 4).ToText();
+        var text = app.RenderOffscreen(6, 4).ToText();
 
         Assert.Contains("9", text);
         Assert.DoesNotContain("0   ", text);

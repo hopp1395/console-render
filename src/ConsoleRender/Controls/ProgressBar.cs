@@ -65,16 +65,22 @@ public class ProgressBar : Control
         Guard.Against.Negative(delta);
 
         if (Indeterminate)
+        {
             elapsed += delta.TotalSeconds;
+        }
     }
 
     protected override void Draw(ConsoleBuffer buffer)
     {
         Guard.Against.Null(buffer);
 
-        int width = Bounds.Width;
-        if (width < 1 || Bounds.Height < 1) return;
-        int y = Bounds.Y + (Bounds.Height - 1) / 2;
+        var width = Bounds.Width;
+        if (width < 1 || Bounds.Height < 1)
+        {
+            return;
+        }
+
+        var y = Bounds.Y + (Bounds.Height - 1) / 2;
 
         if (Indeterminate)
         {
@@ -83,33 +89,43 @@ public class ProgressBar : Control
         }
 
         // Full cells are colored background; the boundary cell carries a partial block glyph.
-        double filled = Fraction * width;
-        int full = (int)filled;
-        int eighths = (int)((filled - full) * 8);
+        var filled = Fraction * width;
+        var full = (int)filled;
+        var eighths = (int)((filled - full) * 8);
 
-        for (int i = 0; i < width; i++)
+        for (var i = 0; i < width; i++)
+        {
             buffer.Set(Bounds.X + i, y, ' ', TextColor, i < full ? BarColor : TrackColor);
+        }
+
         if (eighths > 0 && full < width)
+        {
             buffer.Set(Bounds.X + full, y, PartialBlocks[eighths - 1], BarColor, TrackColor);
+        }
 
-        if (!ShowPercent) return;
+        if (!ShowPercent)
+        {
+            return;
+        }
 
-        string text = $"{(int)Math.Round(Fraction * 100)} %";
-        int start = Math.Max(0, (width - text.Length) / 2);
-        for (int i = 0; i < text.Length && start + i < width; i++)
+        var text = $"{(int)Math.Round(Fraction * 100)} %";
+        var start = Math.Max(0, (width - text.Length) / 2);
+        for (var i = 0; i < text.Length && start + i < width; i++)
+        {
             buffer.Set(Bounds.X + start + i, y, text[i], TextColor,
                 start + i < full ? BarColor : TrackColor);
+        }
     }
 
     private void DrawSweep(ConsoleBuffer buffer, int width, int y)
     {
-        int segment = Math.Max(3, width / 4);
+        var segment = Math.Max(3, width / 4);
         // The segment enters from the left and leaves on the right before wrapping around.
-        int position = (int)(elapsed * SweepSpeed % (width + segment)) - segment;
+        var position = (int)(elapsed * SweepSpeed % (width + segment)) - segment;
 
-        for (int i = 0; i < width; i++)
+        for (var i = 0; i < width; i++)
         {
-            bool inSegment = i >= position && i < position + segment;
+            var inSegment = i >= position && i < position + segment;
             buffer.Set(Bounds.X + i, y, ' ', TextColor, inSegment ? BarColor : TrackColor);
         }
     }

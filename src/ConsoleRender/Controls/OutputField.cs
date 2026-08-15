@@ -51,9 +51,13 @@ public class OutputField : Control
 
         var line = new Line(text, color ?? Color.Default);
         if (Typewriter)
+        {
             pending.Enqueue(line);
+        }
         else
+        {
             Commit(line);
+        }
     }
 
     /// <summary>
@@ -83,7 +87,9 @@ public class OutputField : Control
     {
         lines.Add(line);
         while (lines.Count > MaxLines)
+        {
             lines.RemoveAt(0);
+        }
     }
 
     public override void Update(TimeSpan delta)
@@ -113,19 +119,24 @@ public class OutputField : Control
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        int page = Math.Max(1, Bounds.Height - 1);
+        var page = Math.Max(1, Bounds.Height - 1);
         switch (key.Key)
         {
+
             case ConsoleKey.PageUp:
                 scrollOffset += page;
                 return true;
+
             case ConsoleKey.PageDown:
                 scrollOffset = Math.Max(0, scrollOffset - page);
                 return true;
+
             case ConsoleKey.End when key.Modifiers.HasFlag(ConsoleModifiers.Control):
                 scrollOffset = 0;
                 return true;
+
         }
+
         return false;
     }
 
@@ -133,10 +144,15 @@ public class OutputField : Control
     {
         Guard.Against.Null(buffer);
 
-        if (Bounds.Width < 1 || Bounds.Height < 1) return;
+        if (Bounds.Width < 1 || Bounds.Height < 1)
+        {
+            return;
+        }
 
         if (!Background.IsDefault)
+        {
             buffer.FillRect(Bounds, ' ', Foreground, Background);
+        }
 
         // Wrap all lines (including the one currently being revealed) into display rows.
         // Task lines take their current appearance from their handle each frame.
@@ -153,14 +169,17 @@ public class OutputField : Control
                 WrapInto(rows, line);
             }
         }
+
         if (revealing is { } current)
+        {
             WrapInto(rows, new Line(current.Text[..Math.Min(revealCount, current.Text.Length)], current.Color));
+        }
 
-        int maxOffset = Math.Max(0, rows.Count - Bounds.Height);
+        var maxOffset = Math.Max(0, rows.Count - Bounds.Height);
         scrollOffset = Math.Min(scrollOffset, maxOffset);
-        int start = Math.Max(0, rows.Count - Bounds.Height - scrollOffset);
+        var start = Math.Max(0, rows.Count - Bounds.Height - scrollOffset);
 
-        for (int i = 0; i < Bounds.Height && start + i < rows.Count; i++)
+        for (var i = 0; i < Bounds.Height && start + i < rows.Count; i++)
         {
             var (text, color) = rows[start + i];
             buffer.Write(Bounds.X, Bounds.Y + i, text,
@@ -168,15 +187,17 @@ public class OutputField : Control
         }
 
         if (scrollOffset > 0)
+        {
             buffer.Write(Bounds.Right - 3, Bounds.Y, "↑↑↑", Color.Yellow, Background, CellStyle.Bold);
+        }
     }
 
     private void WrapInto(List<(string, Color)> rows, Line line)
     {
         Guard.Against.Null(rows);
 
-        int width = Math.Max(1, Bounds.Width);
-        string text = line.Text;
+        var width = Math.Max(1, Bounds.Width);
+        var text = line.Text;
         if (text.Length == 0)
         {
             rows.Add(("", line.Color));
@@ -185,17 +206,22 @@ public class OutputField : Control
 
         // Continuation rows start where the text started, so an indented line keeps its
         // shape instead of falling back to the left edge on every wrap.
-        int indent = 0;
+        var indent = 0;
         while (indent < text.Length && text[indent] == ' ')
+        {
             indent++;
+        }
+
         // Cap the indent at half the field, so a continuation row always carries at least as
         // many characters as padding — and a deeply indented line still terminates.
         indent = Math.Min(indent, width / 2);
         string padding = new(' ', indent);
-        int chunk = width - indent;
+        var chunk = width - indent;
 
         rows.Add((text[..Math.Min(width, text.Length)], line.Color));
-        for (int pos = width; pos < text.Length; pos += chunk)
+        for (var pos = width; pos < text.Length; pos += chunk)
+        {
             rows.Add((padding + text.Substring(pos, Math.Min(chunk, text.Length - pos)), line.Color));
+        }
     }
 }

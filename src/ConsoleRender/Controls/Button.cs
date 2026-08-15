@@ -60,6 +60,7 @@ public class Button : Control
             PerformClick();
             return true;
         }
+
         return false;
     }
 
@@ -67,15 +68,20 @@ public class Button : Control
     {
         Guard.Against.Null(buffer);
 
-        if (Bounds.Height < 1 || Bounds.Width < 1) return;
+        if (Bounds.Height < 1 || Bounds.Width < 1)
+        {
+            return;
+        }
 
-        bool active = Focused || Highlighted;
+        var active = Focused || Highlighted;
         var style = active ? CellStyle.Reverse | CellStyle.Bold : CellStyle.None;
         var fg = active ? AccentColor : Foreground;
 
-        string label = $"[ {Text} ]";
+        var label = $"[ {Text} ]";
         if (label.Length > Bounds.Width)
+        {
             label = label[..Bounds.Width];
+        }
 
         buffer.Write(Bounds.X, Bounds.Y, label.PadRight(Bounds.Width), fg, Background, style);
     }

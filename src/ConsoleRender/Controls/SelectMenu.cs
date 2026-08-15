@@ -37,25 +37,36 @@ public class SelectMenu : Control
 
     public override bool OnKey(ConsoleKeyInfo key)
     {
-        if (Items.Count == 0) return false;
+        if (Items.Count == 0)
+        {
+            return false;
+        }
+
         switch (key.Key)
         {
+
             case ConsoleKey.UpArrow:
                 Move(-1);
                 return true;
+
             case ConsoleKey.DownArrow:
                 Move(1);
                 return true;
+
             case ConsoleKey.Home:
                 MoveTo(0);
                 return true;
+
             case ConsoleKey.End:
                 MoveTo(Items.Count - 1);
                 return true;
+
             case ConsoleKey.Enter:
                 ItemActivated?.Invoke(SelectedIndex, Items[SelectedIndex]);
                 return true;
+
         }
+
         return false;
     }
 
@@ -68,7 +79,11 @@ public class SelectMenu : Control
     {
         Guard.Against.OutOfRange(index, nameof(index), 0, Items.Count - 1);
 
-        if (index == SelectedIndex) return;
+        if (index == SelectedIndex)
+        {
+            return;
+        }
+
         SelectedIndex = index;
         SelectionChanged?.Invoke(SelectedIndex);
     }
@@ -77,24 +92,42 @@ public class SelectMenu : Control
     {
         Guard.Against.Null(buffer);
 
-        if (Bounds.Height < 1) return;
+        if (Bounds.Height < 1)
+        {
+            return;
+        }
 
         // Keep selection in view.
-        if (SelectedIndex < scroll) scroll = SelectedIndex;
-        if (SelectedIndex >= scroll + Bounds.Height) scroll = SelectedIndex - Bounds.Height + 1;
-
-        for (int row = 0; row < Bounds.Height; row++)
+        if (SelectedIndex < scroll)
         {
-            int i = scroll + row;
-            if (i >= Items.Count) break;
-            bool selected = i == SelectedIndex;
+            scroll = SelectedIndex;
+        }
+
+        if (SelectedIndex >= scroll + Bounds.Height)
+        {
+            scroll = SelectedIndex - Bounds.Height + 1;
+        }
+
+        for (var row = 0; row < Bounds.Height; row++)
+        {
+            var i = scroll + row;
+            if (i >= Items.Count)
+            {
+                break;
+            }
+
+            var selected = i == SelectedIndex;
             var fg = selected ? AccentColor : Foreground;
             var style = selected && Focused ? CellStyle.Reverse | CellStyle.Bold
                 : selected ? CellStyle.Bold
                 : CellStyle.None;
-            string marker = selected ? "› " : "  ";
-            string text = marker + Items[i];
-            if (text.Length > Bounds.Width) text = text[..Bounds.Width];
+            var marker = selected ? "› " : "  ";
+            var text = marker + Items[i];
+            if (text.Length > Bounds.Width)
+            {
+                text = text[..Bounds.Width];
+            }
+
             buffer.Write(Bounds.X, Bounds.Y + row, text.PadRight(Bounds.Width), fg, default, style);
         }
     }

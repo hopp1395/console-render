@@ -21,7 +21,10 @@ public class TextAreaTests
         area.Height = height;
         app.Root.Add(area);
         if (focus)
+        {
             app.SetFocus(area);
+        }
+
         return app.RenderOffscreen(width, height);
     }
 
@@ -134,8 +137,10 @@ public class TextAreaTests
     public void InsertingMultilineTextSplicesItAtTheCursor()
     {
         var area = new TextArea { Text = "start-end" };
-        for (int i = 0; i < 4; i++)
+        for (var i = 0; i < 4; i++)
+        {
             area.OnKey(Key(ConsoleKey.LeftArrow)); // before "-end"... at column 5
+        }
 
         area.Insert("1\n2");
 
@@ -147,7 +152,7 @@ public class TextAreaTests
     public void TextChangedFiresOncePerEdit_AndNotOnCursorMovement()
     {
         var area = new TextArea { Text = "ab\ncd" };
-        int changes = 0;
+        var changes = 0;
         area.TextChanged += _ => changes++;
 
         area.OnKey(Key(ConsoleKey.UpArrow));
@@ -165,7 +170,7 @@ public class TextAreaTests
     public void RendersLinesTopDown()
     {
         var area = new TextArea { Text = "one\ntwo" };
-        string[] rows = Render(area, 10, 3).ToText().Split('\n');
+        var rows = Render(area, 10, 3).ToText().Split('\n');
 
         Assert.StartsWith("one", rows[0]);
         Assert.StartsWith("two", rows[1]);
@@ -175,7 +180,7 @@ public class TextAreaTests
     public void VerticalScrollFollowsTheCursor()
     {
         var area = new TextArea { Text = "l1\nl2\nl3\nl4\nl5" }; // cursor ends on l5
-        string[] rows = Render(area, 10, 2).ToText().Split('\n');
+        var rows = Render(area, 10, 2).ToText().Split('\n');
 
         Assert.StartsWith("l4", rows[0]);
         Assert.StartsWith("l5", rows[1]);
@@ -185,7 +190,7 @@ public class TextAreaTests
     public void HorizontalScrollKeepsTheCaretVisible()
     {
         var area = new TextArea { Text = "abcdefghij" }; // cursor at column 10
-        string text = Render(area, 6, 1).ToText();
+        var text = Render(area, 6, 1).ToText();
 
         Assert.Contains("fghij", text);
         Assert.DoesNotContain("abc", text);
@@ -216,7 +221,7 @@ public class TextAreaTests
     public void ATopAndBottomBorderLeavesTheContentRowsBetweenTheLines()
     {
         var area = new TextArea { Text = "inhalt", BorderMode = BorderMode.TopAndBottom };
-        string[] rows = Render(area, 10, 4).ToText().Split('\n');
+        var rows = Render(area, 10, 4).ToText().Split('\n');
 
         Assert.StartsWith("──────────", rows[0]);
         Assert.StartsWith("inhalt", rows[1]);
@@ -230,7 +235,7 @@ public class TextAreaTests
         Render(area, 10, 2); // scrolled down to the cursor
 
         area.Text = "kurz";
-        string text = Render(area, 10, 2).ToText();
+        var text = Render(area, 10, 2).ToText();
 
         Assert.Contains("kurz", text);
         Assert.Equal((0, 4), (area.CursorLine, area.CursorColumn));
@@ -240,7 +245,7 @@ public class TextAreaTests
     {
         public int Calls { get; private set; }
 
-        public IReadOnlyList<IReadOnlyList<HighlightSpan>> Highlight(IReadOnlyList<string> lines)
+        public IReadOnlyList<IReadOnlyList<HighlightSpan>> Highlight(IEnumerable<string> lines)
         {
             Calls++;
             return lines.Select(_ => (IReadOnlyList<HighlightSpan>)Array.Empty<HighlightSpan>()).ToList();

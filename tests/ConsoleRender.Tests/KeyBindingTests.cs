@@ -24,7 +24,7 @@ public class KeyBindingTests
     public void Handle_RunsTheBoundAction()
     {
         var manager = new KeyBindingManager();
-        bool called = false;
+        var called = false;
         manager.Register(KeyCombo.Ctrl(ConsoleKey.Q), "Beenden", () => called = true);
 
         Assert.True(manager.Handle(Key(ConsoleKey.Q, ConsoleModifiers.Control)));

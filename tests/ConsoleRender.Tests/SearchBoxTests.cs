@@ -65,7 +65,7 @@ public class SearchBoxTests
     public void EnterWithoutAMatchActivatesNothing()
     {
         var box = Cities();
-        bool activated = false;
+        var activated = false;
         box.ItemActivated += (_, _) => activated = true;
 
         box.OnKey(Key(ConsoleKey.X, 'x'));
@@ -161,7 +161,7 @@ public class SearchBoxTests
         app.SetFocus(box);
         box.OnKey(Key(ConsoleKey.N, 'n'));
 
-        string[] lines = app.RenderOffscreen(20, 4).ToText().Split('\n');
+        var lines = app.RenderOffscreen(20, 4).ToText().Split('\n');
 
         Assert.Contains("n", lines[0]);
         Assert.Contains("› Berlin", lines[1]);

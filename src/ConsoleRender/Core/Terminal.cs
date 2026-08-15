@@ -27,8 +27,10 @@ public static class Terminal
         if (OperatingSystem.IsWindows())
         {
             var handle = GetStdHandle(StdOutputHandle);
-            if (GetConsoleMode(handle, out uint mode))
+            if (GetConsoleMode(handle, out var mode))
+            {
                 SetConsoleMode(handle, mode | EnableVirtualTerminalProcessing);
+            }
         }
 
         try
@@ -42,7 +44,9 @@ public static class Terminal
 
         // Ctrl+C must reach the app as a key, but only a real console can deliver it.
         if (!Console.IsInputRedirected)
+        {
             Console.TreatControlCAsInput = true;
+        }
 
         // Alternate screen buffer + hide cursor.
         Console.Out.Write("\x1b[?1049h\x1b[?25l\x1b[2J\x1b[H");
@@ -55,6 +59,8 @@ public static class Terminal
         Console.Out.Write("\x1b[0m\x1b[?25h\x1b[?1049l");
         Console.Out.Flush();
         if (!Console.IsInputRedirected)
+        {
             Console.TreatControlCAsInput = false;
+        }
     }
 }

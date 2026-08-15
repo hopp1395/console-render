@@ -53,9 +53,14 @@ public abstract class Control
     {
         Guard.Against.Null(child);
         if (child.Parent is not null)
+        {
             throw new InvalidOperationException("Control already has a parent.");
+        }
+
         if (ReferenceEquals(child, this))
+        {
             throw new InvalidOperationException("A control cannot be its own child.");
+        }
 
         child.Parent = this;
         children.Add(child);
@@ -66,7 +71,9 @@ public abstract class Control
     {
         Guard.Against.Null(children);
         foreach (var child in children)
+        {
             Add(child);
+        }
     }
 
     public void Remove(Control child)
@@ -74,26 +81,31 @@ public abstract class Control
         Guard.Against.Null(child);
 
         if (children.Remove(child))
+        {
             child.Parent = null;
+        }
     }
 
     /// <summary>Computes <see cref="Bounds"/> from the anchors within <paramref name="area"/> and lays out children.</summary>
     public void PerformLayout(Rect area)
     {
-        if (!Visible) return;
+        if (!Visible)
+        {
+            return;
+        }
 
         var preferred = GetPreferredSize(new Size(area.Width, area.Height));
 
-        int w = Width ?? (Left.HasValue && Right.HasValue
+        var w = Width ?? (Left.HasValue && Right.HasValue
             ? area.Width - Left.Value - Right.Value
             : preferred.Width);
-        int h = Height ?? (Top.HasValue && Bottom.HasValue
+        var h = Height ?? (Top.HasValue && Bottom.HasValue
             ? area.Height - Top.Value - Bottom.Value
             : preferred.Height);
         w = Math.Max(0, w);
         h = Math.Max(0, h);
 
-        int x = Left.HasValue ? area.X + Left.Value
+        var x = Left.HasValue ? area.X + Left.Value
             : Right.HasValue ? area.Right - Right.Value - w
             : HorizontalAlignment switch
             {
@@ -102,7 +114,7 @@ public abstract class Control
                 _ => area.X,
             };
 
-        int y = Top.HasValue ? area.Y + Top.Value
+        var y = Top.HasValue ? area.Y + Top.Value
             : Bottom.HasValue ? area.Bottom - Bottom.Value - h
             : VerticalAlignment switch
             {
@@ -116,7 +128,9 @@ public abstract class Control
         ArrangeChildren();
 
         foreach (var child in children)
+        {
             child.PerformLayout(ContentRect);
+        }
     }
 
     /// <summary>Natural size of the control when no explicit size or stretching anchors are set.</summary>
@@ -137,7 +151,10 @@ public abstract class Control
     {
         Guard.Against.Null(buffer);
 
-        if (!Visible || Bounds.IsEmpty) return;
+        if (!Visible || Bounds.IsEmpty)
+        {
+            return;
+        }
 
         // A control may only paint inside its own bounds, and its children only inside
         // the content area — so an oversized child can never bleed over its parent.
@@ -151,13 +168,18 @@ public abstract class Control
             buffer.PopClip();
         }
 
-        if (children.Count == 0) return;
+        if (children.Count == 0)
+        {
+            return;
+        }
 
         buffer.PushClip(ContentRect);
         try
         {
             foreach (var child in children)
+            {
                 child.Render(buffer);
+            }
         }
         finally
         {
@@ -169,10 +191,16 @@ public abstract class Control
     {
         Guard.Against.Negative(delta);
 
-        if (!Visible) return;
+        if (!Visible)
+        {
+            return;
+        }
+
         Update(delta);
         foreach (var child in children)
+        {
             child.UpdateAll(delta);
+        }
     }
 
     /// <summary>Draws this control (not its children) into the buffer.</summary>
@@ -191,9 +219,19 @@ public abstract class Control
     {
         Guard.Against.Null(result);
 
-        if (!Visible) return;
-        if (Focusable) result.Add(this);
+        if (!Visible)
+        {
+            return;
+        }
+
+        if (Focusable)
+        {
+            result.Add(this);
+        }
+
         foreach (var child in children)
+        {
             child.CollectFocusable(result);
+        }
     }
 }

@@ -11,7 +11,7 @@ public class DialogTests
     public void Button_EnterAndSpaceTriggerTheClick()
     {
         var button = new Button("Ok");
-        int clicks = 0;
+        var clicks = 0;
         button.Clicked += () => clicks++;
 
         button.OnKey(Key(ConsoleKey.Enter));
@@ -77,7 +77,7 @@ public class DialogTests
     public void ConfirmDialog_EscapeCancelsWithoutChoosing()
     {
         var dialog = new ConfirmDialog("t", "frage", "A", "B");
-        bool cancelled = false;
+        var cancelled = false;
         dialog.Chosen += (_, _) => Assert.Fail("should not choose");
         dialog.Cancelled += () => cancelled = true;
 
@@ -139,7 +139,7 @@ public class DialogTests
     {
         var dialog = new ConfirmDialog("Frage", "Ja oder nein?", "Ja", "Nein");
 
-        string text = RenderControl(dialog, 30, 8).ToText();
+        var text = RenderControl(dialog, 30, 8).ToText();
 
         Assert.Contains("[ Ja ]", text);
         Assert.Contains("[ Nein ]", text);

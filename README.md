@@ -5,21 +5,38 @@ controls, anchor-based layout, slash commands and clipboard support for text and
 
 No dependencies beyond [Ardalis.GuardClauses](https://github.com/ardalis/GuardClauses).
 
+This is the actual output of the sample application (`samples/ConsoleRender.Demo`), not a mockup:
+
 ```
-╔═ ConsoleRender ═ a TUI framework for .NET ═╗
-  ⠋ ready                                         F1 help · Tab focus · Ctrl+Q quit
-┌─ Controls ─────────────────────┐┌─ Output ────────────────────┐┌─ ASCII art ────────┐
-│Menu                            ││Welcome to ConsoleRender!    ││   ____             │
-│› Overview                      ││                             ││  / ___|___  _ __   │
-│  Colors & effects              ││Tab moves the focus.         ││ | |   / _ \| '_ \  │
-│                                ││                             ││ | |__| (_) | | | | │
-│Options                         ││                             ││  \____\___/|_| |_| │
-│[x] Colored output              ││                             ││                    │
-└────────────────────────────────┘└─────────────────────────────┘└────────────────────┘
-┌─ Input ────────────────────────────────────────────────────────────────────────────┐
-│› /help                                                                             │
-└────────────────────────────────────────────────────────────────────────────────────┘
+                        ╔═ ConsoleRender ═ TUI Framework for .NET ═╗
+  ⠋ ready                                                F1 Help · Tab Focus · Ctrl+Q Quit
+┌─ Features ─────────────────┐┌─ Table ────────────────────────────────────────────────────┐
+│Search features…            ││Arrow keys or Home/End move the selection, Enter activates t│
+│› Overview                  ││Cells too long to fit scroll automatically, but only in the │
+│  Labels & Effects          ││                                                            │
+│  Output Log & Task Lines   ││City            │  Population│State                         │
+│  Text Fields               ││Berlin          │   3,700,000│Berlin                        │
+│  Markdown Editor           ││Hamburg         │   1,900,000│Hamburg                       │
+│  Search Box                ││Munich          │   1,500,000│Bavaria                       │
+│  Choices & Options         ││Cologne         │   1,100,000│North Rhine-West              │
+│  Tabs                      ││Frankfurt       │     770,000│Hesse                         │
+│  Table                     ││Stuttgart       │     630,000│Baden-Württember              │
+│  Progress & Spinner        ││Düsseldorf      │     620,000│North Rhine-West              │
+│  Frames & Styles           ││Leipzig         │     600,000│Saxony                        │
+│  Dialogs & Buttons         ││                                                            │
+│  ASCII Art & Clipboard     ││                                                            │
+│  Layout & Anchors          ││                                                            │
+│  Commands & Shortcuts      ││                                                            │
+└────────────────────────────┘└────────────────────────────────────────────────────────────┘
+────────────────────────────────────────────────────────────────────────────────────────────
+
+────────────────────────────────────────────────────────────────────────────────────────────
+ Feature: Table
 ```
+
+The command input at the bottom is empty because it holds the focus by default and a focused
+field hides its placeholder; type `/help` there to list every command. This exact frame comes
+from `--snapshot 92 24 --run "/feature table"` — see [Sample application](#sample-application).
 
 ## Installation
 
@@ -93,6 +110,7 @@ override the control's natural size.
 | `CommandInput` | a `TextBox` that runs `/command` input and completes names with Tab |
 | `Frame` | a titled border; five border styles |
 | `Panel` | invisible container for grouping and positioning |
+| `TabControl` | tab-header row with per-tab content; header steers itself, content keeps its own focus tree |
 | `InfoBox` | modal message with a single way out |
 | `ConfirmDialog` | modal question offering several answers as a row of buttons |
 | `Button` | a labelled action, triggered with Enter or Space |
@@ -100,6 +118,7 @@ override the control's natural size.
 | `RadioGroup` | option group with exactly one selection |
 | `SelectMenu` | scrollable selection list |
 | `SearchBox` | selection list with a search input on top: typing filters the items, up/down move the highlight, Enter activates |
+| `Table` | scrollable table with fixed-width columns, row selection and overflowing cells that auto-scroll |
 | `Spinner` | animated activity indicator |
 | `ProgressBar` | horizontal progress bar with sub-cell precision, percentage overlay and an indeterminate sweep |
 | `TaskLine` | live log line from `OutputField.BeginTask`: a spinner animates while the task runs, `Complete`/`Fail` freeze it with ✓/✗ |
@@ -207,6 +226,11 @@ Every public method validates its arguments with guard clauses and reports inval
 away as an `ArgumentException`, rather than surprising you later with a skewed layout. The
 drawing hot path is excluded (`ConsoleBuffer`'s indexer and `Set`), where clipping is the defined
 behaviour.
+
+## Source layout
+
+One type per file: classes, records, structs and enums each live in their own file, named after
+the type.
 
 ## Releasing
 

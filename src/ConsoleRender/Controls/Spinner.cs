@@ -46,16 +46,21 @@ public class Spinner : Control
     {
         Guard.Against.Negative(delta);
 
-        if (Active) elapsed += delta.TotalSeconds;
+        if (Active)
+        {
+            elapsed += delta.TotalSeconds;
+        }
     }
 
     protected override void Draw(ConsoleBuffer buffer)
     {
         Guard.Against.Null(buffer);
 
-        char frame = Active ? Frames[(int)(elapsed / Interval) % Frames.Length] : '✓';
+        var frame = Active ? Frames[(int)(elapsed / Interval) % Frames.Length] : '✓';
         buffer.Set(Bounds.X, Bounds.Y, frame, Foreground, default, CellStyle.Bold);
         if (Text.Length > 0)
+        {
             buffer.Write(Bounds.X + 2, Bounds.Y, Text, Foreground);
+        }
     }
 }

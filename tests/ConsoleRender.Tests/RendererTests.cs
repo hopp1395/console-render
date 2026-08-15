@@ -27,7 +27,7 @@ public class RendererTests
         Present(renderer);
 
         renderer.Buffer.Set(2, 0, 'X');
-        string output = Present(renderer);
+        var output = Present(renderer);
 
         // One cursor move to row 1 / column 3, then the single changed character.
         Assert.Contains("\x1b[1;3H", output);
@@ -53,7 +53,7 @@ public class RendererTests
         var renderer = new Renderer(4, 1);
         renderer.Buffer.Set(0, 0, 'A', Color.Rgb(10, 20, 30), Color.Rgb(40, 50, 60));
 
-        string output = Present(renderer);
+        var output = Present(renderer);
 
         Assert.Contains("38;2;10;20;30", output);
         Assert.Contains("48;2;40;50;60", output);
@@ -65,7 +65,7 @@ public class RendererTests
         var renderer = new Renderer(4, 1);
         renderer.Buffer.Set(0, 0, 'A');
 
-        string output = Present(renderer);
+        var output = Present(renderer);
 
         Assert.Contains(";39", output);
         Assert.Contains(";49", output);
