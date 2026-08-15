@@ -167,8 +167,10 @@ internal static class Program
             ("Markdown Editor", EditorPage()),
             ("Search Box", SearchPage(status)),
             ("Choices & Options", ChoicesPage(status, [leftFrame, rightFrame], input, tabsControl)),
+            ("Multi-Select", MultiSelectPage(status)),
             ("Tabs", tabsPage),
             ("Table", TablePage(status)),
+            ("Tree View", TreeViewPage(status)),
             ("Progress & Spinner", ProgressPage(progress, status)),
             ("Frames & Styles", BorderPage()),
             ("Dialogs & Buttons", DialogPage(app, status)),
@@ -423,6 +425,27 @@ internal static class Program
             Section(13, "Border style (applies immediately)"), borderChoice);
     }
 
+    private static Panel MultiSelectPage(Label status)
+    {
+        var menu = new MultiSelectMenu(
+            "Colored output", "Typewriter effect", "Rainbow title", "Indeterminate progress")
+        {
+            Left = 0, Top = 3, Right = 0, Height = 5,
+        };
+
+        menu.ItemCheckedChanged += (index, isChecked) =>
+            status.Text = $"{menu.Items[index]}: {(isChecked ? "checked" : "unchecked")}";
+
+        menu.Submitted += indices => status.Text = indices.Count == 0
+            ? "Submitted: nothing checked."
+            : $"Submitted: {string.Join(", ", indices.OrderBy(i => i).Select(i => menu.Items[i]))}";
+
+        return Fill(
+            Info(0, "Space toggles the highlighted item, Enter submits the checked ones."),
+            Info(1, "Moving the cursor alone changes nothing – the same as RadioGroup."),
+            menu);
+    }
+
     private static Panel TabsPage(out TabControl tabs)
     {
         tabs = new TabControl { Left = 0, Top = 3, Right = 0, Bottom = 0 };
@@ -470,6 +493,38 @@ internal static class Program
             Info(0, "Arrow keys or Home/End move the selection, Enter activates the row."),
             Info(1, "Cells too long to fit scroll automatically, but only in the selected row."),
             table);
+    }
+
+    private static Panel TreeViewPage(Label status)
+    {
+        var tree = new TreeView { Left = 0, Top = 3, Right = 0, Bottom = 0 };
+        var src = new TreeNode("src")
+        {
+            IsExpanded = true,
+            Children =
+            {
+                new TreeNode("Controls")
+                {
+                    Children = { new TreeNode("Table.cs"), new TreeNode("TreeView.cs"), new TreeNode("TreeNode.cs") },
+                },
+                new TreeNode("Core")
+                {
+                    Children = { new TreeNode("ConsoleBuffer.cs"), new TreeNode("Renderer.cs") },
+                },
+            },
+        };
+
+        var tests = new TreeNode("tests") { Children = { new TreeNode("TreeViewTests.cs") } };
+        tree.Roots.Add(src);
+        tree.Roots.Add(tests);
+
+        tree.SelectionChanged += node => status.Text = node is null ? "" : $"Highlighted: {node.Text}";
+        tree.NodeActivated += node => status.Text = $"Activated: {node.Text}";
+
+        return Fill(
+            Info(0, "Left/Right collapse or expand a node, or step to its parent/first child."),
+            Info(1, "Space toggles, Enter activates. Up/Down move across visible nodes only."),
+            tree);
     }
 
     private static Panel ProgressPage(ProgressBar progress, Label status)

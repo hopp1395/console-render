@@ -19,10 +19,12 @@ This is the actual output of the sample application (`samples/ConsoleRender.Demo
 │  Markdown Editor           ││Hamburg         │   1,900,000│Hamburg                       │
 │  Search Box                ││Munich          │   1,500,000│Bavaria                       │
 │  Choices & Options         ││Cologne         │   1,100,000│North Rhine-West              │
-│  Tabs                      ││Frankfurt       │     770,000│Hesse                         │
-│  Table                     ││Stuttgart       │     630,000│Baden-Württember              │
-│  Progress & Spinner        ││Düsseldorf      │     620,000│North Rhine-West              │
-│  Frames & Styles           ││Leipzig         │     600,000│Saxony                        │
+│  Multi-Select              ││Frankfurt       │     770,000│Hesse                         │
+│  Tabs                      ││Stuttgart       │     630,000│Baden-Württember              │
+│  Table                     ││Düsseldorf      │     620,000│North Rhine-West              │
+│  Tree View                 ││Leipzig         │     600,000│Saxony                        │
+│  Progress & Spinner        ││                                                            │
+│  Frames & Styles           ││                                                            │
 │  Dialogs & Buttons         ││                                                            │
 │  ASCII Art & Clipboard     ││                                                            │
 │  Layout & Anchors          ││                                                            │
@@ -36,7 +38,7 @@ This is the actual output of the sample application (`samples/ConsoleRender.Demo
 
 The command input at the bottom is empty because it holds the focus by default and a focused
 field hides its placeholder; type `/help` there to list every command. This exact frame comes
-from `--snapshot 92 24 --run "/feature table"` — see [Sample application](#sample-application).
+from `--snapshot 92 26 --run "/feature table"` — see [Sample application](#sample-application).
 
 ## Installation
 
