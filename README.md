@@ -120,6 +120,7 @@ override the control's natural size.
 | `MultiSelectMenu` | scrollable list where any number of items can be checked; Space toggles, Enter submits the checked items |
 | `SearchBox` | selection list with a search input on top: typing filters the items, up/down move the highlight, Enter activates |
 | `Table` | scrollable table with fixed-width columns, row selection and overflowing cells that auto-scroll |
+| `TreeView` | expandable tree; Left/Right collapse/expand or step to the parent/first child, Space toggles, Enter activates |
 | `Spinner` | animated activity indicator |
 | `ProgressBar` | horizontal progress bar with sub-cell precision, percentage overlay and an indeterminate sweep |
 | `TaskLine` | live log line from `OutputField.BeginTask`: a spinner animates while the task runs, `Complete`/`Fail` freeze it with ✓/✗ |
