@@ -129,6 +129,7 @@ override the control's natural size.
 | `AsciiArt` | ASCII art, single-colored or as a colored glyph grid |
 | `MarkdownView` | rendered, read-only Markdown preview: markers removed, wrapped paragraphs, bulleted lists, highlighted code blocks |
 | `DiffView` | read-only viewer for unified diffs, side by side or unified; N/P jump between hunks |
+| `GitChangesView` | uncommitted changes of a repository: branch, ↑/↓ commits against the upstream, per-file counts, one diff over all files |
 
 ## Syntax highlighting
 
@@ -178,6 +179,22 @@ hunk headers, old and new line numbers and tinted changed lines. `DiffLayout.Sid
 pairs each removed block with the added block after it; `Auto` (the default) switches to
 side by side from `SideBySideMinWidth` columns. `DiffHighlighter` colors the raw diff text
 instead, and also colors ```` ```diff ```` fences in Markdown.
+
+## Git changes
+
+```csharp
+var view = new GitChangesView();
+view.Changes = new GitClient().Read(Environment.CurrentDirectory);   // again on F5 or a timer
+```
+
+`GitChangesView` shows everything uncommitted in a repository: the checked-out branch with
+its outgoing (↑) and incoming (↓) commits against the upstream, one row per changed file
+with its line counts and a `git --stat`-style bar, and below it one `DiffView` over all
+files. `GitClient` collects that by running `git` (it has to be on the PATH): `git diff HEAD`
+for tracked files plus the untracked, non-ignored files as added ones. Incoming commits are
+as of the last `git fetch`; nothing is fetched automatically. Failures come back as
+`GitChanges.Error` instead of exceptions, and reading the same diff again keeps the scroll
+position, so a periodic refresh does not jump.
 
 ## Slash commands
 
@@ -250,8 +267,8 @@ dotnet run --project samples/ConsoleRender.Demo
 The sample is a feature gallery: the searchable list on the left selects a feature, the
 panel on the right presents it live — every control and subsystem has a page. It knows the
 commands `/help`, `/feature`, `/echo`, `/clear`, `/color`, `/info`, `/confirm`, `/border`,
-`/typewriter`, `/paste`, `/copy`, `/logo`, `/busy`, `/progress`, `/task`, `/editor` and
-`/exit`. Its user interface is in German.
+`/typewriter`, `/paste`, `/copy`, `/logo`, `/busy`, `/progress`, `/task`, `/code`, `/diff`,
+`/markdown`, `/git`, `/editor` and `/exit`.
 
 A single frame can be rendered without an interactive terminal, which is useful for snapshots:
 

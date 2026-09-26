@@ -43,7 +43,7 @@ Merging to `main` triggers the publish job (`.github/workflows/ci.yml`), which p
 
 ## Architecture
 
-Single namespace `ConsoleRender`; folders under `src/ConsoleRender/` (Core, Controls, Text, Input, Ascii, Clipboard, App) are organization only.
+Single namespace `ConsoleRender`; folders under `src/ConsoleRender/` (Core, Controls, Text, Input, Ascii, Clipboard, Git, App) are organization only.
 
 **Rendering pipeline** — `Control.Draw` writes into a `ConsoleBuffer` (grid of `Cell`: char + 24-bit colors + `CellStyle` flags). `Renderer` keeps front/back buffers, diffs per cell and emits only changed cells as ANSI sequences. Nothing is ever printed directly; `ConsoleApp.RenderOffscreen(w, h)` runs the same layout+draw against a detached buffer, which is what the snapshot tests use (`.ToText()` for text, indexer for color/style asserts).
 
@@ -60,6 +60,8 @@ Single namespace `ConsoleRender`; folders under `src/ConsoleRender/` (Core, Cont
 **Scroll/cursor invariants** — scroll clamping lives exclusively in `Draw`, never in key handlers (heals resize and external state changes on the next frame). This pattern repeats across `TextBox`, `OutputField`, `SelectMenu`, `SearchBox`, `TextArea`.
 
 **Syntax highlighting** (`Text/`) — `ISyntaxHighlighter` deliberately takes the whole document (fenced code blocks make line meaning depend on preceding lines) and returns per-line `HighlightSpan` lists that are sorted and overlap-free; nesting is expressed as adjacent spans with OR-ed style flags. `TextArea` caches the result and recomputes once per edit (version counter), not per frame. `CodeHighlighter` is table-driven by a `CodeLanguage` (built-ins: C#, JSON, Shell); `MarkdownHighlighter` hands each fenced block's body to `FenceHighlighter` (default `SyntaxHighlighters.ForFence`) as a document of its own. Controls draw a highlighted line through the internal `SpanPainter`. Unified diffs are read by the internal `UnifiedDiffParser`, which — like `DiffHighlighter` — counts the remaining lines of each hunk from its `@@` header, so a removed line `--- x` is never mistaken for a file header. `MarkdownView` renders through the internal `MarkdownLayout`; inline markup is scanned by `MarkdownInlineScanner`, shared with `MarkdownHighlighter` — the highlighter dims marker spans, the preview removes them.
+
+**Git** (`Git/`) — `GitClient` is the only library code that starts processes (`git`, each call capped at 5 s); it never throws for git failures but returns `GitChanges.Error`. `GitChangesView` only displays: hosts read on demand or on a timer (the demo's `GitPanel` refreshes in `Update`, which only visible controls receive). Setting an unchanged diff keeps the scroll position — keep that when touching `GitChangesView.Apply`.
 
 **Animation** — controls accumulate elapsed time in `Update(TimeSpan)` and derive frames from it in `Draw` (`Spinner`, `ProgressBar` sweep, `OutputField.taskClock` for `TaskLine` spinners). `RenderOffscreen` never calls `Update`, so animation state in tests is exactly what the test set — animations are deterministic to assert.
 

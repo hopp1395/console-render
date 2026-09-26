@@ -78,6 +78,7 @@ internal static class UiBuilder
             ("Markdown Editor", EditorPage.Build(app, out var workbench)),
             ("Code Highlighting", CodePage.Build(out var codeEditor)),
             ("Diff Viewer", DiffPage.Build(out var diffView)),
+            ("Git Changes", GitPage.Build(out var gitPanel)),
             ("Search Box", SearchPage.Build(status)),
             ("Choices & Options", ChoicesPage.Build(status, [leftFrame, rightFrame], input, tabsControl)),
             ("Multi-Select", MultiSelectPage.Build(status)),
@@ -121,6 +122,12 @@ internal static class UiBuilder
             rightFrame.Add(page);
             rightFrame.Title = name;
             currentPage = page;
+            // The Git page reads the repository when it is shown, not while hidden.
+            if (name == "Git Changes")
+            {
+                gitPanel.Refresh();
+            }
+
             currentName = name;
             status.Text = $"Feature: {name}";
         }
@@ -151,7 +158,7 @@ internal static class UiBuilder
         };
 
         return new Ui(output, input, art, status, spinner, progress, typewriterOption,
-            helpOutput, codeEditor, diffView, workbench, featureNames, () => currentName, ShowFeature,
+            helpOutput, codeEditor, diffView, gitPanel, workbench, featureNames, () => currentName, ShowFeature,
             ApplyResponsiveLayout);
     }
 }

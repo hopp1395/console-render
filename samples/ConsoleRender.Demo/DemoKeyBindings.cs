@@ -25,6 +25,15 @@ internal static class DemoKeyBindings
             ui.Status.Text = $"Markdown: {ui.Workbench.Mode}";
         });
 
+        app.KeyBindings.Register(ConsoleKey.F5, "Refresh the Git page", () =>
+        {
+            if (ui.CurrentFeature() == "Git Changes")
+            {
+                ui.Git.Refresh();
+                ui.Status.Text = "Git changes refreshed.";
+            }
+        });
+
         app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.Q), "Quit", () => DemoActions.ConfirmExit(app, ui));
 
         app.KeyBindings.Register(KeyCombo.Ctrl(ConsoleKey.L), "Clear output", () =>
