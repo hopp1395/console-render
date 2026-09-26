@@ -56,7 +56,7 @@ internal static class DemoActions
 
     public static void ShowEditorDialog(ConsoleApp app, Label status)
     {
-        var dialog = new MarkdownEditorDialog(DemoContent.SampleMarkdown);
+        var dialog = new MarkdownEditorDialog(app, DemoContent.SampleMarkdown);
         dialog.CloseRequested += () => status.Text = "Editor closed.";
         app.ShowDialog(dialog);
     }

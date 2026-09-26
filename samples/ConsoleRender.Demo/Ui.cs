@@ -12,6 +12,8 @@ internal sealed record Ui(
     OutputField HelpOutput,
     TextArea CodeEditor,
     DiffView DiffView,
+    MarkdownWorkbench Workbench,
     IReadOnlyList<string> FeatureNames,
+    Func<string> CurrentFeature,
     Action<string> ShowFeature,
     Action<int> ApplyResponsiveLayout);

@@ -75,7 +75,7 @@ internal static class UiBuilder
             ("Labels & Effects", LabelPage.Build()),
             ("Output Log & Task Lines", OutputPage.Build(app, output, typewriterOption, status)),
             ("Text Fields", TextBoxPage.Build()),
-            ("Markdown Editor", EditorPage.Build()),
+            ("Markdown Editor", EditorPage.Build(app, out var workbench)),
             ("Code Highlighting", CodePage.Build(out var codeEditor)),
             ("Diff Viewer", DiffPage.Build(out var diffView)),
             ("Search Box", SearchPage.Build(status)),
@@ -105,6 +105,7 @@ internal static class UiBuilder
         leftFrame.Add(nav);
 
         Control? currentPage = null;
+        var currentName = "";
         void ShowFeature(string name)
         {
             if (!pageByName.TryGetValue(name, out var page) || ReferenceEquals(page, currentPage))
@@ -120,6 +121,7 @@ internal static class UiBuilder
             rightFrame.Add(page);
             rightFrame.Title = name;
             currentPage = page;
+            currentName = name;
             status.Text = $"Feature: {name}";
         }
 
@@ -149,6 +151,7 @@ internal static class UiBuilder
         };
 
         return new Ui(output, input, art, status, spinner, progress, typewriterOption,
-            helpOutput, codeEditor, diffView, featureNames, ShowFeature, ApplyResponsiveLayout);
+            helpOutput, codeEditor, diffView, workbench, featureNames, () => currentName, ShowFeature,
+            ApplyResponsiveLayout);
     }
 }
