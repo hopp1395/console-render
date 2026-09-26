@@ -136,12 +136,41 @@ public class MarkdownHighlighterTests
     [Fact]
     public void FencedLinesAreCodeWithoutInlineAnalysis()
     {
-        var doc = Md.Highlight(["```csharp", "var x = \"**nicht fett**\";", "```", "danach **fett**"]);
+        var doc = Md.Highlight(["```cobol","var x = \"**nicht fett**\";", "```", "danach **fett**"]);
 
         Assert.Equal(new HighlightSpan(0, 3, Color.Default, CellStyle.Dim), doc[0][0]);
-        Assert.Equal(new HighlightSpan(3, 6, Md.CodeColor, CellStyle.None), doc[0][1]);
+        Assert.Equal(new HighlightSpan(3, 5, Md.CodeColor, CellStyle.None), doc[0][1]);
         Assert.Equal([new HighlightSpan(0, 25, Md.CodeColor, CellStyle.None)], doc[1]);
         Assert.Contains(new HighlightSpan(9, 4, Color.Default, CellStyle.Bold), doc[3]);
+    }
+
+    [Fact]
+    public void AKnownFenceLanguageIsHighlightedByItsCodeHighlighter()
+    {
+        var code = new CodeHighlighter(CodeLanguage.CSharp);
+        var doc = Md.Highlight(["```csharp title=x", "var x = \"**a**\";", "```"]);
+
+        Assert.Equal(new HighlightSpan(0, 3, code.KeywordColor, CellStyle.None), doc[1][0]);
+        Assert.Equal(new HighlightSpan(8, 7, code.StringColor, CellStyle.None), doc[1][1]);
+        Assert.Equal([new HighlightSpan(0, 3, Color.Default, CellStyle.Dim)], doc[2]);
+    }
+
+    [Fact]
+    public void ANullFenceHighlighterFallsBackToTheCodeColor()
+    {
+        var md = new MarkdownHighlighter { FenceHighlighter = null };
+
+        var doc = md.Highlight(["```csharp", "var x;"]);
+
+        Assert.Equal([new HighlightSpan(0, 6, md.CodeColor, CellStyle.None)], doc[1]);
+    }
+
+    [Fact]
+    public void ABlockCommentInsideAFenceDoesNotLeakPastTheClosingFence()
+    {
+        var doc = Md.Highlight(["```cs", "/* offen", "```", "# Titel"]);
+
+        Assert.Equal(Md.HeadingColor, doc[3][1].Foreground);
     }
 
     [Fact]

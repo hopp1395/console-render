@@ -24,11 +24,68 @@ internal static class DemoContent
         > Quotes appear in italic gray.
 
         ```csharp
-        var app = new ConsoleApp();
+        var app = new ConsoleApp(); // fenced code is highlighted by language
         app.Run();
+        ```
+
+        ```json
+        { "name": "demo", "enabled": true, "retries": 3 }
+        ```
+
+        ```bash
+        dotnet build -c Release && echo "done: $?"
         ```
 
         ---
         Esc closes the editor.
+        """;
+
+    public const string SampleCSharp = """
+        using ConsoleRender;
+
+        /* A block comment
+           spanning two lines. */
+        public sealed class Counter : Control
+        {
+            private int count = 0x10; // hex literal
+
+            public override bool OnKey(ConsoleKeyInfo key)
+            {
+                if (key.Key == ConsoleKey.Spacebar)
+                {
+                    count++;
+                    return true;
+                }
+
+                return false;
+            }
+
+            public string Caption => $"Count: {count}, rate {1.5f}";
+        }
+        """;
+
+    public const string SampleJson = """
+        {
+          // jsonc allows comments
+          "name": "ConsoleRender.Demo",
+          "version": "0.6.0",
+          "features": ["highlighting", "diff", "preview"],
+          "options": { "typewriter": false, "speed": 160, "theme": null }
+        }
+        """;
+
+    public const string SampleShell = """
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        # Build everything and run the tests.
+        for config in Debug Release; do
+            echo "Building $config in ${PWD}"
+            dotnet build ConsoleRender.slnx -c "$config" || exit $?
+        done
+
+        if [ "$#" -gt 0 ]; then
+            dotnet test --filter "$1"
+        fi
         """;
 }

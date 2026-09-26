@@ -76,6 +76,7 @@ internal static class UiBuilder
             ("Output Log & Task Lines", OutputPage.Build(app, output, typewriterOption, status)),
             ("Text Fields", TextBoxPage.Build()),
             ("Markdown Editor", EditorPage.Build()),
+            ("Code Highlighting", CodePage.Build(out var codeEditor)),
             ("Search Box", SearchPage.Build(status)),
             ("Choices & Options", ChoicesPage.Build(status, [leftFrame, rightFrame], input, tabsControl)),
             ("Multi-Select", MultiSelectPage.Build(status)),
@@ -147,6 +148,6 @@ internal static class UiBuilder
         };
 
         return new Ui(output, input, art, status, spinner, progress, typewriterOption,
-            helpOutput, featureNames, ShowFeature, ApplyResponsiveLayout);
+            helpOutput, codeEditor, featureNames, ShowFeature, ApplyResponsiveLayout);
     }
 }

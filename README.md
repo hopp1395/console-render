@@ -132,12 +132,20 @@ override the control's natural size.
 
 ```csharp
 var editor = new TextArea { Highlighter = new MarkdownHighlighter() };
+var code = new TextArea { Highlighter = new CodeHighlighter(CodeLanguage.CSharp), ReadOnly = true };
 ```
 
 `TextArea` colors its content while you type. `MarkdownHighlighter` ships with the package and
 recognizes headings, bold, italic, inline code, strikethrough, links, lists, quotes, fenced
-code blocks and rules — the source stays visible, marker characters are dimmed. The
-highlighter behind the `ISyntaxHighlighter` interface is replaceable; it receives the whole
+code blocks and rules — the source stays visible, marker characters are dimmed.
+
+`CodeHighlighter` colors keywords, strings, numbers and comments of a `CodeLanguage`; C#,
+JSON and shell scripts are built in, further languages are plain `CodeLanguage` instances.
+Fenced code blocks in Markdown (```` ```csharp ````, ```` ```json ````, ```` ```bash ```` …)
+are colored by the matching language via `MarkdownHighlighter.FenceHighlighter`.
+`ReadOnly = true` turns the `TextArea` into a viewer: navigation and copying keep working.
+
+Every highlighter implements `ISyntaxHighlighter`, so it is replaceable; it receives the whole
 document (fenced blocks make lines depend on each other) and runs once per edit, not once
 per frame. Enter inserts a line break — a host that wants a "send" action registers a key
 binding such as Ctrl+Enter instead.

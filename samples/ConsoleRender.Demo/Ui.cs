@@ -10,6 +10,7 @@ internal sealed record Ui(
     ProgressBar Progress,
     Checkbox TypewriterOption,
     OutputField HelpOutput,
+    TextArea CodeEditor,
     IReadOnlyList<string> FeatureNames,
     Action<string> ShowFeature,
     Action<int> ApplyResponsiveLayout);
