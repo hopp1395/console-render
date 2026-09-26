@@ -36,6 +36,13 @@ internal static class DemoContent
         dotnet build -c Release && echo "done: $?"
         ```
 
+        ```diff
+        @@ -1,2 +1,2 @@
+        -var editor = new TextArea();
+        +var editor = new TextArea { ReadOnly = true };
+         app.Root.Add(editor);
+        ```
+
         ---
         Esc closes the editor.
         """;
@@ -62,6 +69,47 @@ internal static class DemoContent
 
             public string Caption => $"Count: {count}, rate {1.5f}";
         }
+        """;
+
+    public const string SampleDiff = """
+        diff --git a/src/Counter.cs b/src/Counter.cs
+        index 3b18e51..a4f2c07 100644
+        --- a/src/Counter.cs
+        +++ b/src/Counter.cs
+        @@ -3,14 +3,20 @@ using ConsoleRender;
+         public sealed class Counter : Control
+         {
+        -    private int count;
+        +    private int count = 0x10; // hex literal
+        +    private int step = 1;
+         
+             public override bool OnKey(ConsoleKeyInfo key)
+             {
+        -        if (key.Key == ConsoleKey.Enter)
+        +        if (key.Key == ConsoleKey.Spacebar)
+                 {
+        -            count++;
+        +            count += step;
+                     return true;
+                 }
+         
+        +        if (key.Key == ConsoleKey.Escape)
+        +        {
+        +            count = 0;
+        +        }
+        +
+                 return false;
+             }
+        diff --git a/README.md b/README.md
+        index 81c4d0e..0f7b2aa 100644
+        --- a/README.md
+        +++ b/README.md
+        @@ -1,3 +1,3 @@
+         # Counter
+         
+        -Counts Enter presses.
+        +Counts Space presses; Escape resets.
+        \ No newline at end of file
         """;
 
     public const string SampleJson = """
