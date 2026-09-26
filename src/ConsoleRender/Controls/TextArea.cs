@@ -105,6 +105,13 @@ public class TextArea : Control
         }
     }
 
+    /// <summary>
+    /// When true, the keyboard can no longer change the document: editing keys and Ctrl+V
+    /// are not consumed, while navigation and Ctrl+C keep working. The <see cref="Text"/>
+    /// setter and <see cref="Insert"/> still change the content programmatically.
+    /// </summary>
+    public bool ReadOnly { get; set; }
+
     /// <summary>Raised once per editing operation with the new document text.</summary>
     public event Action<string>? TextChanged;
 
@@ -138,6 +145,11 @@ public class TextArea : Control
         var ctrl = key.Modifiers.HasFlag(ConsoleModifiers.Control);
         var line = lines[cursorLine];
         var rows = Math.Max(1, TextRect.Height);
+
+        if (ReadOnly && IsEditingKey(key, ctrl))
+        {
+            return false;
+        }
 
         switch (key.Key)
         {
@@ -274,6 +286,13 @@ public class TextArea : Control
         }
 
         return false;
+    }
+
+    private static bool IsEditingKey(ConsoleKeyInfo key, bool ctrl)
+    {
+        return key.Key is ConsoleKey.Enter or ConsoleKey.Backspace or ConsoleKey.Delete
+            || (key.Key == ConsoleKey.V && ctrl)
+            || (!ctrl && key.KeyChar >= ' ' && key.KeyChar != '\x7f');
     }
 
     /// <summary>Inserts text at the cursor; line breaks in it split the document.</summary>
@@ -420,28 +439,9 @@ public class TextArea : Control
         for (var r = 0; r < rows && scrollY + r < lines.Count; r++)
         {
             var index = scrollY + r;
-            var line = lines[index];
-            var y = area.Y + r;
-
-            buffer.Write(area.X - scrollX, y, line, Foreground, Background);
-
-            if (spans is null || index >= spans.Count)
-            {
-                continue;
-            }
-
-            foreach (var span in spans[index])
-            {
-                if (span.Start + span.Length <= scrollX || span.Start >= scrollX + area.Width)
-                {
-                    continue;
-                }
-
-                buffer.Write(area.X + span.Start - scrollX, y,
-                    line.Substring(span.Start, Math.Min(span.Length, line.Length - span.Start)),
-                    span.Foreground.IsDefault ? Foreground : span.Foreground,
-                    Background, span.Style);
-            }
+            var lineSpans = spans is not null && index < spans.Count ? spans[index] : null;
+            SpanPainter.DrawLine(buffer, area.X, area.Y + r, area.Width, lines[index], lineSpans,
+                Foreground, Background, scrollX);
         }
 
         if (Focused)

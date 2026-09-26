@@ -302,4 +302,42 @@ public class TextAreaTests
         Assert.Equal(highlighter.CodeColor, buffer[0, 1].Foreground);
         Assert.Equal(highlighter.CodeColor, buffer[0, 2].Foreground);
     }
+
+    [Theory]
+    [InlineData(ConsoleKey.Enter, '\r', (ConsoleModifiers)0)]
+    [InlineData(ConsoleKey.Backspace, '\b', (ConsoleModifiers)0)]
+    [InlineData(ConsoleKey.Delete, '\0', (ConsoleModifiers)0)]
+    [InlineData(ConsoleKey.X, 'x', (ConsoleModifiers)0)]
+    [InlineData(ConsoleKey.V, '\0', ConsoleModifiers.Control)]
+    public void ReadOnlyLeavesEditingKeysUnconsumed(ConsoleKey key, char ch, ConsoleModifiers modifiers)
+    {
+        var area = new TextArea { Text = "ab", ReadOnly = true };
+        area.OnKey(Key(ConsoleKey.LeftArrow));
+
+        Assert.False(area.OnKey(Key(key, ch, modifiers)));
+        Assert.Equal("ab", area.Text);
+    }
+
+    [Fact]
+    public void ReadOnlyStillNavigatesAndCopies()
+    {
+        var area = new TextArea { Text = "ab\ncd", ReadOnly = true };
+
+        Assert.True(area.OnKey(Key(ConsoleKey.UpArrow)));
+        Assert.True(area.OnKey(Key(ConsoleKey.Home)));
+        Assert.True(area.OnKey(Key(ConsoleKey.C, modifiers: ConsoleModifiers.Control)));
+        Assert.Equal(0, area.CursorLine);
+        Assert.Equal(0, area.CursorColumn);
+    }
+
+    [Fact]
+    public void ReadOnlyStillAcceptsProgrammaticChanges()
+    {
+        var area = new TextArea { ReadOnly = true };
+
+        area.Text = "a";
+        area.Insert("b");
+
+        Assert.Equal("ab", area.Text);
+    }
 }

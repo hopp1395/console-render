@@ -162,6 +162,19 @@ internal static class DemoCommands
                 ["Save", "Discard", "Cancel"],
                 (_, label) => ui.Status.Text = $"Chosen: {label}"));
 
+        commands.Register("code", "Switches the code sample: /code <csharp|json|shell>", args =>
+        {
+            Guard.Against.NullOrEmpty(args, nameof(args));
+            if (!CodeLanguage.TryFind(args[0], out var language))
+            {
+                throw new ArgumentException($"Unknown language: {args[0]}");
+            }
+
+            Pages.CodePage.ShowLanguage(ui.CodeEditor, language);
+            ui.ShowFeature("Code Highlighting");
+            ui.Status.Text = $"Code sample: {language.Name}";
+        });
+
         commands.Register("editor", "Opens the Markdown editor", _ => DemoActions.ShowEditorDialog(app, ui.Status));
 
         commands.Register("exit", "Exits the demo", _ => DemoActions.ConfirmExit(app, ui));
