@@ -190,6 +190,18 @@ internal static class DemoCommands
             ui.Status.Text = $"Diff layout: {ui.DiffView.Layout}";
         });
 
+        commands.Register("git", "Shows a repository's changes: /git [path]", args =>
+        {
+            if (args.Length > 0)
+            {
+                ui.Git.ShowFolder(Path.GetFullPath(string.Join(' ', args)));
+            }
+
+            ui.ShowFeature("Git Changes");
+            ui.Git.Refresh();
+            ui.Status.Text = $"Git: {ui.Git.Folder}";
+        });
+
         commands.Register("markdown", "Markdown page mode: /markdown <edit|preview|split>", args =>
         {
             Guard.Against.NullOrEmpty(args, nameof(args));

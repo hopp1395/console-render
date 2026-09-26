@@ -12,6 +12,7 @@ internal sealed record Ui(
     OutputField HelpOutput,
     TextArea CodeEditor,
     DiffView DiffView,
+    GitPanel Git,
     MarkdownWorkbench Workbench,
     IReadOnlyList<string> FeatureNames,
     Func<string> CurrentFeature,
