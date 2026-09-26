@@ -127,6 +127,7 @@ override the control's natural size.
 | `ProgressBar` | horizontal progress bar with sub-cell precision, percentage overlay and an indeterminate sweep |
 | `TaskLine` | live log line from `OutputField.BeginTask`: a spinner animates while the task runs, `Complete`/`Fail` freeze it with ✓/✗ |
 | `AsciiArt` | ASCII art, single-colored or as a colored glyph grid |
+| `DiffView` | read-only viewer for unified diffs, side by side or unified; N/P jump between hunks |
 
 ## Syntax highlighting
 
@@ -149,6 +150,19 @@ Every highlighter implements `ISyntaxHighlighter`, so it is replaceable; it rece
 document (fenced blocks make lines depend on each other) and runs once per edit, not once
 per frame. Enter inserts a line break — a host that wants a "send" action registers a key
 binding such as Ctrl+Enter instead.
+
+## Diffs
+
+```csharp
+var view = new DiffView { Diff = gitDiffOutput, Layout = DiffLayout.Auto };
+var editor = new TextArea { Highlighter = new DiffHighlighter(), Text = gitDiffOutput };
+```
+
+`DiffView` reads unified diff text — `git diff`, `git show`, `diff -u` — and shows file and
+hunk headers, old and new line numbers and tinted changed lines. `DiffLayout.SideBySide`
+pairs each removed block with the added block after it; `Auto` (the default) switches to
+side by side from `SideBySideMinWidth` columns. `DiffHighlighter` colors the raw diff text
+instead, and also colors ```` ```diff ```` fences in Markdown.
 
 ## Slash commands
 

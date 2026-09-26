@@ -77,6 +77,7 @@ internal static class UiBuilder
             ("Text Fields", TextBoxPage.Build()),
             ("Markdown Editor", EditorPage.Build()),
             ("Code Highlighting", CodePage.Build(out var codeEditor)),
+            ("Diff Viewer", DiffPage.Build(out var diffView)),
             ("Search Box", SearchPage.Build(status)),
             ("Choices & Options", ChoicesPage.Build(status, [leftFrame, rightFrame], input, tabsControl)),
             ("Multi-Select", MultiSelectPage.Build(status)),
@@ -148,6 +149,6 @@ internal static class UiBuilder
         };
 
         return new Ui(output, input, art, status, spinner, progress, typewriterOption,
-            helpOutput, codeEditor, featureNames, ShowFeature, ApplyResponsiveLayout);
+            helpOutput, codeEditor, diffView, featureNames, ShowFeature, ApplyResponsiveLayout);
     }
 }

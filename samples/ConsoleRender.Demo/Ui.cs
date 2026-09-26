@@ -11,6 +11,7 @@ internal sealed record Ui(
     Checkbox TypewriterOption,
     OutputField HelpOutput,
     TextArea CodeEditor,
+    DiffView DiffView,
     IReadOnlyList<string> FeatureNames,
     Action<string> ShowFeature,
     Action<int> ApplyResponsiveLayout);

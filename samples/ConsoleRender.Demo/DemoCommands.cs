@@ -175,6 +175,21 @@ internal static class DemoCommands
             ui.Status.Text = $"Code sample: {language.Name}";
         });
 
+        commands.Register("diff", "Diff layout: /diff <auto|split|unified>", args =>
+        {
+            Guard.Against.NullOrEmpty(args, nameof(args));
+            ui.DiffView.Layout = args[0].ToLowerInvariant() switch
+            {
+                "auto" => DiffLayout.Auto,
+                "split" => DiffLayout.SideBySide,
+                "unified" => DiffLayout.Unified,
+                _ => throw new ArgumentException($"Unknown layout: {args[0]}"),
+            };
+
+            ui.ShowFeature("Diff Viewer");
+            ui.Status.Text = $"Diff layout: {ui.DiffView.Layout}";
+        });
+
         commands.Register("editor", "Opens the Markdown editor", _ => DemoActions.ShowEditorDialog(app, ui.Status));
 
         commands.Register("exit", "Exits the demo", _ => DemoActions.ConfirmExit(app, ui));

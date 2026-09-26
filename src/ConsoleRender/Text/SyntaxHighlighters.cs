@@ -5,7 +5,7 @@ public static class SyntaxHighlighters
 {
     /// <summary>
     /// Returns a highlighter for the first word of a fence info string ("csharp",
-    /// "json title=x" …), or null when the language is unknown or the string is empty.
+    /// "json title=x", "diff" …), or null when the language is unknown or the string is empty.
     /// </summary>
     public static ISyntaxHighlighter? ForFence(string info)
     {
@@ -17,6 +17,12 @@ public static class SyntaxHighlighters
         if (name.Length == 0)
         {
             return null;
+        }
+
+        if (name.Equals("diff", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("patch", StringComparison.OrdinalIgnoreCase))
+        {
+            return new DiffHighlighter();
         }
 
         return CodeLanguage.TryFind(name, out var language) ? new CodeHighlighter(language) : null;
