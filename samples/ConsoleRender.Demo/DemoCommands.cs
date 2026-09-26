@@ -190,6 +190,19 @@ internal static class DemoCommands
             ui.Status.Text = $"Diff layout: {ui.DiffView.Layout}";
         });
 
+        commands.Register("markdown", "Markdown page mode: /markdown <edit|preview|split>", args =>
+        {
+            Guard.Against.NullOrEmpty(args, nameof(args));
+            if (!Enum.TryParse<WorkbenchMode>(args[0], ignoreCase: true, out var mode))
+            {
+                throw new ArgumentException($"Unknown mode: {args[0]}");
+            }
+
+            ui.ShowFeature("Markdown Editor");
+            ui.Workbench.ShowMode(mode);
+            ui.Status.Text = $"Markdown: {mode}";
+        });
+
         commands.Register("editor", "Opens the Markdown editor", _ => DemoActions.ShowEditorDialog(app, ui.Status));
 
         commands.Register("exit", "Exits the demo", _ => DemoActions.ConfirmExit(app, ui));

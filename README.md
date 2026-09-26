@@ -127,6 +127,7 @@ override the control's natural size.
 | `ProgressBar` | horizontal progress bar with sub-cell precision, percentage overlay and an indeterminate sweep |
 | `TaskLine` | live log line from `OutputField.BeginTask`: a spinner animates while the task runs, `Complete`/`Fail` freeze it with ✓/✗ |
 | `AsciiArt` | ASCII art, single-colored or as a colored glyph grid |
+| `MarkdownView` | rendered, read-only Markdown preview: markers removed, wrapped paragraphs, bulleted lists, highlighted code blocks |
 | `DiffView` | read-only viewer for unified diffs, side by side or unified; N/P jump between hunks |
 
 ## Syntax highlighting
@@ -150,6 +151,20 @@ Every highlighter implements `ISyntaxHighlighter`, so it is replaceable; it rece
 document (fenced blocks make lines depend on each other) and runs once per edit, not once
 per frame. Enter inserts a line break — a host that wants a "send" action registers a key
 binding such as Ctrl+Enter instead.
+
+## Markdown preview
+
+```csharp
+var preview = new MarkdownView { Markdown = editor.Text };
+editor.TextChanged += text => preview.Markdown = text;
+```
+
+`MarkdownView` renders Markdown instead of coloring its source: marker characters disappear,
+headings are bold, emphasis is styled, links are underlined with their URL hidden, lists get
+bullets and hanging indents, quotes a gutter, and fenced code blocks their own background,
+colored by language like in the editor. Paragraphs are word-wrapped to the view's width and
+the layout is cached per text and width. The demo's Markdown page pairs it with a
+`TextArea`: F2 cycles editor, preview and split view.
 
 ## Diffs
 
